@@ -1,5 +1,0 @@
-/od
-/id
-/od
-/playsound entity.horse.armor master @a
-/od

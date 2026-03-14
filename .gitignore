@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+run/
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Kotlin
+.kotlin/
+
+# OS
+.DS_Store
+Thumbs.db

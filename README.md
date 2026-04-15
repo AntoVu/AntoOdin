@@ -1,9 +1,28 @@
-# Odin Wardrobe
-Simple odin addon for more features in wardrobe
+# AntoOdin
+Simple odin addon for more features I wanted
 ## Features
 Wardrobe Hotkeys (A)
  - Auto close after use
  - Play sound on equip
 
-Queue Wardrobe (A)
+Queue Wardrobe
  - Auto equip wardrobe on keybind
+
+Kuudra Auto GFS
+ - Get TAP/TWAP after build
+
+## Planned
+Dungeons Auto GFS
+ - Get 2 TWAP after lightning
+ - Get 2 TWAP after terminals
+ - Get 6 TWAP after goldor
+ - Get 6 TWAP on dragon spawn
+
+Pearl Refill
+ - Auto refill pearls after set amount
+
+Splits (A)
+ - Show projected run time
+
+Warp Cooldown
+ - Mineshaft warp cooldown

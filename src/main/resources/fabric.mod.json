@@ -7,18 +7,18 @@
   "authors": ["Anto"],
   "contact": {},
   "license": "BSD-3-Clause",
-  "icon": "assets/odinwardrobe/icon.png",
+  "icon": "assets/antoodin/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
       {
         "adapter": "kotlin",
-        "value": "com.anto.odinwardrobe.OdinWardrobe"
+        "value": "com.anto.antoodin.AntoOdin"
       }
     ]
   },
   "mixins": [
-    "odinwardrobe.mixins.json"
+    "antoodin.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

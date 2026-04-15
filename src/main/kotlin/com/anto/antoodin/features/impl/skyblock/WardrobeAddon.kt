@@ -1,11 +1,11 @@
-package com.anto.odinwardrobe.features.impl.skyblock
+package com.anto.antoodin.features.impl.skyblock
 
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.GuiEvent
+import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.clickSlot
@@ -51,12 +51,12 @@ object WardrobeAddon : Module(
 
 
     init {
-        on<GuiEvent.MouseClick> {
+        on<ScreenEvent.MouseClick> {
             val s = screen
             if (s is AbstractContainerScreen<*> && onClick(s, click.button())) cancel()
         }
 
-        on<GuiEvent.KeyPress> {
+        on<ScreenEvent.KeyPress> {
             val s = screen
             if (s is AbstractContainerScreen<*> && onClick(s, input.key)) cancel()
         }

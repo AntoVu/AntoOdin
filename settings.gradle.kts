@@ -1,4 +1,4 @@
-rootProject.name = "OdinWardrobe"
+rootProject.name = "AntoOdin"
 
 pluginManagement {
     repositories {

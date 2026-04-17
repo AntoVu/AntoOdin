@@ -14,15 +14,15 @@ Kuudra Auto GFS
 CPS Display
  - Displays cps for left, right, or both
 
+Pearl Refill
+ - Auto refill pearls after set amount
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning
  - Get 2 TWAP after terminals
  - Get 6 TWAP after goldor
  - Get 6 TWAP on dragon spawn
-
-Pearl Refill
- - Auto refill pearls after set amount
 
 Splits (A)
  - Show projected run time

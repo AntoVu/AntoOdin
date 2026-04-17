@@ -1,9 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.anto.antoodin.mixin",
+  "package": "com.anto.antoodin.mixin.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "MinecraftMixin",
+    "ModuleManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

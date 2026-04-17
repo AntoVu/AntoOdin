@@ -11,6 +11,9 @@ Queue Wardrobe
 Kuudra Auto GFS
  - Get TAP/TWAP after build
 
+CPS Display
+ - Displays cps for left, right, or both
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning

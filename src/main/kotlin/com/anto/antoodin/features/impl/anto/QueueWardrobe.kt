@@ -1,4 +1,4 @@
-package com.anto.antoodin.features.impl.skyblock
+package com.anto.antoodin.features.impl.anto
 
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
@@ -9,16 +9,18 @@ import com.odtheking.odin.events.InputEvent
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.clickSlot
 import com.odtheking.odin.utils.modMessage
+import com.anto.antoodin.utils.Skit
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
 
 object QueueWardrobe : Module(
-    name = "Queue Wardrobe (A)",
+    name = "Queue Wardrobe",
     description = "Queues a wardrobe slot to be equipped when the wardrobe opens.",
-    key = null
+    category = Skit.ANTO
 ) {
     val showChatMessage by BooleanSetting(
         "Show Chat Message",
@@ -108,18 +110,16 @@ object QueueWardrobe : Module(
             if (!wardrobeRegex.matches(s.title?.string ?: "")) return@on
 
             val containerId = s.menu.containerId
-            val finalDelay = delay.toLong() + Random.Default.nextLong(0, delayVariety.toLong() + 1)
+            val finalDelay = delay.toLong() + Random.nextLong(0, delayVariety.toLong() + 1)
+            val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
 
-            Thread {
-                Thread.sleep(finalDelay)
-                mc.execute {
-                    val currentScreen = mc.screen as? AbstractContainerScreen<*>
-                    if (currentScreen == null || !wardrobeRegex.matches(currentScreen.title?.string ?: "")) return@execute
-                    mc.player?.clickSlot(containerId, qSlot)
-                    queuedSlot = null
-                    mc.player?.closeContainer()
-                }
-            }.start()
+            schedule(delayTicks) {
+                val currentScreen = mc.screen as? AbstractContainerScreen<*> ?: return@schedule
+                if (!wardrobeRegex.matches(currentScreen.title?.string ?: "")) return@schedule
+                mc.player?.clickSlot(containerId, qSlot)
+                queuedSlot = null
+                mc.player?.closeContainer()
+            }
         }
 
         on<ScreenEvent.Close> {

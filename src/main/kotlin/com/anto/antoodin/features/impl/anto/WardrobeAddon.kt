@@ -1,4 +1,4 @@
-package com.anto.antoodin.features.impl.skyblock
+package com.anto.antoodin.features.impl.anto
 
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
@@ -8,10 +8,12 @@ import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.clickSlot
 import com.odtheking.odin.utils.createSoundSettings
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.playSoundSettings
+import com.anto.antoodin.utils.Skit
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
@@ -19,7 +21,7 @@ import kotlin.random.Random
 object WardrobeAddon : Module(
     name = "Wardrobe Keybinds (A)",
     description = "Better wardrobe hotkeys, use this instead of default ones",
-    key = null
+    category = Skit.ANTO
 ) {
     private val nextPageKeybind by KeybindSetting("Next Page", GLFW.GLFW_KEY_RIGHT, desc = "Keybind to go to the next page in the wardrobe.")
     private val previousPageKeybind by KeybindSetting("Previous Page", GLFW.GLFW_KEY_LEFT, desc = "Keybind to go to the previous page in the wardrobe.")
@@ -94,10 +96,11 @@ object WardrobeAddon : Module(
 
             if (autoCloseToggle) {
                 val finalDelay = autoCloseDelay.toLong() + Random.nextLong(0, delayVariety.toLong() + 1)
-                Thread {
-                    Thread.sleep(finalDelay)
-                    mc.execute { mc.player?.closeContainer() }
-                }.start()
+                val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
+
+                schedule(delayTicks) {
+                    mc.player?.closeContainer()
+                }
             }
         }
 

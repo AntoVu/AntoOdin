@@ -17,6 +17,14 @@ CPS Display
 Pearl Refill
  - Auto refill pearls after set amount
 
+Diana Auto Warp
+ - Auto warp to next location after digging burrow
+ - ! Requires SkyHanni's Burrow Guess
+
+Minion Helper
+ - Claim minion keybind and auto close
+ - Click item to auto place in fuel
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning

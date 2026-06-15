@@ -38,5 +38,6 @@ Splits (A)
 Warp Cooldown
  - Mineshaft warp cooldown
 
-Rag Axe Timer
+Ability Timers
  - Shows how long Rag Axe buff lasts
+ - Shows how long Reaper buff lasts

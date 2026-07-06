@@ -13,8 +13,8 @@ import com.odtheking.odin.utils.itemId
 import com.odtheking.odin.utils.loreString
 import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
-import com.odtheking.mixin.accessors.AbstractContainerScreenAccessor
 import com.anto.antoodin.utils.Skit
+import com.anto.antoodin.mixin.accessors.AbstractContainerScreenAccessor
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
@@ -108,7 +108,7 @@ object MinionHelper : Module(
             if (!isMinionGui(s) || !hasClaimButton(s)) return@on
             if (fuelPending) return@on
 
-            val hoveredSlot = (s as AbstractContainerScreenAccessor).hoveredSlot ?: return@on
+            val hoveredSlot = (s as AbstractContainerScreenAccessor).getHoveredSlot() ?: return@on
             if (hoveredSlot.index == FUEL_SLOT) return@on
             if (hoveredSlot.item.isEmpty || hoveredSlot.item.itemId !in FUELS) return@on
 

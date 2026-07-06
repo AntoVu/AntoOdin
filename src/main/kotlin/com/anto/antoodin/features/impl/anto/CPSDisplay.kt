@@ -10,7 +10,7 @@ import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.render.textDim
 import com.anto.antoodin.utils.Skit
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 
 object CPSDisplay : Module(
     name = "CPS Display",
@@ -53,7 +53,7 @@ object CPSDisplay : Module(
         val lineHeight = mc.font.lineHeight
         var width = 1
 
-        fun GuiGraphics.renderCPS(label: String, count: Int) {
+        fun GuiGraphicsExtractor.renderCPS(label: String, count: Int) {
             val w = drawCPSText(if (mouseText) label else "", "$count ", width, 1)
             width += w
         }
@@ -70,7 +70,7 @@ object CPSDisplay : Module(
         width to lineHeight
     }
 
-    private fun GuiGraphics.drawCPSText(label: String, value: String, x: Int, y: Int): Int {
+    private fun GuiGraphicsExtractor.drawCPSText(label: String, value: String, x: Int, y: Int): Int {
         var width = 0
         if (label.isNotEmpty()) width += textDim(label, x, y, nameColor, true).first
         width += textDim(value, x + width, y, valueColor, true).first

@@ -12,6 +12,6 @@ object AntoOdin : ClientModInitializer {
         listOf(this).forEach { EventBus.subscribe(it) }
 
         ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueWardrobe, KuudraAutoGFS,
-            CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper)
+            CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon)
     }
 }

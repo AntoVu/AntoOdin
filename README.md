@@ -2,6 +2,7 @@
 Simple odin addon for more features I wanted
 ## Features
 Wardrobe Hotkeys (A)
+ - Supports Equipment Wardrobe
  - Auto close after use
  - Play sound on equip
 
@@ -25,6 +26,12 @@ Minion Helper
  - Claim minion keybind and auto close
  - Click item to auto place in fuel
 
+Loadout Hotkeys (A)
+ - Equip slot 1-12
+ - Next and Previous page
+ - Auto close after use
+ - Play sound on equip
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning
@@ -41,3 +48,9 @@ Warp Cooldown
 Ability Timers
  - Shows how long Rag Axe buff lasts
  - Shows how long Reaper buff lasts
+
+Queue Loadout
+ - Same as Queue Wardrobe but for Loadouts
+
+Queue Equipment
+ - Same as Queue Wardrobe but for Equipments

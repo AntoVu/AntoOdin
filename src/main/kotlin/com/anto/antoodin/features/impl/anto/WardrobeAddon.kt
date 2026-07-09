@@ -20,7 +20,7 @@ import kotlin.random.Random
 
 object WardrobeAddon : Module(
     name = "Wardrobe Keybinds (A)",
-    description = "Better wardrobe hotkeys, use this instead of default ones",
+    description = "Better wardrobe hotkeys, use this instead of default ones. Works with Equipment too",
     category = Skit.ANTO
 ) {
     private val nextPageKeybind by KeybindSetting("Next Page", GLFW.GLFW_KEY_RIGHT, desc = "Keybind to go to the next page in the wardrobe.")
@@ -48,7 +48,8 @@ object WardrobeAddon : Module(
     private val equipSoundToggle by BooleanSetting("Enable Equip Sound", false, desc = "Plays a sound when you equip a wardrobe slot.").withDependency { equipSoundDropdown }
     private val equipSoundSettings = createSoundSettings("Equip Sound", "entity.horse.armor") { equipSoundToggle && equipSoundDropdown }
 
-    private val wardrobeRegex = Regex("Wardrobe \\((\\d)/(\\d)\\)")
+    private val wardrobeRegex = Regex("\\((\\d)/(\\d)\\) Armor Sets")
+    private val equipmentRegex = Regex("\\((\\d)/(\\d)\\) Equipment Sets")
     private val equippedRegex = Regex("Slot (\\d): Equipped")
 
 
@@ -65,7 +66,8 @@ object WardrobeAddon : Module(
     }
 
     private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
-        val (current, total) = wardrobeRegex.find(screen.title?.string ?: "")?.destructured?.let {
+        val titleString = screen.title?.string ?: ""
+        val (current, total) = (wardrobeRegex.find(titleString) ?: equipmentRegex.find(titleString))?.destructured?.let {
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false

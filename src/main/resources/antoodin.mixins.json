@@ -6,7 +6,8 @@
   "mixins": [
     "mixins.MinecraftMixin",
     "mixins.ModuleManagerMixin",
-    "accessors.AbstractContainerScreenAccessor"
+    "accessors.AbstractContainerScreenAccessor",
+    "accessors.KeyMappingAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

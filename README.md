@@ -59,3 +59,7 @@ Queue Loadout
 
 Queue Equipment
  - Same as Queue Wardrobe but for Equipments
+
+Auto Gloomlock
+ - When low mana
+ - When low health

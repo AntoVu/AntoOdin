@@ -91,7 +91,7 @@ object WardrobeAddon : Module(
         }
 
         if (disallowUnequippingEquipped && screen.menu.slots[index].item?.isEmpty == true) return false
-        mc.player?.clickSlot(screen.menu.containerId, index)
+        mc.player?.clickSlot(index)
 
         if (isWardrobeSlotKey) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())

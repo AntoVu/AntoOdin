@@ -84,7 +84,7 @@ object LoadoutAddon : Module(
         }
 
         if (screen.menu.slots[index].item?.isEmpty == true) return false
-        mc.player?.clickSlot(screen.menu.containerId, index)
+        mc.player?.clickSlot(index)
 
         if (isLoadoutSlotKey) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())

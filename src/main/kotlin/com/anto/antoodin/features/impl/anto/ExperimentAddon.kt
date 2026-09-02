@@ -7,6 +7,7 @@ import com.odtheking.odin.events.GuiEvent
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
+import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.hasGlint
 import com.odtheking.odin.utils.noControlCodes
@@ -14,6 +15,7 @@ import com.anto.antoodin.utils.Skit
 import com.anto.antoodin.utils.guiClick
 import com.anto.antoodin.utils.rightClick
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.Items
 import java.util.concurrent.ConcurrentHashMap
@@ -82,7 +84,7 @@ object ExperimentAddon : Module(
             cancel()
         }
 
-        on<GuiEvent.SlotUpdate> {
+        onReceive<ClientboundContainerSetSlotPacket> {
             handler?.onSlotUpdate(this)
         }
 
@@ -180,8 +182,8 @@ object ExperimentAddon : Module(
 
         override fun isFirstClick(): Boolean = isFirstRound && clicks == 0 && hasData
 
-        override fun onSlotUpdate(event: GuiEvent.SlotUpdate) {
-            val slots = event.menu.slots
+        override fun onSlotUpdate(packet: ClientboundContainerSetSlotPacket) {
+            val slots = (mc.screen as? AbstractContainerScreen<*>)?.menu?.slots ?: return
             val center = slots[49].item
 
             if (
@@ -223,8 +225,8 @@ object ExperimentAddon : Module(
     private class UltrasequencerHandler : ExperimentHandler() {
         private val order = ConcurrentHashMap<Int, Int>()
 
-        override fun onSlotUpdate(event: GuiEvent.SlotUpdate) {
-            val slots = event.menu.slots
+        override fun onSlotUpdate(packet: ClientboundContainerSetSlotPacket) {
+            val slots = (mc.screen as? AbstractContainerScreen<*>)?.menu?.slots ?: return
             val center = slots[49].item
 
             if (center.item == Items.CLOCK) {
@@ -253,7 +255,7 @@ object ExperimentAddon : Module(
         protected var clicks = 0
         protected var hasData = false
 
-        abstract fun onSlotUpdate(event: GuiEvent.SlotUpdate)
+        abstract fun onSlotUpdate(packet: ClientboundContainerSetSlotPacket)
         abstract fun nextClick(): Int?
         abstract fun shouldClose(autoClose: Boolean): Boolean
 

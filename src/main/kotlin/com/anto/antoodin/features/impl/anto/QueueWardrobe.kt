@@ -8,6 +8,7 @@ import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.InputEvent
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.core.on
+import com.odtheking.odin.events.ScreenCloseEvent
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.clickSlot
@@ -91,7 +92,7 @@ object QueueWardrobe : Module(
         desc = "Keybind to queue the ninth wardrobe slot."
     ).withDependency { advanced }
 
-    private val wardrobeRegex = Regex("Wardrobe \\((\\d)/(\\d)\\)")
+    private val wardrobeRegex = Regex("\\((\\d)/(\\d)\\) Armor Sets")
     private var queuedSlot: Int? = null // slot index (36-44)
 
     init {
@@ -116,14 +117,14 @@ object QueueWardrobe : Module(
             schedule(delayTicks) {
                 val currentScreen = mc.screen as? AbstractContainerScreen<*> ?: return@schedule
                 if (!wardrobeRegex.matches(currentScreen.title?.string ?: "")) return@schedule
-                mc.player?.clickSlot(containerId, qSlot)
+                mc.player?.clickSlot(qSlot)
                 queuedSlot = null
                 mc.player?.closeContainer()
             }
         }
 
-        on<ScreenEvent.Close> {
-            val s = screen as? AbstractContainerScreen<*> ?: return@on
+        on<ScreenCloseEvent> {
+            val s = mc.screen as? AbstractContainerScreen<*> ?: return@on
             if (wardrobeRegex.matches(s.title?.string ?: "")) queuedSlot = null
         }
     }

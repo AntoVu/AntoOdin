@@ -2,7 +2,7 @@ package com.anto.antoodin.features.impl.anto
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
-import com.odtheking.odin.events.ChatPacketEvent
+import com.odtheking.odin.events.ChatMessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
@@ -37,7 +37,7 @@ object KuudraAutoGFS : Module(
     )
 
     init {
-        on<ChatPacketEvent> {
+        on<ChatMessageEvent> {
             if (LocationUtils.currentArea != Island.Kuudra) return@on
             if (!ballistaRegex.matches(value)) return@on
 

@@ -32,6 +32,11 @@ Loadout Hotkeys (A)
  - Auto close after use
  - Play sound on equip
 
+Auto Experiments
+ - First click Delay
+ - Auto close Ultrasequencer one early
+ - Auto start Ultrasequencer
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning
@@ -54,3 +59,7 @@ Queue Loadout
 
 Queue Equipment
  - Same as Queue Wardrobe but for Equipments
+
+Auto Gloomlock
+ - When low mana
+ - When low health

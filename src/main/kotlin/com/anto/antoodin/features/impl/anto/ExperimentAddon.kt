@@ -236,14 +236,16 @@ object ExperimentAddon : Module(
             order.clear()
 
             for (slot in slots) {
-                if (slot.index in 9..44 && slot.item.hoverName.string.noControlCodes.matches(Regex("\\d+"))) order[slot.item.count - 1] = slot.index
+                if (slot.index in 9..44 && slot.item.hoverName.string.noControlCodes.matches(Regex("\\d+"))) {
+                    order[slot.item.count - 1] = slot.index
+                }
             }
 
             hasData = true
             clicks = 0
         }
 
-        override fun nextClick(): Int? = if (!hasData) order[clicks++] else null
+        override fun nextClick(): Int? = if (!hasData && clicks < order.size) order[clicks++] else null
 
         override fun shouldClose(autoClose: Boolean): Boolean = autoClose && order.size > 9 - serumCount - if (subtractOne) 1 else 0
     }

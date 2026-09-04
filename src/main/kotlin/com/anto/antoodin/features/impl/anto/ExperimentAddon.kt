@@ -31,7 +31,6 @@ object ExperimentAddon : Module(
     private val autoClose by BooleanSetting("Auto Close", true, desc = "Automatically close the GUI after completing the experiment.")
     private val subtractOne by BooleanSetting("Close One Early", false, desc = "Automatically close Ultrasequencer experiment one click earlier.")
     private val serumCount by NumberSetting("Serum Count", 0, 0, 3, 1, desc = "Consumed Metaphysical Serum count.")
-    private val getMaxXp by BooleanSetting("Get Max XP", false, desc = "Solve Chronomatron to 15 and Ultrasequencer to 20 for max XP.")
     private val startUltrasequencer by BooleanSetting("Start Ultrasequencer", false, desc = "Automatically start Ultrasequencer after Chronomatron. The delay between actions will be 3x your regular delay.")
 
     private var handler: ExperimentHandler? = null
@@ -191,7 +190,7 @@ object ExperimentAddon : Module(
                 center.item == Items.GLOWSTONE &&
                 !slots[lastAddedSlot].item.hasGlint()
             ) {
-                close = order.size > if (getMaxXp) 15 else 11 - serumCount
+                close = order.size > 11 - serumCount
                 hasData = false
                 return
             }
@@ -206,12 +205,10 @@ object ExperimentAddon : Module(
             clicks = 0
         }
 
-        override fun nextClick(): Int? {
-            if (!hasData || clicks >= order.size) return null
-            val slot = order[clicks++]
-            isFirstRound = false
-            return slot
-        }
+        override fun nextClick(): Int? =
+            if (hasData && clicks < order.size)
+                order[clicks++].also { isFirstRound = false }
+            else null
 
         override fun shouldClose(autoClose: Boolean): Boolean {
             if (!autoClose || !close) return false
@@ -248,7 +245,7 @@ object ExperimentAddon : Module(
 
         override fun nextClick(): Int? = if (!hasData) order[clicks++] else null
 
-        override fun shouldClose(autoClose: Boolean): Boolean = autoClose && order.size > if (getMaxXp) 20 else 9 - serumCount - if (subtractOne) 1 else 0
+        override fun shouldClose(autoClose: Boolean): Boolean = autoClose && order.size > 9 - serumCount - if (subtractOne) 1 else 0
     }
 
     private abstract class ExperimentHandler {

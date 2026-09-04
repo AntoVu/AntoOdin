@@ -3,7 +3,6 @@ package com.anto.antoodin.features.impl.anto
 // Implementation based on skies-starred OdinClient
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.GuiEvent
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
@@ -221,6 +220,8 @@ object ExperimentAddon : Module(
 
     private class UltrasequencerHandler : ExperimentHandler() {
         private val order = ConcurrentHashMap<Int, Int>()
+        private var isFinalRound = false
+        private var lastClickTime: Long = 0
 
         override fun onSlotUpdate(packet: ClientboundContainerSetSlotPacket) {
             val slots = (mc.screen as? AbstractContainerScreen<*>)?.menu?.slots ?: return
@@ -243,11 +244,35 @@ object ExperimentAddon : Module(
 
             hasData = true
             clicks = 0
+
+            val threshold = 9 - serumCount - if (subtractOne) 1 else 0
+            isFinalRound = order.size >= threshold
         }
 
-        override fun nextClick(): Int? = if (!hasData && clicks < order.size) order[clicks++] else null
+        override fun nextClick(): Int? {
+            if (!hasData && clicks < order.size) {
+                val targetSlot = order[clicks]
+                clicks++
 
-        override fun shouldClose(autoClose: Boolean): Boolean = autoClose && order.size > 9 - serumCount - if (subtractOne) 1 else 0
+                if (isFinalRound && clicks == order.size) {
+                    lastClickTime = System.currentTimeMillis()
+                }
+
+                return targetSlot
+            }
+            return null
+        }
+
+        override fun shouldClose(autoClose: Boolean): Boolean {
+            if (!autoClose || !isFinalRound || clicks < order.size || lastClickTime == 0L) return false
+
+            if (System.currentTimeMillis() - lastClickTime >= delay()) {
+                lastClickTime = 0L
+                return true
+            }
+
+            return false
+        }
     }
 
     private abstract class ExperimentHandler {

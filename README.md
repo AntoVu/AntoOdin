@@ -38,7 +38,7 @@ Auto Experiments
  - Auto start Ultrasequencer
 
 Drop Guard
- - Block dropping items outside of GUIs in F7/M7 P3 (terminals)
+ - Block dropping items outside of GUIs during F7/M7 terminals (allowed again once Goldor phase starts)
  - Hold override keybind to drop anyway
 
 ## Planned

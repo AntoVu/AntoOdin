@@ -63,6 +63,9 @@ afterEvaluate {
 
 tasks {
     processResources {
+        listOf("mod_id", "mod_version", "mod_name", "mod_description", "loader_version", "fabric_api_version",
+            "minecraft_version", "fabric_kotlin_version").forEach { inputs.property(it, project.property(it)!!) }
+
         filesMatching("fabric.mod.json") {
             expand(getProperties())
         }

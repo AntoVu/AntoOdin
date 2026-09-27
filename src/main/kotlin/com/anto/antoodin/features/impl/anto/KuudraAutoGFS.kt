@@ -2,7 +2,7 @@ package com.anto.antoodin.features.impl.anto
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
@@ -37,9 +37,9 @@ object KuudraAutoGFS : Module(
     )
 
     init {
-        on<ChatMessageEvent> {
+        on<MessageEvent.Chat> {
             if (LocationUtils.currentArea != Island.Kuudra) return@on
-            if (!ballistaRegex.matches(value)) return@on
+            if (!ballistaRegex.matches(message)) return@on
 
             val itemName = if (arrowPoisonType == 0) "Toxic_Arrow_Poison" else "Twilight_Arrow_Poison"
             val delayTicks = Random.nextInt(0, 3)

@@ -3,7 +3,7 @@ package com.anto.antoodin.features.impl.anto
 import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.ChatMessageEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
@@ -89,9 +89,9 @@ object DianaAutoWarp : Module(
     }
 
     init {
-        on<ChatMessageEvent> {
+        on<MessageEvent.Chat> {
             if (LocationUtils.currentArea != Island.Hub) return@on
-            if (!burrowRegex.matches(value)) return@on
+            if (!burrowRegex.matches(message)) return@on
 
             var attempts = 0
             fun tryWarp() {

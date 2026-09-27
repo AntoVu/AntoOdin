@@ -4,7 +4,7 @@ package com.anto.antoodin.features.impl.anto
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.ScreenEvent
-import com.odtheking.odin.events.TickEvent
+import com.anto.antoodin.events.TickStartEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
@@ -86,7 +86,7 @@ object ExperimentAddon : Module(
             handler?.onSlotUpdate(this)
         }
 
-        on<TickEvent.Start> {
+        on<TickStartEvent> {
             if (transitionState != TransitionState.IDLE) {
                 handleTransition()
                 return@on

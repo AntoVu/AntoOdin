@@ -4,12 +4,13 @@ import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
 import com.anto.antoodin.features.impl.anto.*
+import com.anto.antoodin.events.dispatcher.FabricEventDispatcher
 import net.fabricmc.api.ClientModInitializer
 
 object AntoOdin : ClientModInitializer {
 
     override fun onInitializeClient() {
-        listOf(this).forEach { EventBus.subscribe(it) }
+        listOf(this, FabricEventDispatcher).forEach { EventBus.subscribe(it) }
 
         ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueWardrobe, KuudraAutoGFS,
             CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon)

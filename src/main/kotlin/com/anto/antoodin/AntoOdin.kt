@@ -13,6 +13,6 @@ object AntoOdin : ClientModInitializer {
         listOf(this, FabricEventDispatcher).forEach { EventBus.subscribe(it) }
 
         ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueWardrobe, KuudraAutoGFS,
-            CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon)
+            CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard)
     }
 }

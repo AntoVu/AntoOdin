@@ -37,6 +37,10 @@ Auto Experiments
  - Auto close Ultrasequencer one early
  - Auto start Ultrasequencer
 
+Drop Guard
+ - Block dropping items outside of GUIs in F7/M7 P3 (terminals)
+ - Hold override keybind to drop anyway
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning

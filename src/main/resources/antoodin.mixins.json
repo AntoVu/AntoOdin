@@ -6,6 +6,7 @@
   "mixins": [
     "mixins.MinecraftMixin",
     "mixins.ModuleManagerMixin",
+    "mixins.LocalPlayerMixin",
     "accessors.AbstractContainerScreenAccessor",
     "accessors.KeyMappingAccessor"
   ],

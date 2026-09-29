@@ -1,7 +1,9 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.utils.Skit
+import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.LocationChangeEvent
+import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.noControlCodes
@@ -30,22 +32,32 @@ object JellybeanHider : Module(
     description = "Hides the Magic Jellybean mutation (sugar cane, melon stem and armor stands) in the Garden.",
     category = Skit.ANTO
 ) {
-    private const val MIN_HIDDEN_Y = 76
-    // The skull sits a block above the stand's position
-    private const val MIN_HIDDEN_ARMOR_STAND_Y = 75
+    private const val MIN_SLIDER_Y = 67
+    private val hideAboveY by NumberSetting("Hide Above Y", 76, MIN_SLIDER_Y, 87, 1, desc = "Sugar cane above this Y is hidden. Jellybean armor stands are hidden one block lower.")
+
     // Fully grown jellybean has a melon stem at this exact Y
     private const val MELON_STEM_Y = 83
     private const val MELON_STEM_AGE = 6
+
+    private var appliedY = hideAboveY
 
     init {
         // Chunks are built before Odin knows the area, so rebuild once it does
         on<LocationChangeEvent> {
             if (inGarden()) rebuildSections()
         }
+
+        // Settings have no change listener, so rebuild when the slider moves
+        on<TickEvent.End> {
+            if (hideAboveY == appliedY) return@on
+            appliedY = hideAboveY
+            markSectionsDirty()
+        }
     }
 
     override fun onEnable() {
         super.onEnable()
+        appliedY = hideAboveY
         rebuildSections()
     }
 
@@ -59,7 +71,7 @@ object JellybeanHider : Module(
     // Called from chunk build threads
     fun shouldHideBlock(pos: BlockPos, state: BlockState): Boolean {
         if (!enabled) return false
-        val atHiddenY = if (state.`is`(Blocks.MELON_STEM)) pos.y == MELON_STEM_Y else pos.y > MIN_HIDDEN_Y
+        val atHiddenY = if (state.`is`(Blocks.MELON_STEM)) pos.y == MELON_STEM_Y else pos.y > hideAboveY
         return atHiddenY && inGarden()
     }
 
@@ -67,7 +79,8 @@ object JellybeanHider : Module(
         state.`is`(Blocks.SUGAR_CANE) || (state.`is`(Blocks.MELON_STEM) && state.getValue(StemBlock.AGE) == MELON_STEM_AGE)
 
     fun shouldHideEntity(entity: Entity): Boolean {
-        if (!enabled || entity !is ArmorStand || entity.y <= MIN_HIDDEN_ARMOR_STAND_Y || !inGarden()) return false
+        // The skull sits a block above the stand's position, so stands are hidden one block lower
+        if (!enabled || entity !is ArmorStand || entity.y <= hideAboveY - 1 || !inGarden()) return false
         val head = entity.getItemBySlot(EquipmentSlot.HEAD)
         return head.`is`(Items.PLAYER_HEAD) && head.hoverName.string.noControlCodes.contains("magicjellybean", ignoreCase = true)
     }
@@ -90,7 +103,7 @@ object JellybeanHider : Module(
         val radius = mc.options.renderDistance().get()
         val centerX = SectionPos.blockToSectionCoord(player.blockX)
         val centerZ = SectionPos.blockToSectionCoord(player.blockZ)
-        val minY = SectionPos.blockToSectionCoord(MIN_HIDDEN_Y + 1)
+        val minY = SectionPos.blockToSectionCoord(MIN_SLIDER_Y + 1)
 
         for (x in centerX - radius..centerX + radius)
             for (z in centerZ - radius..centerZ + radius)

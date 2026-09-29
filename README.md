@@ -44,6 +44,11 @@ Drop Guard
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden
  - Render only the blocks can still be broken
+ - Configurable hide Y level
+
+Aloe Highlight
+ - Highlights aloe by growth stage in the Garden
+ - Colors for Not Ready, Not Optimal, Ready and Harvest Now
 
 ## Planned
 Dungeons Auto GFS

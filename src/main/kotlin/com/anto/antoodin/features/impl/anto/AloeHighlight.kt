@@ -1,6 +1,7 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.utils.Skit
+import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.EntityEvent
@@ -29,6 +30,7 @@ object AloeHighlight : Module(
     private val readyColor by ColorSetting("Ready Color", Colors.MINECRAFT_GREEN, true, desc = "Color for Stage 13-14.")
     private val harvestNowColor by ColorSetting("Harvest Now Color", Colors.MINECRAFT_AQUA, true, desc = "Color for Stage 15 and above.")
     private val renderStyle by SelectorSetting("Render Style", "Outline", listOf("Filled", "Outline", "Filled Outline"), desc = "Style of the box.")
+    private val depthCheck by BooleanSetting("Depth Check", true, desc = "Disable to see aloe through other crops and blocks.")
 
     private val stageRegex = Regex("^Stage (\\d+)$")
 
@@ -48,7 +50,7 @@ object AloeHighlight : Module(
                 if (!stand.isAlive) return@forEach
                 // The stand floats in the block above the crop
                 val pos = BlockPos.containing(stand.x, stand.y, stand.z).below()
-                drawStyledBox(AABB(pos), colorFor(stage), renderStyle, true)
+                drawStyledBox(AABB(pos), colorFor(stage), renderStyle, depthCheck)
             }
         }
     }

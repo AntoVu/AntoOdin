@@ -41,6 +41,10 @@ Drop Guard
  - Block dropping items outside of GUIs during F7/M7 terminals (allowed again once Goldor phase starts)
  - Hold override keybind to drop anyway
 
+Jellybean Hider
+ - Hides the Magic Jellybean mutation in the Garden (sugar cane above Y 76 and its armor stands)
+ - Render only, the sugar cane can still be broken
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning

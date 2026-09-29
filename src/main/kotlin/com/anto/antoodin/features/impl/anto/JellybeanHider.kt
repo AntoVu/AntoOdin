@@ -21,15 +21,21 @@ import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.StemBlock
 import net.minecraft.world.level.block.state.BlockState
 import java.util.function.Predicate
 
 object JellybeanHider : Module(
     name = "Jellybean Hider",
-    description = "Hides the Magic Jellybean mutation (sugar cane above Y 76 and its armor stands) in the Garden.",
+    description = "Hides the Magic Jellybean mutation (sugar cane, melon stem and armor stands) in the Garden.",
     category = Skit.ANTO
 ) {
     private const val MIN_HIDDEN_Y = 76
+    // The skull sits a block above the stand's position
+    private const val MIN_HIDDEN_ARMOR_STAND_Y = 75
+    // Fully grown jellybean has a melon stem at this exact Y
+    private const val MELON_STEM_Y = 83
+    private const val MELON_STEM_AGE = 6
 
     init {
         // Chunks are built before Odin knows the area, so rebuild once it does
@@ -51,10 +57,17 @@ object JellybeanHider : Module(
     private fun inGarden(): Boolean = LocationUtils.isCurrentArea(Island.Garden)
 
     // Called from chunk build threads
-    fun shouldHideBlock(pos: BlockPos): Boolean = enabled && pos.y > MIN_HIDDEN_Y && inGarden()
+    fun shouldHideBlock(pos: BlockPos, state: BlockState): Boolean {
+        if (!enabled) return false
+        val atHiddenY = if (state.`is`(Blocks.MELON_STEM)) pos.y == MELON_STEM_Y else pos.y > MIN_HIDDEN_Y
+        return atHiddenY && inGarden()
+    }
+
+    private fun isWrappedState(state: BlockState): Boolean =
+        state.`is`(Blocks.SUGAR_CANE) || (state.`is`(Blocks.MELON_STEM) && state.getValue(StemBlock.AGE) == MELON_STEM_AGE)
 
     fun shouldHideEntity(entity: Entity): Boolean {
-        if (!enabled || entity !is ArmorStand || !inGarden()) return false
+        if (!enabled || entity !is ArmorStand || entity.y <= MIN_HIDDEN_ARMOR_STAND_Y || !inGarden()) return false
         val head = entity.getItemBySlot(EquipmentSlot.HEAD)
         return head.`is`(Items.PLAYER_HEAD) && head.hoverName.string.noControlCodes.contains("magicjellybean", ignoreCase = true)
     }
@@ -63,7 +76,7 @@ object JellybeanHider : Module(
     fun registerModelHook() {
         ModelLoadingPlugin.register { context ->
             context.modifyBlockModelAfterBake().register { model, ctx ->
-                if (ctx.state().`is`(Blocks.SUGAR_CANE)) HiddenSugarCaneModel(model) else model
+                if (isWrappedState(ctx.state())) HiddenModel(model) else model
             }
         }
     }
@@ -82,17 +95,17 @@ object JellybeanHider : Module(
                     mc.levelRenderer.setSectionDirty(x, y, z)
     }
 
-    private class HiddenSugarCaneModel(wrapped: BlockStateModel) : WrapperBlockStateModel(wrapped) {
+    private class HiddenModel(wrapped: BlockStateModel) : WrapperBlockStateModel(wrapped) {
         override fun emitQuads(
             emitter: QuadEmitter, level: BlockAndTintGetter, pos: BlockPos, state: BlockState,
             random: RandomSource, cullTest: Predicate<Direction?>
         ) {
-            if (shouldHideBlock(pos)) return
+            if (shouldHideBlock(pos, state)) return
             super.emitQuads(emitter, level, pos, state, random, cullTest)
         }
 
         override fun createGeometryKey(level: BlockAndTintGetter, pos: BlockPos, state: BlockState, random: RandomSource): Any? {
-            if (shouldHideBlock(pos)) return null
+            if (shouldHideBlock(pos, state)) return null
             return super.createGeometryKey(level, pos, state, random)
         }
     }

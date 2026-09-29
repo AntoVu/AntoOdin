@@ -42,8 +42,8 @@ Drop Guard
  - Hold override keybind to drop anyway
 
 Jellybean Hider
- - Hides the Magic Jellybean mutation in the Garden (sugar cane above Y 76 and its armor stands)
- - Render only, the sugar cane can still be broken
+ - Hides the Magic Jellybean mutation in the Garden (sugar cane above Y 76, its armor stands, and the grown melon stem at Y 83)
+ - Render only, the blocks can still be broken
 
 ## Planned
 Dungeons Auto GFS

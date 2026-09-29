@@ -81,7 +81,10 @@ object JellybeanHider : Module(
         }
     }
 
-    private fun rebuildSections() {
+    // LocationChangeEvent is posted from the netty thread, and Sodium only allows rebuilds from the render thread
+    private fun rebuildSections() = mc.execute(::markSectionsDirty)
+
+    private fun markSectionsDirty() {
         val level = mc.level ?: return
         val player = mc.player ?: return
         val radius = mc.options.renderDistance().get()

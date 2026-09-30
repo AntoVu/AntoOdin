@@ -6,6 +6,7 @@ import com.odtheking.odin.events.LocationChangeEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.noControlCodes
 import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
@@ -39,12 +40,18 @@ object JellybeanHider : Module(
     private const val MELON_STEM_Y = 83
     private const val MELON_STEM_AGE = 6
 
+    // Client ticks after entering the Garden to rebuild again
+    private val LATE_REBUILD_TICKS = intArrayOf(20, 100)
+
     private var appliedY = hideAboveY
 
     init {
-        // Chunks are built before Odin knows the area, so rebuild once it does
+        // Chunks are built before Odin knows the area, so rebuild once it does. Sodium drops rebuilds for
+        // sections whose first build is still running (the ones nearest the player), so repeat it after a delay
         on<LocationChangeEvent> {
-            if (inGarden()) rebuildSections()
+            if (!inGarden()) return@on
+            rebuildSections()
+            LATE_REBUILD_TICKS.forEach { schedule(it) { markSectionsDirty() } }
         }
 
         // Settings have no change listener, so rebuild when the slider moves

@@ -13,13 +13,14 @@ object MutationTracker {
     val MUTATIONS = mapOf(
         "jellybean" to listOf("sugar_cane", "sunflower", "moonflower"),
         "thunderling" to listOf("wild_rose", "melon", "cactus"),
-        "aloe" to listOf("wheat", "sunflower", "moonflower")
+        "aloe" to listOf("wheat", "sunflower", "moonflower"),
+        "devourer" to listOf("pumpkin", "mushroom")
     )
 
     private val NPC_PRICES = mapOf(
         "wild_rose" to 4, "wheat" to 6, "seeds" to 3, "melon" to 2, "cocoa_beans" to 3, "moonflower" to 4,
-        "carrot" to 3, "sugar_cane" to 4, "pumpkin" to 10, "brown_mushroom" to 10, "red_mushroom" to 10,
-        "nether_wart" to 4, "sunflower" to 4, "cactus" to 4, "potato" to 3
+        "carrot" to 3, "sugar_cane" to 4, "pumpkin" to 10, "mushroom" to 10, "nether_wart" to 4,
+        "sunflower" to 4, "cactus" to 4, "potato" to 3
     )
 
     private const val COLLECTION_SLOT = 18

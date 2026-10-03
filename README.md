@@ -50,6 +50,11 @@ Aloe Highlight
  - Highlights aloe by growth stage in the Garden
  - Colors for Not Ready, Not Optimal, Ready and Harvest Now
 
+## Commands
+`/ao trackmutation start|stop <jellybean|thunderling|aloe>`
+ - Logs crop collections on start and stop
+ - On stop, copies collection gained per crop and NPC crop profit to clipboard
+
 ## Planned
 Dungeons Auto GFS
  - Get 2 TWAP after lightning

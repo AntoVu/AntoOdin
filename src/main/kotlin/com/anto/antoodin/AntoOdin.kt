@@ -5,7 +5,9 @@ import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
 import com.anto.antoodin.features.impl.anto.*
 import com.anto.antoodin.events.dispatcher.FabricEventDispatcher
+import com.anto.antoodin.commands.aoCommand
 import net.fabricmc.api.ClientModInitializer
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
 object AntoOdin : ClientModInitializer {
 
@@ -16,5 +18,7 @@ object AntoOdin : ClientModInitializer {
             CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight)
 
         JellybeanHider.registerModelHook()
+
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ -> aoCommand.register(dispatcher) }
     }
 }

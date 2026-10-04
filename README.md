@@ -50,10 +50,19 @@ Aloe Highlight
  - Highlights aloe by growth stage in the Garden
  - Colors for Not Ready, Not Optimal, Ready and Harvest Now
 
+Dungeon Splits
+ - Splits HUD with tick time and boss entry split
+ - Chat message after each split with tick time and PB comparison
+ - Projected run time from your recent runs
+ - Time lost to lag at the end of the run
+
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`
  - Logs crop collections on start and stop
  - On stop, copies collection gained per crop and NPC crop profit to clipboard
+
+`/ao best [floor]`
+ - Adds up your PB splits into a theoretical best run (defaults to current floor, else M7)
 
 ## Planned
 Dungeons Auto GFS
@@ -61,9 +70,6 @@ Dungeons Auto GFS
  - Get 2 TWAP after terminals
  - Get 6 TWAP after goldor
  - Get 6 TWAP on dragon spawn
-
-Splits (A)
- - Show projected run time
 
 Warp Cooldown
  - Mineshaft warp cooldown

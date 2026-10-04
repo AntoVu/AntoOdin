@@ -22,10 +22,12 @@ import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.decoration.ArmorStand
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.StemBlock
 import net.minecraft.world.level.block.state.BlockState
+import java.util.WeakHashMap
 import java.util.function.Predicate
 
 object JellybeanHider : Module(
@@ -89,8 +91,13 @@ object JellybeanHider : Module(
         // The skull sits a block above the stand's position, so stands are hidden one block lower
         if (!enabled || entity !is ArmorStand || entity.y <= hideAboveY - 1 || !inGarden()) return false
         val head = entity.getItemBySlot(EquipmentSlot.HEAD)
-        return head.`is`(Items.PLAYER_HEAD) && head.hoverName.string.noControlCodes.contains("magicjellybean", ignoreCase = true)
+        if (!head.`is`(Items.PLAYER_HEAD)) return false
+        return jellybeanHeads.getOrPut(head) { head.hoverName.string.noControlCodes.contains("magicjellybean", ignoreCase = true) }
     }
+
+    // Runs for every stand each frame and a head's name is rebuilt on every call, so remember it per stack.
+    // ItemStack has identity equality and equipment updates replace the stack, so entries never go stale.
+    private val jellybeanHeads = WeakHashMap<ItemStack, Boolean>()
 
     // Wrapping the model (instead of mixing into SectionCompiler) also works with Sodium, which renders through FRAPI
     fun registerModelHook() {

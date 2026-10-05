@@ -91,12 +91,14 @@ object LoadoutAddon : Module(
             else -> if (keyIndex == -1) return false else keyIndex + 14 + 6 * (keyIndex / 3)
         } ?: return true
 
-        if (System.currentTimeMillis() - lastClick < CLICK_COOLDOWN_MS) return true
+        // Page keys can be tapped quickly to skip pages; only equipping is rate limited
+        val isPageKey = keyIndex == -1
+        if (!isPageKey && System.currentTimeMillis() - lastClick < CLICK_COOLDOWN_MS) return true
         // Placeholder and already-equipped loadouts have no equip prompt
-        if (keyIndex != -1 && screen.menu.slots[index].item.loreString.none { "Left-click to equip!" in it }) return true
+        if (!isPageKey && screen.menu.slots[index].item.loreString.none { "Left-click to equip!" in it }) return true
 
         mc.player?.clickSlot(index)
-        lastClick = System.currentTimeMillis()
+        if (!isPageKey) lastClick = System.currentTimeMillis()
 
         if (keyIndex != -1) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())

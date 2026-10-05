@@ -98,11 +98,13 @@ object WardrobeAddon : Module(
             else -> if (keyIndex == -1) return false else keyIndex + 36
         } ?: return true
 
-        if (System.currentTimeMillis() - lastClick < CLICK_COOLDOWN_MS) return true
+        // Page keys can be tapped quickly to skip pages; only equipping and unequipping are rate limited
+        val isPageKey = index == 53 || index == 45
+        if (!isPageKey && System.currentTimeMillis() - lastClick < CLICK_COOLDOWN_MS) return true
         if (keyIndex != -1 && index == equippedIndex && disallowUnequippingEquipped) return modMessage("§cArmor already equipped.").let { true }
 
         mc.player?.clickSlot(index)
-        lastClick = System.currentTimeMillis()
+        if (!isPageKey) lastClick = System.currentTimeMillis()
 
         if (keyIndex != -1) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())

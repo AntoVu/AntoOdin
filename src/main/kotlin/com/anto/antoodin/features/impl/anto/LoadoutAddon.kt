@@ -53,9 +53,7 @@ object LoadoutAddon : Module(
     private val loadoutRegex = Regex("\\((\\d)/(\\d)\\) Loadouts")
 
     private const val CLICK_COOLDOWN_MS = 300L
-    private const val REOPEN_WINDOW_MS = 3000L
     private var lastClick = 0L
-    private var closeReopenedUntil = 0L
 
     init {
         // Left and right clicks are normal slot clicks, never binds
@@ -68,20 +66,12 @@ object LoadoutAddon : Module(
             val s = screen
             if (s is AbstractContainerScreen<*> && onClick(s, input.key)) cancel()
         }
-
-        // Hypixel reopens the menu after an equip, which can land after auto close
-        on<ScreenEvent.Open> {
-            if (System.currentTimeMillis() > closeReopenedUntil || !loadoutRegex.containsMatchIn(screen.title.string)) return@on
-            closeReopenedUntil = 0L
-            schedule(1) { closeIfOpen() }
-        }
     }
 
-    private fun closeIfOpen(): Boolean {
-        val screen = mc.screen as? AbstractContainerScreen<*> ?: return false
-        if (!loadoutRegex.containsMatchIn(screen.title.string)) return false
+    private fun closeIfOpen() {
+        val screen = mc.screen as? AbstractContainerScreen<*> ?: return
+        if (!loadoutRegex.containsMatchIn(screen.title.string)) return
         mc.player?.closeContainer()
-        return true
     }
 
     // Returns true when the key is one of our binds, so vanilla never also handles it (e.g. as a hotbar swap click)
@@ -115,9 +105,8 @@ object LoadoutAddon : Module(
                 val finalDelay = autoCloseDelay.toLong() + Random.nextLong(0, delayVariety.toLong() + 1)
                 val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
 
-                schedule(delayTicks) {
-                    if (closeIfOpen()) closeReopenedUntil = System.currentTimeMillis() + REOPEN_WINDOW_MS
-                }
+                // Only closes if this menu is still the open screen
+                schedule(delayTicks) { closeIfOpen() }
             }
         }
 

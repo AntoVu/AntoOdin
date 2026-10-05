@@ -14,6 +14,7 @@ import com.odtheking.odin.utils.createSoundSettings
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.playSoundSettings
 import com.anto.antoodin.utils.Skit
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
@@ -52,48 +53,68 @@ object WardrobeAddon : Module(
     private val equipmentRegex = Regex("\\((\\d)/(\\d)\\) Equipment Sets")
     private val equippedRegex = Regex("Slot (\\d): Equipped")
 
+    private const val CLICK_COOLDOWN_MS = 300L
+    private const val REOPEN_WINDOW_MS = 3000L
+    private var lastClick = 0L
+    private var closeReopenedUntil = 0L
 
     init {
+        // Left and right clicks are normal slot clicks, never binds
         on<ScreenEvent.MouseClick> {
             val s = screen
-            if (s is AbstractContainerScreen<*> && onClick(s, click.button())) cancel()
+            if (s is AbstractContainerScreen<*> && click.button() > 1 && onClick(s, click.button())) cancel()
         }
 
         on<ScreenEvent.KeyPress> {
             val s = screen
             if (s is AbstractContainerScreen<*> && onClick(s, input.key)) cancel()
         }
+
+        // Hypixel reopens the wardrobe after an equip, which can land after auto close
+        on<ScreenEvent.Open> {
+            if (System.currentTimeMillis() > closeReopenedUntil || !isWardrobe(screen.title.string)) return@on
+            closeReopenedUntil = 0L
+            schedule(1) { closeIfOpen() }
+        }
     }
 
+    private fun isWardrobe(title: String) = wardrobeRegex.containsMatchIn(title) || equipmentRegex.containsMatchIn(title)
+
+    private fun closeIfOpen(): Boolean {
+        val screen = mc.screen as? AbstractContainerScreen<*> ?: return false
+        if (!isWardrobe(screen.title.string)) return false
+        mc.player?.closeContainer()
+        return true
+    }
+
+    // Returns true when the key is one of our binds, so vanilla never also handles it (e.g. as a hotbar swap click)
     private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
         val titleString = screen.title?.string ?: ""
         val (current, total) = (wardrobeRegex.find(titleString) ?: equipmentRegex.find(titleString))?.destructured?.let {
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory).value) return false
 
         val equippedIndex = screen.menu.slots.find { equippedRegex.matches(it.item.hoverName.string) }?.index
 
         val wardrobeSlots = arrayOf(wardrobe1, wardrobe2, wardrobe3, wardrobe4, wardrobe5, wardrobe6, wardrobe7, wardrobe8, wardrobe9)
-        val isWardrobeSlotKey = wardrobeSlots.any { it.value == keyCode }
+        val keyIndex = wardrobeSlots.indexOfFirst { it.value == keyCode }
 
         val index = when (keyCode) {
-            nextPageKeybind.value -> if (current < total) 53 else return false
-            previousPageKeybind.value -> if (current > 1) 45 else return false
-            unequipKeybind.value -> equippedIndex ?: return false
-            else -> {
-                val keyIndex = wardrobeSlots
-                    .indexOfFirst { it.value == keyCode }.takeIf { it != -1 } ?: return false
+            nextPageKeybind.value -> 53.takeIf { current < total }
+            previousPageKeybind.value -> 45.takeIf { current > 1 }
+            unequipKeybind.value -> equippedIndex
+            else -> if (keyIndex == -1) return false else keyIndex + 36
+        } ?: return true
 
-                if (equippedIndex == keyIndex + 36 && disallowUnequippingEquipped) return modMessage("§cArmor already equipped.").let { false }
-                keyIndex + 36
-            }
-        }
+        if (System.currentTimeMillis() - lastClick < CLICK_COOLDOWN_MS) return true
+        if (keyIndex != -1 && index == equippedIndex && disallowUnequippingEquipped) return modMessage("§cArmor already equipped.").let { true }
 
-        if (disallowUnequippingEquipped && screen.menu.slots[index].item?.isEmpty == true) return false
         mc.player?.clickSlot(index)
+        lastClick = System.currentTimeMillis()
 
-        if (isWardrobeSlotKey) {
+        if (keyIndex != -1) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())
 
             if (autoCloseToggle) {
@@ -101,7 +122,7 @@ object WardrobeAddon : Module(
                 val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
 
                 schedule(delayTicks) {
-                    mc.player?.closeContainer()
+                    if (closeIfOpen()) closeReopenedUntil = System.currentTimeMillis() + REOPEN_WINDOW_MS
                 }
             }
         }

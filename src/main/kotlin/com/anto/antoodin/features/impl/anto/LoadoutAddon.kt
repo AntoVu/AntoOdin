@@ -11,8 +11,10 @@ import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.clickSlot
 import com.odtheking.odin.utils.createSoundSettings
+import com.odtheking.odin.utils.loreString
 import com.odtheking.odin.utils.playSoundSettings
 import com.anto.antoodin.utils.Skit
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
@@ -50,43 +52,63 @@ object LoadoutAddon : Module(
 
     private val loadoutRegex = Regex("\\((\\d)/(\\d)\\) Loadouts")
 
+    private const val CLICK_COOLDOWN_MS = 300L
+    private const val REOPEN_WINDOW_MS = 3000L
+    private var lastClick = 0L
+    private var closeReopenedUntil = 0L
 
     init {
+        // Left and right clicks are normal slot clicks, never binds
         on<ScreenEvent.MouseClick> {
             val s = screen
-            if (s is AbstractContainerScreen<*> && onClick(s, click.button())) cancel()
+            if (s is AbstractContainerScreen<*> && click.button() > 1 && onClick(s, click.button())) cancel()
         }
 
         on<ScreenEvent.KeyPress> {
             val s = screen
             if (s is AbstractContainerScreen<*> && onClick(s, input.key)) cancel()
         }
+
+        // Hypixel reopens the menu after an equip, which can land after auto close
+        on<ScreenEvent.Open> {
+            if (System.currentTimeMillis() > closeReopenedUntil || !loadoutRegex.containsMatchIn(screen.title.string)) return@on
+            closeReopenedUntil = 0L
+            schedule(1) { closeIfOpen() }
+        }
     }
 
+    private fun closeIfOpen(): Boolean {
+        val screen = mc.screen as? AbstractContainerScreen<*> ?: return false
+        if (!loadoutRegex.containsMatchIn(screen.title.string)) return false
+        mc.player?.closeContainer()
+        return true
+    }
+
+    // Returns true when the key is one of our binds, so vanilla never also handles it (e.g. as a hotbar swap click)
     private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
         val (current, total) = loadoutRegex.find(screen.title?.string ?: "")?.destructured?.let {
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory).value) return false
 
         val loadoutSlots = arrayOf(loadout1, loadout2, loadout3, loadout4, loadout5, loadout6, loadout7, loadout8, loadout9, loadout10, loadout11, loadout12)
-        val isLoadoutSlotKey = loadoutSlots.any { it.value == keyCode }
+        val keyIndex = loadoutSlots.indexOfFirst { it.value == keyCode }
 
         val index = when (keyCode) {
-            nextPageKeybind.value -> if (current < total) 44 else return false
-            previousPageKeybind.value -> if (current > 1) 17 else return false
-            else -> {
-                val keyIndex = loadoutSlots
-                    .indexOfFirst { it.value == keyCode }.takeIf { it != -1 } ?: return false
+            nextPageKeybind.value -> 44.takeIf { current < total }
+            previousPageKeybind.value -> 17.takeIf { current > 1 }
+            else -> if (keyIndex == -1) return false else keyIndex + 14 + 6 * (keyIndex / 3)
+        } ?: return true
 
-                keyIndex + 14 + 6 * (keyIndex / 3)
-            }
-        }
+        if (System.currentTimeMillis() - lastClick < CLICK_COOLDOWN_MS) return true
+        // Placeholder and already-equipped loadouts have no equip prompt
+        if (keyIndex != -1 && screen.menu.slots[index].item.loreString.none { "Left-click to equip!" in it }) return true
 
-        if (screen.menu.slots[index].item?.isEmpty == true) return false
         mc.player?.clickSlot(index)
+        lastClick = System.currentTimeMillis()
 
-        if (isLoadoutSlotKey) {
+        if (keyIndex != -1) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())
 
             if (autoCloseToggle) {
@@ -94,7 +116,7 @@ object LoadoutAddon : Module(
                 val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
 
                 schedule(delayTicks) {
-                    mc.player?.closeContainer()
+                    if (closeIfOpen()) closeReopenedUntil = System.currentTimeMillis() + REOPEN_WINDOW_MS
                 }
             }
         }

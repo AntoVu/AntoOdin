@@ -6,9 +6,8 @@ import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.InputEvent
-import com.odtheking.odin.events.ScreenEvent
+import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.events.ScreenCloseEvent
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.clickSlot
@@ -93,7 +92,12 @@ object QueueWardrobe : Module(
     ).withDependency { advanced }
 
     private val wardrobeRegex = Regex("\\((\\d)/(\\d)\\) Armor Sets")
+
+    // Dropped if the wardrobe never opens (e.g. /wardrobe is blocked here)
+    private const val QUEUE_TIMEOUT_MS = 5000L
     private var queuedSlot: Int? = null // slot index (36-44)
+    private var queuedAt = 0L
+    private var clickScheduled = false
 
     init {
         on<InputEvent> {
@@ -101,31 +105,47 @@ object QueueWardrobe : Module(
             val keyIndex = wardrobeSlots.indexOfFirst { it.value == key.value }.takeIf { it != -1 } ?: return@on
 
             queuedSlot = keyIndex + 36
+            queuedAt = System.currentTimeMillis()
+            clickScheduled = false
             if (showChatMessage) modMessage("§aQueued wardrobe slot ${keyIndex + 1}.")
             mc.player?.connection?.sendCommand("wardrobe")
         }
 
-        on<ScreenEvent.Open> {
+        // Slot items arrive after the screen opens, so wait until the queued slot has loaded
+        on<TickEvent.End> {
             val qSlot = queuedSlot ?: return@on
-            val s = screen as? AbstractContainerScreen<*> ?: return@on
-            if (!wardrobeRegex.matches(s.title?.string ?: "")) return@on
-
-            val containerId = s.menu.containerId
-            val finalDelay = delay.toLong() + Random.nextLong(0, delayVariety.toLong() + 1)
-            val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
-
-            schedule(delayTicks) {
-                val currentScreen = mc.screen as? AbstractContainerScreen<*> ?: return@schedule
-                if (!wardrobeRegex.matches(currentScreen.title?.string ?: "")) return@schedule
-                mc.player?.clickSlot(qSlot)
+            if (System.currentTimeMillis() - queuedAt > QUEUE_TIMEOUT_MS) {
                 queuedSlot = null
-                mc.player?.closeContainer()
+                return@on
             }
-        }
+            if (clickScheduled) return@on
 
-        on<ScreenCloseEvent> {
-            val s = mc.screen as? AbstractContainerScreen<*> ?: return@on
-            if (wardrobeRegex.matches(s.title?.string ?: "")) queuedSlot = null
+            val screen = mc.screen as? AbstractContainerScreen<*> ?: return@on
+            if (!wardrobeRegex.matches(screen.title.string)) return@on
+            val slotNumber = qSlot - 35
+
+            when (screen.menu.slots.getOrNull(qSlot)?.item?.hoverName?.string) {
+                // Clicking it would unequip it
+                "Slot $slotNumber: Equipped" -> {
+                    queuedSlot = null
+                    modMessage("§cWardrobe slot $slotNumber is already equipped.")
+                    mc.player?.closeContainer()
+                }
+                "Slot $slotNumber: Ready" -> {
+                    clickScheduled = true
+                    val finalDelay = delay.toLong() + Random.nextLong(0, delayVariety.toLong() + 1)
+                    val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
+
+                    schedule(delayTicks) {
+                        if (queuedSlot != qSlot) return@schedule
+                        queuedSlot = null
+                        val currentScreen = mc.screen as? AbstractContainerScreen<*> ?: return@schedule
+                        if (!wardrobeRegex.matches(currentScreen.title.string)) return@schedule
+                        mc.player?.clickSlot(qSlot)
+                        mc.player?.closeContainer()
+                    }
+                }
+            }
         }
     }
 }

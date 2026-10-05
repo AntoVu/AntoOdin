@@ -100,6 +100,46 @@ Chat Filter
  - Hides useless chat messages, by category
  - Custom patterns with `/ao chathider`
 
+Leap Counter
+ - HUD of how many teammates reached your F7 P3 spot, with a title and sound when everyone is there
+
+Maxor's Crystals
+ - F7 P1 crystal respawn timer, crystal placement time with PB, unplaced crystal alert
+
+Item Tooltip
+ - Lowest BIN, bazaar buy/sell and NPC sell prices on item tooltips (Shift for the whole stack)
+
+Damage Splash
+ - Compact damage numbers (1.2m) with random crit colors
+
+Lava To Water
+ - Renders lava as see-through water and removes lava fog
+ - Everywhere, or only in Catacombs, Kuudra and the Crimson Isle
+
+Freeze Display
+ - Shows how long the server has been frozen past a threshold
+
+Custom Scoreboard
+ - Restyled scoreboard, optionally hiding the server ID
+
+Leap Menu Extras
+ - Tints dead players and the last wither door opener in Odin's Leap Menu
+ - Hides teammates you just leaped onto
+
+Dragon Extras
+ - M7 dragon aim marker for arrow stacks, arrows-hit count per dragon
+ - Needs Odin's Wither Dragons
+
+Camera Tweaks
+ - Custom FOV, adjustable Slowness FOV change, no Blindness or Nausea
+
+Rejoin Timer
+ - Shows how long ago you were kicked from SkyBlock
+
+Party Finder Extras
+ - Level requirement and missing classes on each party's head
+ - Member stats (Catacombs level, secrets, MP, S+ PB) and missing classes in the tooltip
+
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`
  - Logs crop collections on start and stop

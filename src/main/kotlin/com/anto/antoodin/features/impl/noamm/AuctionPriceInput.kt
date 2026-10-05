@@ -2,9 +2,9 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.mixin.accessors.AbstractSignEditScreenAccessor
+import com.anto.antoodin.utils.Prices
 import com.anto.antoodin.utils.Skit
 import com.mojang.blaze3d.platform.InputConstants
-import com.odtheking.odin.OdinMod
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.GuiEvent
@@ -14,8 +14,6 @@ import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.clickSlot
 import com.odtheking.odin.utils.formatNumber
 import com.odtheking.odin.utils.itemId
-import com.odtheking.odin.utils.network.WebUtils
-import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
@@ -39,9 +37,6 @@ object AuctionPriceInput : Module(
     private val rememberText by BooleanSetting("Remember Text", true, desc = "Keeps the last price you typed when the box reopens.")
     private val rememberMode by BooleanSetting("Remember Mode", true, desc = "Keeps the last mode you used when the box reopens.")
 
-    private const val LOWEST_BIN_URL = "https://lb.odtheking.com/lowestbins"
-    private const val PRICE_CACHE_MS = 5 * 60 * 1000L
-
     private val createTitles = setOf("Create BIN Auction", "Create Auction")
     private val confirmTitles = setOf("Confirm BIN Auction", "Confirm Auction")
     private val suffixes = mapOf('k' to 1e3, 'm' to 1e6, 'b' to 1e9, 't' to 1e12)
@@ -50,8 +45,6 @@ object AuctionPriceInput : Module(
     private var undercut: Boolean? = null
     private var input = ""
 
-    @Volatile private var lowestBins = emptyMap<String, Double>()
-    private var pricesFetchedAt = 0L
 
     init {
         // Clicking the price button (slot 31) opens the sign, so remember the item being auctioned
@@ -88,23 +81,6 @@ object AuctionPriceInput : Module(
         }
     }
 
-    private fun refreshPrices() {
-        if (System.currentTimeMillis() - pricesFetchedAt < PRICE_CACHE_MS) return
-        pricesFetchedAt = System.currentTimeMillis()
-        OdinMod.scope.launch {
-            WebUtils.fetchJson<Map<String, Double>>(LOWEST_BIN_URL).onSuccess { lowestBins = it }
-        }
-    }
-
-    // Enchanted books are listed as ENCHANTED_BOOK-<NAME>-<LEVEL>
-    private fun lowestBin(itemId: String): Long {
-        lowestBins[itemId]?.let { return it.toLong() }
-        if (!itemId.startsWith("ENCHANTMENT_")) return 0L
-        val level = itemId.substringAfterLast('_')
-        val name = itemId.removePrefix("ENCHANTMENT_").substringBeforeLast('_')
-        return lowestBins["ENCHANTED_BOOK-$name-$level"]?.toLong() ?: 0L
-    }
-
     // "10m", "2.5k", "1,000,000"
     private fun parseCompactNumber(text: String): Long? {
         val clean = text.lowercase().replace(",", "").trim()
@@ -123,7 +99,7 @@ object AuctionPriceInput : Module(
 
         override fun init() {
             super.init()
-            refreshPrices()
+            Prices.refresh()
             if (!rememberText) input = ""
             if (!rememberMode || undercut == null) undercut = defaultMode == 1
 
@@ -148,7 +124,7 @@ object AuctionPriceInput : Module(
 
         private fun modeText() = Component.literal("Mode: ${if (undercut == true) "Undercut" else "Normal"}")
 
-        private fun lowestBin() = lowestBin(stack.itemId)
+        private fun lowestBin() = Prices.lowestBin(Prices.skyblockId(stack))?.toLong() ?: 0L
 
         private fun value(): Long? {
             val typed = parseCompactNumber(input) ?: return null

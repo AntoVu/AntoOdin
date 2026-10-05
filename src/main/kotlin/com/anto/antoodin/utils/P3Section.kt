@@ -4,6 +4,7 @@ import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import com.odtheking.odin.utils.skyblock.dungeon.M7Phases
 import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.Vec3
 
 // F7 P3 terminal section (1-4) the player is standing in. Bounds from NoammAddons by Noamm9 (CC0-1.0)
 object P3Section {
@@ -14,9 +15,11 @@ object P3Section {
         AABB(91.0, 158.0, 50.0, -3.0, 106.0, 30.0)
     )
 
-    fun current(): Int? {
+    fun current(): Int? = mc.player?.position()?.let(::of)
+
+    // Section of any position, while the player is in P3
+    fun of(pos: Vec3): Int? {
         if (DungeonUtils.getF7Phase() != M7Phases.P3) return null
-        val pos = mc.player?.position() ?: return null
         return sections.indexOfFirst { it.contains(pos) }.takeIf { it != -1 }?.plus(1)
     }
 }

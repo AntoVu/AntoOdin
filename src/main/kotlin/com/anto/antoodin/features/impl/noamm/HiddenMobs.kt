@@ -32,7 +32,7 @@ object HiddenMobs : Module(
         // Posted after the data is applied, so this undoes the invisible flag every time the server sends it
         on<EntityEvent.SetData> {
             if (!entity.isInvisible || !DungeonUtils.inDungeons) return@on
-            val name = entity.displayName?.string?.trim() ?: return@on
+            val name = entity.displayName.string.trim()
 
             val reveal = when (val e = entity) {
                 is EnderMan -> showFels && name == "Dinnerbone"

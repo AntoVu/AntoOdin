@@ -110,7 +110,7 @@ Item Tooltip
  - Lowest BIN, bazaar buy/sell and NPC sell prices on item tooltips (Shift for the whole stack)
 
 Damage Splash
- - Compact damage numbers (1.2m) with random crit colors
+ - Shortens damage numbers (1.2m) in NEU's style, keeping Hypixel's crit colors
 
 Lava To Water
  - Renders lava as see-through water and removes lava fog
@@ -123,7 +123,7 @@ Custom Scoreboard
  - Restyled scoreboard, optionally hiding the server ID
 
 Leap Menu Extras
- - Tints dead players and the last wither door opener in Odin's Leap Menu
+ - Tints dead players and rings the last wither door opener's face in Odin's Leap Menu
  - Hides teammates you just leaped onto
 
 Dragon Extras

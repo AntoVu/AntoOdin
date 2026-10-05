@@ -1,4 +1,4 @@
-// Ported from NoammAddons by Noamm9 (CC0-1.0)
+// Ported from NoammAddons by Noamm9 (CC0-1.0). Style modeled on NEU's damage indicator (own code, NEU is LGPL)
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
@@ -6,24 +6,31 @@ import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.noControlCodes
 import com.odtheking.odin.utils.skyblock.LocationUtils
+import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.world.entity.decoration.ArmorStand
 import java.util.Optional
+import kotlin.math.floor
 
 /** Hiding damage splashes is left to SkyHanni. */
 object DamageSplash : Module(
     name = "Damage Splash",
-    description = "Reformats damage numbers: 1,234,567 becomes 1.2m and crits get random colors.",
+    description = "Shortens damage numbers (1,234,567 becomes 1.2m) and keeps Hypixel's crit colors.",
     category = Skit.NOAMM
 ) {
     private val uppercase by BooleanSetting("Uppercase", false, desc = "Writes the suffix in uppercase, e.g. 1.2M.")
 
-    private val damageRegex = Regex("[✧✯]?(\\d{1,3}(?:,\\d{3})*[⚔+✧❤♞☄✷ﬗ✯]*)")
-    private val critColors = listOf("§6", "§c", "§e", "§f")
-    private val suffixes = listOf(1_000_000_000_000L to 't', 1_000_000_000L to 'b', 1_000_000L to 'm', 1_000L to 'k')
+    // Hypixel's own crit gradient, repeated over the characters
+    private val critColors = listOf("§f", "§e", "§6", "§c", "§c", "§f")
+    private const val SUFFIXES = "kmbt"
+
+    // Legacy-formatted names: ✧ crits, ✯ overload crits, and plain colored numbers
+    private val critRegex = Regex("^§f✧((?:§.|[\\d,])+)§.✧(.*)$")
+    private val overloadRegex = Regex("^(§.)✯((?:§.|[\\d,])+)(§.)✯(.*)$")
+    private val normalRegex = Regex("^(§.)([\\d,]+)(.*)$")
+    private val formattingCode = Regex("§.")
 
     init {
         // Posted after the data is applied, so the server's name is already set and can be replaced
@@ -31,37 +38,58 @@ object DamageSplash : Module(
             val stand = entity as? ArmorStand ?: return@on
             if (!LocationUtils.isInSkyblock || synchedDataValues.none { it.value() is Optional<*> }) return@on
             val name = stand.customName ?: return@on
-            // Damage tags are always colored, plain numbers are something else
-            if ('§' !in name.string && !isStyled(name)) return@on
-
-            val text = name.string.noControlCodes
-            val damage = damageRegex.matchEntire(text)?.groupValues?.get(1) ?: return@on
-            val formatted = format(damage.filter { it.isDigit() }.toLongOrNull() ?: return@on)
-                .let { if (uppercase) it.uppercase() else it }
-
-            val isCrit = '✧' in text || '✯' in text
-            stand.customName = Component.literal(if (isCrit) "§f✧${randomColors(formatted)}§f✧" else "§3$formatted")
+            reformat(legacy(name))?.let { stand.customName = Component.literal(it) }
         }
     }
 
-    private fun isStyled(name: Component) =
-        name.visit({ style, _ -> if (style.color != null) Optional.of(true) else Optional.empty() }, Style.EMPTY).isPresent
-
-    // 1234 -> 1.2k, 12345 -> 12.3k, 123456 -> 123k
-    private fun format(value: Long): String {
-        val (divideBy, suffix) = suffixes.firstOrNull { value >= it.first } ?: return value.toString()
-        val truncated = value / (divideBy / 10)
-        val hasDecimal = truncated < 100 && truncated % 10 != 0L
-        return if (hasDecimal) "${truncated / 10.0}$suffix" else "${truncated / 10}$suffix"
+    private fun reformat(text: String): String? {
+        critRegex.matchEntire(text)?.let { match ->
+            val short = shorten(match.groupValues[1]) ?: return null
+            return "§f✧${critColored(short)}§f✧${match.groupValues[2]}"
+        }
+        overloadRegex.matchEntire(text)?.let { match ->
+            val short = shorten(match.groupValues[2]) ?: return null
+            return "${match.groupValues[1]}✯${critColored(short)}${match.groupValues[3]}✯${match.groupValues[4]}"
+        }
+        normalRegex.matchEntire(text)?.let { match ->
+            val short = shorten(match.groupValues[2]) ?: return null
+            return "${match.groupValues[1]}$short§r${match.groupValues[3]}"
+        }
+        return null
     }
 
-    // Never the same color twice in a row
-    private fun randomColors(text: String) = buildString {
-        var last: String? = null
-        for (char in text) {
-            val color = critColors.filter { it != last }.random()
-            append(color).append(char).append("§r")
-            last = color
+    // Small hits are left as they are
+    private fun shorten(digits: String): String? {
+        val value = digits.replace(formattingCode, "").replace(",", "").toLongOrNull() ?: return null
+        if (value <= 999) return null
+        return shortFormat(value).let { if (uppercase) it.uppercase() else it }
+    }
+
+    // One decimal below 10, none above: 1234 -> 1.2k, 12345 -> 12k, 1234567 -> 1.2m
+    private fun shortFormat(value: Long): String {
+        var number = value.toDouble()
+        var index = 0
+        while (true) {
+            val truncated = floor(number / 100) / 10
+            if (truncated < 1000 || index == SUFFIXES.lastIndex) {
+                val text = if (truncated % 1 == 0.0 || truncated > 9.99) truncated.toLong().toString() else truncated.toString()
+                return text + SUFFIXES[index]
+            }
+            number = truncated
+            index++
         }
+    }
+
+    private fun critColored(text: String) = text.withIndex().joinToString("") { (i, char) -> critColors[i % critColors.size] + char }
+
+    // Rebuilds the § codes from component styles, since Hypixel's names arrive as styled components
+    private fun legacy(component: Component): String = buildString {
+        component.visit({ style, text ->
+            style.color?.let { color ->
+                ChatFormatting.entries.firstOrNull { it.isColor && it.color == color.value }?.let { append('§').append(it.char) }
+            }
+            append(text)
+            Optional.empty<Unit>()
+        }, Style.EMPTY)
     }
 }

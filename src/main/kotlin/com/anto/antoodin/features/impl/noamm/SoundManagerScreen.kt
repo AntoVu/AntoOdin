@@ -51,11 +51,19 @@ class SoundManagerScreen(private val previous: Screen?) : Screen(Component.liter
             }.bounds(10, 22 + i * 22, SIDEBAR_WIDTH, 20).build())
         }
 
+        // Volumes only apply while the module is on, so the switch lives here too
+        addRenderableWidget(Button.builder(enabledText()) { button ->
+            SoundManager.toggle()
+            button.message = enabledText()
+        }.bounds(10, 28 + Tab.entries.size * 22, SIDEBAR_WIDTH, 20).build())
+
         list = SoundList(width - listX - 10, height - 56, 46)
         list.setX(listX)
         addRenderableWidget(list)
         refresh()
     }
+
+    private fun enabledText() = Component.literal(if (SoundManager.enabled) "§aEnabled" else "§cDisabled")
 
     private fun refresh() {
         val sounds = when (tab) {
@@ -90,6 +98,9 @@ class SoundManagerScreen(private val previous: Screen?) : Screen(Component.liter
         }
 
         override fun getRowWidth(): Int = width - 20
+
+        // Vanilla puts the scrollbar just past the rows, which here is outside the list, so dragging it never registered
+        override fun scrollBarX(): Int = right - scrollbarWidth()
     }
 
     private inner class SoundEntry(private val id: Identifier) : ContainerObjectSelectionList.Entry<SoundEntry>() {

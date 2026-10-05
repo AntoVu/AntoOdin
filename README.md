@@ -56,6 +56,50 @@ Dungeon Splits
  - Projected run time from your recent runs
  - Time lost to lag at the end of the run
 
+## Noamm
+Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
+second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.
+
+Auction Price Input
+ - Replaces the auction price sign with a text box
+ - Undercut mode subtracts from the lowest BIN
+ - Enter confirms the Create and Confirm auction menus
+
+Architect Draft
+ - Gets an Architect's First Draft from sacks when you fail a puzzle
+
+I Hate Doors
+ - Renders entrance, wither and blood doors as colored glass
+ - Render only, the door is still solid and map mods still see it
+
+Hidden Mobs
+ - Reveals invisible Shadow Assassins, Fels and stealthy blood mobs
+
+Gate Highlight
+ - Highlights the F7 P3 gate of your section until it is destroyed
+
+Door Fix
+ - Fixes the iron door rotations in F7 P3 section 3
+
+Mod Hider
+ - Stops servers from detecting mods through translation keys in signs and anvils
+
+Snappy Tappy
+ - The most recently pressed of two opposing movement keys wins
+
+Mono Audio
+ - Plays all game audio through a single channel
+
+Sound Manager
+ - Per-sound volume from 0 to 200%, open with `/ao sounds`
+
+Explosive Shot
+ - Shows Explosive Shot damage per enemy
+
+Chat Filter
+ - Hides useless chat messages, by category
+ - Custom patterns with `/ao chathider`
+
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`
  - Logs crop collections on start and stop
@@ -63,6 +107,12 @@ Dungeon Splits
 
 `/ao best [floor]`
  - Adds up your PB splits into a theoretical best run (defaults to current floor, else M7)
+
+`/ao sounds`
+ - Opens the Sound Manager
+
+`/ao chathider add|remove <regex>`, `/ao chathider list`
+ - Manages custom Chat Filter patterns (matched against the whole message)
 
 ## Planned
 Dungeons Auto GFS

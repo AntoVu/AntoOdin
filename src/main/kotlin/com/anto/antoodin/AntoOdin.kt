@@ -4,6 +4,7 @@ import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
 import com.anto.antoodin.features.impl.anto.*
+import com.anto.antoodin.features.impl.noamm.*
 import com.anto.antoodin.events.dispatcher.FabricEventDispatcher
 import com.anto.antoodin.commands.aoCommand
 import net.fabricmc.api.ClientModInitializer
@@ -15,7 +16,9 @@ object AntoOdin : ClientModInitializer {
         listOf(this, FabricEventDispatcher).forEach { EventBus.subscribe(it) }
 
         ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueWardrobe, KuudraAutoGFS,
-            CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits)
+            CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits,
+            AuctionPriceInput, ArchitectDraft, IHateDoors, HiddenMobs, GateHighlight, DoorFix, ModHider, SnappyTappy,
+            MonoAudio, SoundManager, ExplosiveShot, ChatFilter)
 
         JellybeanHider.registerModelHook()
 

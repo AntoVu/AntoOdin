@@ -19,7 +19,8 @@ object AntoOdin : ClientModInitializer {
             CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits,
             AuctionPriceInput, ArchitectDraft, IHateDoors, HiddenMobs, GateHighlight, DoorFix, ModHider, SnappyTappy,
             MonoAudio, SoundManager, ExplosiveShot, ChatFilter, LeapCounter, MaxorsCrystals, ItemTooltip, DamageSplash,
-            LavaToWater, FreezeDisplay, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras)
+            LavaToWater, FreezeDisplay, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
+            SkyblockWaypoints)
 
         JellybeanHider.registerModelHook()
 

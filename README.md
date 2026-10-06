@@ -56,6 +56,11 @@ Dungeon Splits
  - Projected run time from your recent runs
  - Time lost to lag at the end of the run
 
+Skyblock Waypoints
+ - Odin's Dungeon Waypoints for every island and dungeon boss room (F1-F7, shared with M1-M7)
+ - Right click blocks to place with Allow Edits on, sneak to add a title
+ - Waypoint packs, plus a menu to view, retitle and delete each island's waypoints
+
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
 second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.
@@ -153,6 +158,11 @@ Party Finder Extras
 
 `/ao chathider add|remove <regex>`, `/ao chathider list`
  - Manages custom Chat Filter patterns (matched against the whole message)
+
+`/ao waypoints` (alias `/ao wp`)
+ - Opens the Skyblock Waypoints menu
+ - `fill`, `size <x> <y> <z>`, `color <RRGGBBAA>`, `depth`, `useblocksize` set the next waypoint
+ - `export` copies the edit pack, `import [text|url]` imports into it (defaults to clipboard)
 
 ## Planned
 Dungeons Auto GFS

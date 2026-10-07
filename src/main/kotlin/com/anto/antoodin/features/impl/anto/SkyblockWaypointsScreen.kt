@@ -45,12 +45,12 @@ class SkyblockWaypointsScreen(private val previous: Screen?) : Screen(Component.
 
         val sidebar = LinearLayout.vertical().spacing(2)
         sidebar.addChild(sideButton("Packs", null))
-        ISLANDS.forEach { sidebar.addChild(sideButton(it.displayName, it.name)) }
         sidebar.addChild(Button.builder(Component.literal((if (bossOpen) "▼ " else "▶ ") + "Dungeon Boss")) {
             bossOpen = !bossOpen
             rebuild()
         }.size(SIDEBAR_WIDTH, 18).build())
         if (bossOpen) (1..7).forEach { sidebar.addChild(sideButton("Floor $it", SkyblockWaypoints.bossKey(it))) }
+        ISLANDS.forEach { sidebar.addChild(sideButton(it.displayName, it.name)) }
         sidebarArea = addScrollable(sidebar, 10, 10, height - 20, SIDEBAR_WIDTH, sidebarScroll)
 
         val panelX = SIDEBAR_WIDTH + 30

@@ -2,11 +2,11 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.events.RenderEvent
+import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
@@ -32,8 +32,8 @@ object DragonExtras : Module(
 ) {
     private val aimMarker by BooleanSetting("Aim Marker", true, desc = "Shows where to aim at a spawning dragon, accounting for arrow drop.")
     private val markerColor by ColorSetting("Marker Color", Colors.MINECRAFT_AQUA, desc = "Color of the aim marker.").withDependency { aimMarker }
-    private val markerSize by NumberSetting("Marker Size", 2f, 0.1f, 5f, 0.1f, desc = "Size of the aim marker.").withDependency { aimMarker }
-    private val markerThickness by NumberSetting("Marker Thickness", 3f, 1f, 10f, 0.5f, desc = "Line thickness of the aim marker.").withDependency { aimMarker }
+    private val markerSize by NumberSetting("Marker Size", 2f, 0.1..5.0, 0.1f, desc = "Size of the aim marker.").withDependency { aimMarker }
+    private val markerThickness by NumberSetting("Marker Thickness", 3f, 1.0..10.0, 0.5f, desc = "Line thickness of the aim marker.").withDependency { aimMarker }
     private val arrowsHit by BooleanSetting("Arrows Hit", true, desc = "Says how many of your arrows hit the priority dragon in its kill window when it dies.")
 
     // Where to stack arrows for dragons that don't fly straight up from their spawn
@@ -56,7 +56,7 @@ object DragonExtras : Module(
     @Volatile private var hits = 0
 
     init {
-        on<RenderEvent.Extract> {
+        on<RenderExtractEvent> {
             if (!aimMarker || !WitherDragons.enabled) return@on
             val eye = mc.player?.eyePosition ?: return@on
             WitherDragonsEnum.entries.forEach { dragon ->

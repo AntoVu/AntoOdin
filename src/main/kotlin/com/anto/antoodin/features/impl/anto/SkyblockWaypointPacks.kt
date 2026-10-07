@@ -12,6 +12,7 @@ import com.odtheking.odin.utils.modMessage
 import net.minecraft.util.FileUtil
 import java.io.File
 import java.util.TreeMap
+import kotlinx.coroutines.launch
 
 typealias WaypointMap = MutableMap<String, MutableList<DungeonWaypoint>>
 
@@ -64,9 +65,13 @@ object SkyblockWaypointPacks {
     fun editable(key: String): MutableList<DungeonWaypoint> =
         packs.getOrPut(SkyblockWaypoints.editPackId) { mutableMapOf() }.getOrPut(key) { mutableListOf() }
 
-    /** Imports an export string into the edit pack. Islands in it replace the pack's waypoints there, other islands are kept. */
-    fun import(text: String) {
-        val imported = DungeonWaypointConfig.decodeWaypoints(text.trim()) ?: return modMessage("§cFailed to decode waypoints. §fIs the data valid?")
+    /** Imports an export string or https link into the edit pack. Islands in it replace the pack's waypoints there, other islands are kept. */
+    fun import(text: String) = OdinMod.scope.launch {
+        val imported = DungeonWaypointConfig.decodeWaypoints(text.trim()) ?: return@launch modMessage("§cFailed to decode waypoints. §fIs the data valid?")
+        OdinMod.mc.execute { addImported(imported) }
+    }
+
+    private fun addImported(imported: WaypointMap) {
         val pack = SkyblockWaypoints.editPackId
         packs.getOrPut(pack) { mutableMapOf() }.putAll(imported)
         save(pack)

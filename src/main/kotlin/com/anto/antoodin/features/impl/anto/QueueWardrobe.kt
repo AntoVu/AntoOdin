@@ -1,6 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
@@ -30,21 +30,19 @@ object QueueWardrobe : Module(
     val delay by NumberSetting(
         "Delay",
         100,
-        0,
-        500,
+        0..500,
         10,
         desc = "Delay in milliseconds before equipping the queued slot."
     )
     val delayVariety by NumberSetting(
         "Delay Variety",
         70,
-        0,
-        250,
+        0..250,
         10,
         desc = "Random extra delay added on top of Delay."
     )
 
-    private val advanced by DropdownSetting("Show Settings")
+    private val advanced by DropdownSetting("Show Settings", desc = "Shows the per-slot keybinds.")
     private val wardrobe1 by KeybindSetting(
         "Wardrobe 1",
         GLFW.GLFW_KEY_UNKNOWN,
@@ -120,7 +118,7 @@ object QueueWardrobe : Module(
             }
             if (clickScheduled) return@on
 
-            val screen = mc.screen as? AbstractContainerScreen<*> ?: return@on
+            val screen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return@on
             if (!wardrobeRegex.matches(screen.title.string)) return@on
             val slotNumber = qSlot - 35
 
@@ -139,7 +137,7 @@ object QueueWardrobe : Module(
                     schedule(delayTicks) {
                         if (queuedSlot != qSlot) return@schedule
                         queuedSlot = null
-                        val currentScreen = mc.screen as? AbstractContainerScreen<*> ?: return@schedule
+                        val currentScreen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return@schedule
                         if (!wardrobeRegex.matches(currentScreen.title.string)) return@schedule
                         mc.player?.clickSlot(qSlot)
                         mc.player?.closeContainer()

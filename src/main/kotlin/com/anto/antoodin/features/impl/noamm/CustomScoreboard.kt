@@ -40,7 +40,7 @@ object CustomScoreboard : Module(
     private var title: Component = Component.empty()
     private var lines = emptyList<Component>()
 
-    private val hud by HUD(name, "The restyled scoreboard.", false, scale = 1f) { example ->
+    private val hud by HUD(name, "The restyled scoreboard.", false) { example ->
         if (example) {
             draw(this, Component.literal("§e§lSKYBLOCK"), listOf("§710/04/26 §8m151AM", "", "§fPurse: §61,234,567").map(Component::literal))
         } else {

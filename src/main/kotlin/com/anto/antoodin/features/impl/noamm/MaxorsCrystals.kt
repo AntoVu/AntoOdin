@@ -13,7 +13,7 @@ import com.odtheking.odin.utils.PersonalBest
 import com.odtheking.odin.utils.render.textDim
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import com.odtheking.odin.utils.skyblock.dungeon.M7Phases
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 
 object MaxorsCrystals : Module(
     name = "Maxor's Crystals",
@@ -57,7 +57,7 @@ object MaxorsCrystals : Module(
         // Your crystal appears at the pad right next to you when you place it
         on<EntityEvent.Add> {
             val pickedUp = pickupTime ?: return@on
-            if (!placeTimer || entity.type != EntityType.END_CRYSTAL || entity.y.toInt() != CRYSTAL_Y) return@on
+            if (!placeTimer || entity.type != EntityTypes.END_CRYSTAL || entity.y.toInt() != CRYSTAL_Y) return@on
             val player = mc.player ?: return@on
             val dx = entity.x - player.x
             val dz = entity.z - player.z

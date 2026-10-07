@@ -31,7 +31,7 @@ object MinionHelper : Module(
     )
     private val claimCloseDelay by NumberSetting(
         "Claim Delay",
-        300, 250, 500, 10,
+        300, 250..500, 10,
         desc = "Delay before closing gui."
     )
     private val autoFuel by BooleanSetting(
@@ -46,12 +46,12 @@ object MinionHelper : Module(
     )
     private val fuelDelay by NumberSetting(
         "Fuel Delay",
-        300, 250, 500, 10,
+        300, 250..500, 10,
         desc = "Base delay (ms) before placing the fuel item."
     )
     private val fuelCloseDelay by NumberSetting(
         "Close Delay",
-        50, 0, 200, 10,
+        50, 0..200, 10,
         desc = "Extra delay (ms) after fueling before closing the GUI."
     )
 

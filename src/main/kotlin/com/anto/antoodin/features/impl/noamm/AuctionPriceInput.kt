@@ -2,6 +2,7 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.mixin.accessors.AbstractSignEditScreenAccessor
+import com.anto.antoodin.mixin.accessors.GuiAccessor
 import com.anto.antoodin.utils.Prices
 import com.anto.antoodin.utils.Skit
 import com.mojang.blaze3d.platform.InputConstants
@@ -24,6 +25,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.entity.SignBlockEntity
@@ -33,9 +35,11 @@ object AuctionPriceInput : Module(
     description = "Replaces the auction price sign with a text box that has an undercut mode. Enter confirms auctions.",
     category = Skit.NOAMM
 ) {
-    private val defaultMode by SelectorSetting("Default Mode", "Undercut", listOf("Normal", "Undercut"), desc = "Input mode used when the price box opens.")
+    private val defaultMode by SelectorSetting("Default Mode", Mode.UNDERCUT, desc = "Input mode used when the price box opens.")
     private val rememberText by BooleanSetting("Remember Text", true, desc = "Keeps the last price you typed when the box reopens.")
     private val rememberMode by BooleanSetting("Remember Mode", true, desc = "Keeps the last mode you used when the box reopens.")
+
+    enum class Mode { NORMAL, UNDERCUT }
 
     private val createTitles = setOf("Create BIN Auction", "Create Auction")
     private val confirmTitles = setOf("Confirm BIN Auction", "Confirm Auction")
@@ -64,7 +68,7 @@ object AuctionPriceInput : Module(
                 else -> return@on
             }
             val stack = container.menu.slots.getOrNull(slot)?.item ?: return@on
-            if (!stack.`is`(Items.GREEN_TERRACOTTA) || stack.hoverName.string !in titles) return@on
+            if (!stack.`is`(Items.DYED_TERRACOTTA.pick(DyeColor.GREEN)) || stack.hoverName.string !in titles) return@on
             mc.player?.clickSlot(slot)
             cancel()
         }
@@ -77,7 +81,7 @@ object AuctionPriceInput : Module(
             if (lines[1] != "^^^^^^^^^^^^^^^" || lines[2] != "Your auction" || lines[3] != "starting bid") return@register
 
             // Set the field directly: setScreen would close the sign and send its empty text
-            mc.execute { mc.screen = InputScreen(sign, lines, stack).apply { init(width, height) } }
+            mc.execute { (mc.gui as GuiAccessor).setScreenDirect(InputScreen(sign, lines, stack).apply { init(width, height) }) }
         }
     }
 
@@ -101,7 +105,7 @@ object AuctionPriceInput : Module(
             super.init()
             Prices.refresh()
             if (!rememberText) input = ""
-            if (!rememberMode || undercut == null) undercut = defaultMode == 1
+            if (!rememberMode || undercut == null) undercut = defaultMode == Mode.UNDERCUT
 
             val centerX = width / 2
             val centerY = height / 2

@@ -2,7 +2,7 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.LocationChangeEvent
@@ -12,6 +12,7 @@ import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.core.SectionPos
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
@@ -28,24 +29,22 @@ object IHateDoors : Module(
     description = "Renders dungeon doors as glass. Only the visuals change, the door is still solid.",
     category = Skit.NOAMM
 ) {
-    private val glassNames = listOf(
-        "Clear", "White", "Black", "Cyan", "Light Blue", "Red", "Pink", "Orange", "Magenta",
-        "Yellow", "Lime", "Gray", "Light Gray", "Purple", "Blue", "Brown", "Green"
-    )
-    private val glassBlocks = listOf(
-        Blocks.GLASS, Blocks.WHITE_STAINED_GLASS, Blocks.BLACK_STAINED_GLASS, Blocks.CYAN_STAINED_GLASS,
-        Blocks.LIGHT_BLUE_STAINED_GLASS, Blocks.RED_STAINED_GLASS, Blocks.PINK_STAINED_GLASS, Blocks.ORANGE_STAINED_GLASS,
-        Blocks.MAGENTA_STAINED_GLASS, Blocks.YELLOW_STAINED_GLASS, Blocks.LIME_STAINED_GLASS, Blocks.GRAY_STAINED_GLASS,
-        Blocks.LIGHT_GRAY_STAINED_GLASS, Blocks.PURPLE_STAINED_GLASS, Blocks.BLUE_STAINED_GLASS, Blocks.BROWN_STAINED_GLASS,
-        Blocks.GREEN_STAINED_GLASS
-    )
+    // Labels match the old string options, so saved choices load
+    enum class Glass(val color: DyeColor?) {
+        CLEAR(null), WHITE(DyeColor.WHITE), BLACK(DyeColor.BLACK), CYAN(DyeColor.CYAN), LIGHT_BLUE(DyeColor.LIGHT_BLUE),
+        RED(DyeColor.RED), PINK(DyeColor.PINK), ORANGE(DyeColor.ORANGE), MAGENTA(DyeColor.MAGENTA), YELLOW(DyeColor.YELLOW),
+        LIME(DyeColor.LIME), GRAY(DyeColor.GRAY), LIGHT_GRAY(DyeColor.LIGHT_GRAY), PURPLE(DyeColor.PURPLE), BLUE(DyeColor.BLUE),
+        BROWN(DyeColor.BROWN), GREEN(DyeColor.GREEN);
+
+        val state: BlockState get() = (color?.let(Blocks.STAINED_GLASS::pick) ?: Blocks.GLASS).defaultBlockState()
+    }
 
     private val glassEntrance by BooleanSetting("Glass Entrance Door", true, desc = "Renders the entrance door as glass.")
-    private val entranceGlass by SelectorSetting("Entrance Door Glass", "Clear", glassNames, desc = "Glass used for the entrance door.").withDependency { glassEntrance }
+    private val entranceGlass by SelectorSetting("Entrance Door Glass", Glass.CLEAR, desc = "Glass used for the entrance door.").withDependency { glassEntrance }
     private val glassWither by BooleanSetting("Glass Wither Door", true, desc = "Renders wither doors as glass.")
-    private val witherGlass by SelectorSetting("Wither Door Glass", "Black", glassNames, desc = "Glass used for wither doors.").withDependency { glassWither }
+    private val witherGlass by SelectorSetting("Wither Door Glass", Glass.BLACK, desc = "Glass used for wither doors.").withDependency { glassWither }
     private val glassBlood by BooleanSetting("Glass Blood Door", true, desc = "Renders the blood door as glass.")
-    private val bloodGlass by SelectorSetting("Blood Door Glass", "Red", glassNames, desc = "Glass used for the blood door.").withDependency { glassBlood }
+    private val bloodGlass by SelectorSetting("Blood Door Glass", Glass.RED, desc = "Glass used for the blood door.").withDependency { glassBlood }
 
     // Door blocks are at room grid edges: 16 blocks apart starting at -185, 3 wide, y 69-72
     private const val GRID_START = -185
@@ -84,9 +83,9 @@ object IHateDoors : Module(
 
     private fun updateRenderStates() {
         val next = buildMap {
-            if (glassEntrance) put(Blocks.INFESTED_CHISELED_STONE_BRICKS, glassBlocks[entranceGlass].defaultBlockState())
-            if (glassWither) put(Blocks.COAL_BLOCK, glassBlocks[witherGlass].defaultBlockState())
-            if (glassBlood) put(Blocks.RED_TERRACOTTA, glassBlocks[bloodGlass].defaultBlockState())
+            if (glassEntrance) put(Blocks.INFESTED_CHISELED_STONE_BRICKS, entranceGlass.state)
+            if (glassWither) put(Blocks.COAL_BLOCK, witherGlass.state)
+            if (glassBlood) put(Blocks.DYED_TERRACOTTA.pick(DyeColor.RED), bloodGlass.state)
         }
         if (next == renderStates) return
         renderStates = next
@@ -118,6 +117,6 @@ object IHateDoors : Module(
         val ySection = SectionPos.blockToSectionCoord(DOOR_MIN_Y)
         for (x in minSection..maxSection)
             for (z in minSection..maxSection)
-                mc.levelRenderer.setSectionDirty(x, ySection, z)
+                mc.levelExtractor.setSectionDirty(x, ySection, z)
     }
 }

@@ -22,7 +22,7 @@ object SoundManager : Module(
     toggled = true
 ) {
     private val openScreen by ActionSetting("Open Sound Manager", desc = "Opens the per-sound volume menu.") {
-        mc.setScreen(SoundManagerScreen(mc.screen))
+        mc.gui.setScreen(SoundManagerScreen(mc.gui.screen()))
     }
 
     // Sound id -> volume multiplier. Sounds at 100% are left out
@@ -41,7 +41,7 @@ object SoundManager : Module(
     // Recorded even while disabled so the Recent list is ready when the module is turned on
     @JvmStatic
     fun recordPlayedSound(sound: SoundInstance) {
-        if (mc.screen is SoundManagerScreen) return
+        if (mc.gui.screen() is SoundManagerScreen) return
         synchronized(recentSounds) {
             recentSounds.remove(sound.identifier)
             recentSounds.add(sound.identifier)

@@ -15,8 +15,7 @@ object PearlRefill : Module(
     private val refillTriggerAmount by NumberSetting(
         "Trigger",
         5,
-        1,
-        15,
+        1..15,
         1,
         desc = "What value to refill at."
     )

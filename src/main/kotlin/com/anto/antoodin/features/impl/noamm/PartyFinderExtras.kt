@@ -6,7 +6,7 @@ import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.OdinMod
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.events.SetSlotEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
@@ -39,7 +39,7 @@ object PartyFinderExtras : Module(
     private val showLevelReq by BooleanSetting("Level Requirement", true, desc = "Shows the required dungeon level on each party's head.")
     private val showMissingOverlay by BooleanSetting("Missing Classes On Head", true, desc = "Shows the classes a party is missing on its head.")
     private val showMissingTooltip by BooleanSetting("Missing Classes In Tooltip", true, desc = "Lists the missing classes at the bottom of the tooltip.")
-    private val statsDropdown by DropdownSetting("Tooltip Stats")
+    private val statsDropdown by DropdownSetting("Tooltip Stats", desc = "Which stats to show in the tooltip.")
     private val showCataLevel by BooleanSetting("Catacombs Level", true, desc = "Shows each member's Catacombs level.").withDependency { statsDropdown }
     private val showSecrets by BooleanSetting("Secrets", true, desc = "Shows each member's total secrets and secrets per run.").withDependency { statsDropdown }
     private val showMagicalPower by BooleanSetting("Magical Power", true, desc = "Shows each member's magical power (needs their inventory API on).").withDependency { statsDropdown }
@@ -65,7 +65,7 @@ object PartyFinderExtras : Module(
     init {
         // Your selected class shows in the Catacombs Gate menu
         on<SetSlotEvent> {
-            if (slotIndex != 45 || (mc.screen as? AbstractContainerScreen<*>)?.title?.string != "Catacombs Gate") return@on
+            if (slotIndex != 45 || (mc.gui.screen() as? AbstractContainerScreen<*>)?.title?.string != "Catacombs Gate") return@on
             itemStack.loreString.firstNotNullOfOrNull { selectedClassRegex.find(it) }?.let { selectedClass = it.groupValues[1] }
         }
 
@@ -76,7 +76,7 @@ object PartyFinderExtras : Module(
 
     // The Party Finder "Party Finder" title is shared with its settings menu, which has combat level in slot 50's lore
     private fun partyFinderScreen(): AbstractContainerScreen<*>? {
-        val screen = mc.screen as? AbstractContainerScreen<*> ?: return null
+        val screen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return null
         if (screen.title.string != "Party Finder") return null
         val star = screen.menu.slots.getOrNull(50)?.item ?: return null
         if (!star.`is`(Items.NETHER_STAR) || star.loreString.getOrNull(5)?.contains("Combat Level:") == true) return null

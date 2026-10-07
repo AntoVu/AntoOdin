@@ -2,7 +2,7 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.features.Module
@@ -23,8 +23,8 @@ object CameraTweaks : Module(
     category = Skit.NOAMM
 ) {
     private val customFov by BooleanSetting("Custom FOV", false, desc = "Overrides your FOV setting.")
-    private val fov by NumberSetting("FOV", 110, 30, 179, 1, desc = "FOV to use instead of the vanilla setting.").withDependency { customFov }
-    private val slownessFov by NumberSetting("Slowness FOV", 100, 0, 100, 5, desc = "How much Slowness narrows your FOV. 100% is vanilla, 0% ignores it. Speed and sprinting are unaffected.", unit = "%")
+    private val fov by NumberSetting("FOV", 110, 30..179, 1, desc = "FOV to use instead of the vanilla setting.").withDependency { customFov }
+    private val slownessFov by NumberSetting("Slowness FOV", 100, 0..100, 5, desc = "How much Slowness narrows your FOV. 100% is vanilla, 0% ignores it. Speed and sprinting are unaffected.", unit = "%")
     private val noBlindness by BooleanSetting("No Blindness", false, desc = "Removes the Blindness fog.")
     private val noNausea by BooleanSetting("No Nausea", false, desc = "Removes the Nausea wobble and overlay.")
 

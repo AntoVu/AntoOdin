@@ -24,12 +24,12 @@ object ExperimentAddon : Module(
     description = "Automatically click on the Chronomatron and Ultrasequencer experiments.",
     category = Skit.ANTO
 ) {
-    private val clickDelay by NumberSetting("Click Delay", 200, 100, 1000, 10, unit = "ms", desc = "Time in ms between automatic test clicks.")
-    private val delayVariety by NumberSetting("Delay variety", 50, 0, 1000, 10, unit = "ms", desc = "Variance in delays")
-    private val firstClickDelay by NumberSetting("First Click Delay", 750, 100, 1500, 10, unit = "ms", desc = "Delay in ms between Chronomatron first click.")
+    private val clickDelay by NumberSetting("Click Delay", 200, 100..1000, 10, unit = "ms", desc = "Time in ms between automatic test clicks.")
+    private val delayVariety by NumberSetting("Delay variety", 50, 0..1000, 10, unit = "ms", desc = "Variance in delays")
+    private val firstClickDelay by NumberSetting("First Click Delay", 750, 100..1500, 10, unit = "ms", desc = "Delay in ms between Chronomatron first click.")
     private val autoClose by BooleanSetting("Auto Close", true, desc = "Automatically close the GUI after completing the experiment.")
     private val subtractOne by BooleanSetting("Close One Early", false, desc = "Automatically close Ultrasequencer experiment one click earlier.")
-    private val serumCount by NumberSetting("Serum Count", 0, 0, 3, 1, desc = "Consumed Metaphysical Serum count.")
+    private val serumCount by NumberSetting("Serum Count", 0, 0..3, 1, desc = "Consumed Metaphysical Serum count.")
     private val startUltrasequencer by BooleanSetting("Start Ultrasequencer", false, desc = "Automatically start Ultrasequencer after Chronomatron. The delay between actions will be 3x your regular delay.")
 
     private var handler: ExperimentHandler? = null
@@ -72,13 +72,13 @@ object ExperimentAddon : Module(
 
         on<ScreenEvent.MouseClick> {
             if (handler == null) return@on
-            if (mc.screen !is AbstractContainerScreen<*>) return@on
+            if (mc.gui.screen() !is AbstractContainerScreen<*>) return@on
             cancel()
         }
 
         on<ScreenEvent.MouseRelease> {
             if (handler == null) return@on
-            if (mc.screen !is AbstractContainerScreen<*>) return@on
+            if (mc.gui.screen() !is AbstractContainerScreen<*>) return@on
             cancel()
         }
 
@@ -93,7 +93,7 @@ object ExperimentAddon : Module(
             }
 
             val handler = handler ?: return@on
-            val screen = mc.screen as? AbstractContainerScreen<*> ?: return@on
+            val screen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return@on
 
             val now = System.currentTimeMillis()
             val isFirst = handler.isFirstClick()
@@ -137,7 +137,7 @@ object ExperimentAddon : Module(
             }
 
             TransitionState.WAIT_CLICK_SLOT_33 -> {
-                val screen = mc.screen as? AbstractContainerScreen<*>
+                val screen = mc.gui.screen() as? AbstractContainerScreen<*>
                 val title = screen?.title?.string
 
                 if (title == null || !title.startsWith("Experimentation Table")) {
@@ -151,7 +151,7 @@ object ExperimentAddon : Module(
             }
 
             TransitionState.WAIT_CLICK_SLOT_23 -> {
-                val screen = mc.screen as? AbstractContainerScreen<*>
+                val screen = mc.gui.screen() as? AbstractContainerScreen<*>
                 val title = screen?.title?.string
 
                 if (title == null || !title.startsWith("Ultrasequencer ➜ Stakes")) {
@@ -181,7 +181,7 @@ object ExperimentAddon : Module(
         override fun isFirstClick(): Boolean = isFirstRound && clicks == 0 && hasData
 
         override fun onSlotUpdate(packet: ClientboundContainerSetSlotPacket) {
-            val slots = (mc.screen as? AbstractContainerScreen<*>)?.menu?.slots ?: return
+            val slots = (mc.gui.screen() as? AbstractContainerScreen<*>)?.menu?.slots ?: return
             val center = slots[49].item
 
             if (
@@ -224,7 +224,7 @@ object ExperimentAddon : Module(
         private var lastClickTime: Long = 0
 
         override fun onSlotUpdate(packet: ClientboundContainerSetSlotPacket) {
-            val slots = (mc.screen as? AbstractContainerScreen<*>)?.menu?.slots ?: return
+            val slots = (mc.gui.screen() as? AbstractContainerScreen<*>)?.menu?.slots ?: return
             val center = slots[49].item
 
             if (center.item == Items.CLOCK) {

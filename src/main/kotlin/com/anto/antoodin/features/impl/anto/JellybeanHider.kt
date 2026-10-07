@@ -36,7 +36,7 @@ object JellybeanHider : Module(
     category = Skit.ANTO
 ) {
     private const val MIN_SLIDER_Y = 67
-    private val hideAboveY by NumberSetting("Hide Above Y", 76, MIN_SLIDER_Y, 87, 1, desc = "Sugar cane above this Y is hidden. Jellybean armor stands are hidden one block lower.")
+    private val hideAboveY by NumberSetting("Hide Above Y", 76, MIN_SLIDER_Y..87, 1, desc = "Sugar cane above this Y is hidden. Jellybean armor stands are hidden one block lower.")
 
     // Fully grown jellybean has a melon stem at this exact Y
     private const val MELON_STEM_Y = 83
@@ -122,7 +122,7 @@ object JellybeanHider : Module(
         for (x in centerX - radius..centerX + radius)
             for (z in centerZ - radius..centerZ + radius)
                 for (y in minY..level.maxSectionY)
-                    mc.levelRenderer.setSectionDirty(x, y, z)
+                    mc.levelExtractor.setSectionDirty(x, y, z)
     }
 
     private class HiddenModel(wrapped: BlockStateModel) : WrapperBlockStateModel(wrapped) {

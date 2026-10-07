@@ -2,7 +2,7 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.ListSetting
@@ -28,7 +28,7 @@ object ChatFilter : Module(
         val regexes = patterns.map(::Regex)
     }
 
-    private val categoryDropdown by DropdownSetting("Categories")
+    private val categoryDropdown by DropdownSetting("Categories", desc = "Which kinds of messages to hide.")
     private val lobby by BooleanSetting("Lobby & Warps", true, desc = "Warping, server sending, profile and lobby join messages.").withDependency { categoryDropdown }
     private val announcements by BooleanSetting("Announcements", true, desc = "Watchdog, link safety and event reward announcements.").withDependency { categoryDropdown }
     private val doorsAndKeys by BooleanSetting("Doors & Keys", true, desc = "Dungeon key pickups and door openings.").withDependency { categoryDropdown }

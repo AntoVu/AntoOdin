@@ -1,6 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.MessageEvent
@@ -27,24 +27,21 @@ object DianaAutoWarp : Module(
     private val warpDelay by NumberSetting(
         "Warp Delay",
         1000,
-        500,
-        3000,
+        500..3000,
         100,
         desc = "Fixed delay in milliseconds before sending the warp command."
     ).withDependency { !randomDelay }
     private val minRandomDelay by NumberSetting(
         "Min Delay",
         800,
-        200,
-        3000,
+        200..3000,
         100,
         desc = "Minimum delay in milliseconds."
     ).withDependency { randomDelay }
     private val maxRandomDelay by NumberSetting(
         "Max Delay",
         1500,
-        500,
-        3000,
+        500..3000,
         100,
         desc = "Maximum delay in milliseconds."
     ).withDependency { randomDelay }

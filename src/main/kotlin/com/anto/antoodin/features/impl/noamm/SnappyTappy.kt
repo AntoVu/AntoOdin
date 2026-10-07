@@ -18,7 +18,7 @@ object SnappyTappy : Module(
 
     @JvmStatic
     fun resolveInput(input: Input): Input {
-        if (!enabled || mc.screen != null) {
+        if (!enabled || mc.gui.screen() != null) {
             pressTimes.clear()
             return input
         }

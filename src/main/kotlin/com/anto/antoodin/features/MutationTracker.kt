@@ -70,7 +70,7 @@ object MutationTracker {
         schedule(5) {
             mc.player?.connection?.sendCommand("collections $crop")
             schedule(msToTicks(1000 + Random.nextLong(0, 1001))) {
-                val screen = mc.screen as? AbstractContainerScreen<*>
+                val screen = mc.gui.screen() as? AbstractContainerScreen<*>
                 val value = screen?.takeIf { it.title.string.contains("Collection") }
                     ?.menu?.slots?.getOrNull(COLLECTION_SLOT)?.item?.loreString?.let(::parseCollection)
                 mc.player?.closeContainer()

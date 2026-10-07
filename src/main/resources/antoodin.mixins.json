@@ -25,13 +25,14 @@
     "mixins.CameraMixin",
     "mixins.FluidStateModelSetMixin",
     "mixins.GameRendererMixin",
-    "mixins.GuiMixin",
+    "mixins.HudMixin",
     "mixins.LavaFogEnvironmentMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",
     "accessors.AbstractContainerScreenAccessor",
-    "accessors.KeyMappingAccessor"
+    "accessors.KeyMappingAccessor",
+    "accessors.GuiAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

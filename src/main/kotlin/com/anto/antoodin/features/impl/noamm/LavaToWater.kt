@@ -2,7 +2,7 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
@@ -29,7 +29,7 @@ object LavaToWater : Module(
     description = "Renders lava as see-through water and removes lava fog.",
     category = Skit.NOAMM
 ) {
-    private val areas by DropdownSetting("Areas")
+    private val areas by DropdownSetting("Areas", desc = "Where lava is replaced.")
     private val everywhere by BooleanSetting("Everywhere", false, desc = "Replaces lava everywhere, ignoring the areas below.").withDependency { areas }
     private val catacombs by BooleanSetting("Catacombs", true, desc = "Replaces lava in dungeons.").withDependency { areas && !everywhere }
     private val kuudra by BooleanSetting("Kuudra", true, desc = "Replaces lava in Kuudra.").withDependency { areas && !everywhere }
@@ -72,7 +72,7 @@ object LavaToWater : Module(
         val state = active to tint.takeIf { active }
         if (state == applied) return
         applied = state
-        mc.execute { mc.levelRenderer.allChanged() }
+        mc.execute { mc.levelExtractor.allChanged() }
     }
 
     @JvmStatic

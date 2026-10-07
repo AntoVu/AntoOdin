@@ -44,7 +44,7 @@ object DropGuard : Module(
 
     fun shouldBlockDrop(): Boolean {
         if (!enabled || !inTerminals) return false
-        if (mc.screen != null) return false
+        if (mc.gui.screen() != null) return false
         // Unknown means not in the F7/M7 boss, so a stale flag can never block elsewhere
         if (DungeonUtils.getF7Phase() == M7Phases.Unknown) return false
         return !overrideKey.isHeld()

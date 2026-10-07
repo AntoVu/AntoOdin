@@ -1,6 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
@@ -17,11 +17,10 @@ object CPSDisplay : Module(
     description = "Displays your clicks per second.",
     category = Skit.ANTO
 ) {
-    private val advanced by DropdownSetting("Show Settings", false)
+    private val advanced by DropdownSetting("Show Settings", desc = "Shows the advanced settings.")
     private val button by SelectorSetting(
         "Button",
-        "Both",
-        listOf("Left", "Right", "Both"),
+        Button.BOTH,
         desc = "The button to display the CPS of."
     ).withDependency { advanced }
     private val mouseText by BooleanSetting("Show Button", true, desc = "Shows the button name.").withDependency { advanced }
@@ -31,9 +30,7 @@ object CPSDisplay : Module(
     private val leftClicks = mutableListOf<Long>()
     private val rightClicks = mutableListOf<Long>()
 
-    private const val LEFT = 0
-    private const val RIGHT = 1
-    private const val BOTH = 2
+    enum class Button { LEFT, RIGHT, BOTH }
 
     fun onLeftClick() {
         if (!enabled) return
@@ -59,9 +56,9 @@ object CPSDisplay : Module(
         }
 
         when (button) {
-            LEFT -> renderCPS("LMB: ", leftClicks.size)
-            RIGHT -> renderCPS("RMB: ", rightClicks.size)
-            BOTH -> {
+            Button.LEFT -> renderCPS("LMB: ", leftClicks.size)
+            Button.RIGHT -> renderCPS("RMB: ", rightClicks.size)
+            Button.BOTH -> {
                 renderCPS("LMB: ", leftClicks.size)
                 renderCPS("RMB: ", rightClicks.size)
             }

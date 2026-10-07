@@ -3,7 +3,7 @@ package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.P3Section
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.events.EntityEvent
@@ -30,7 +30,7 @@ object LeapCounter : Module(
     category = Skit.NOAMM
 ) {
     private val alertComplete by BooleanSetting("Alert Complete", true, desc = "Shows a title and plays a sound when everyone has arrived.")
-    private val completeText by StringSetting("Complete Text", "§aEveryone Leaped!", desc = "Title shown when everyone has arrived.").withDependency { alertComplete }
+    private val completeText by StringSetting("Complete Text", "§aEveryone Leaped!", desc = "Title shown when everyone has arrived.", placeholder = "§aEveryone Leaped!").withDependency { alertComplete }
     private val completeSound = createSoundSettings("Complete Sound", "entity.experience_orb.pickup") { alertComplete }
 
     private class Spot(val name: String, val box: AABB, val maxCount: Int, val counts: (Vec3) -> Boolean) {

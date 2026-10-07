@@ -4,7 +4,7 @@ import com.anto.antoodin.utils.Skit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.odtheking.odin.OdinMod
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.LevelEvent
@@ -84,7 +84,7 @@ object DungeonSplits : Module(
     private val showPb by BooleanSetting("Show PB", true, desc = "Compares each split to your PB in the split messages.").withDependency { splitMessages }
     private val projectedHud by BooleanSetting("Projected In HUD", true, desc = "Shows the projected run time at the bottom of the HUD.")
     private val projectedChat by BooleanSetting("Projected In Chat", true, desc = "Sends the projected run time in chat after each split.")
-    private val projectionRuns by NumberSetting("Projection Runs", 5, 1, MAX_RUNS, 1, desc = "How many recent runs to average for the projected run time.")
+    private val projectionRuns by NumberSetting("Projection Runs", 5, 1..MAX_RUNS, 1, desc = "How many recent runs to average for the projected run time.")
         .withDependency { projectedHud || projectedChat }
     private val lagMessage by BooleanSetting("Time Lost To Lag", true, desc = "Sends the time lost to server lag when the run ends.")
 

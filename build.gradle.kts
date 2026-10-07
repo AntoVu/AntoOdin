@@ -26,16 +26,6 @@ dependencies {
     implementation("maven.modrinth:jJJLywXp:${property("odin_version")}")
 
     implementation("com.github.stivais:Commodore:${property("commodore_version")}")
-
-    property("minecraft_lwjgl_version").let { lwjglVersion ->
-        implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
-        include("org.lwjgl:lwjgl-nanovg:$lwjglVersion")
-
-        listOf("windows", "linux", "macos", "macos-arm64").forEach { os ->
-            implementation("org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-$os")
-            include("org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-$os")
-        }
-    }
 }
 
 loom {

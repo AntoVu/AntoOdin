@@ -6,12 +6,13 @@ import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.LevelEvent
-import com.odtheking.odin.events.RenderEvent
+import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.noControlCodes
+import com.odtheking.odin.utils.render.BoxStyle
 import com.odtheking.odin.utils.render.drawStyledBox
 import com.odtheking.odin.utils.skyblock.Island
 import com.odtheking.odin.utils.skyblock.LocationUtils
@@ -29,7 +30,7 @@ object AloeHighlight : Module(
     private val notOptimalColor by ColorSetting("Not Optimal Color", Colors.MINECRAFT_YELLOW, true, desc = "Color for Stage 11-12.")
     private val readyColor by ColorSetting("Ready Color", Colors.MINECRAFT_GREEN, true, desc = "Color for Stage 13-14.")
     private val harvestNowColor by ColorSetting("Harvest Now Color", Colors.MINECRAFT_AQUA, true, desc = "Color for Stage 15 and above.")
-    private val renderStyle by SelectorSetting("Render Style", "Outline", listOf("Filled", "Outline", "Filled Outline"), desc = "Style of the box.")
+    private val renderStyle by SelectorSetting("Render Style", BoxStyle.OUTLINE, desc = "Style of the box.")
     private val depthCheck by BooleanSetting("Depth Check", true, desc = "Disable to see aloe through other crops and blocks.")
 
     private val stageRegex = Regex("^Stage (\\d+)$")
@@ -44,7 +45,7 @@ object AloeHighlight : Module(
 
         on<LevelEvent.Load> { aloes.clear() }
 
-        on<RenderEvent.Extract> {
+        on<RenderExtractEvent> {
             if (aloes.isEmpty() || !LocationUtils.isCurrentArea(Island.Garden)) return@on
             aloes.forEach { (stand, stage) ->
                 if (!stand.isAlive) return@forEach

@@ -17,8 +17,8 @@ object ArchitectDraft : Module(
     description = "Gets an Architect's First Draft from your sacks when you fail a puzzle.",
     category = Skit.NOAMM
 ) {
-    private val delay by NumberSetting("Delay", 1500, 0, 3000, 50, desc = "Delay in milliseconds before getting the draft.")
-    private val delayVariety by NumberSetting("Delay Variety", 300, 0, 1000, 50, desc = "Random extra delay in milliseconds added on top of Delay.")
+    private val delay by NumberSetting("Delay", 1500, 0..3000, 50, desc = "Delay in milliseconds before getting the draft.")
+    private val delayVariety by NumberSetting("Delay Variety", 300, 0..1000, 50, desc = "Random extra delay in milliseconds added on top of Delay.")
 
     private val failRegexes = listOf(
         Regex("^PUZZLE FAIL! (\\w{1,16}) .+$"),

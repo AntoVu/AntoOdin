@@ -19,7 +19,7 @@ object FreezeDisplay : Module(
     category = Skit.NOAMM
 ) {
     private val color by ColorSetting("Color", Color(245, 73, 39), desc = "Text color.")
-    private val threshold by NumberSetting("Threshold", 500, 100, 2000, 100, desc = "Milliseconds without a server tick before the display shows.", unit = "ms")
+    private val threshold by NumberSetting("Threshold", 500, 100..2000, 100, desc = "Milliseconds without a server tick before the display shows.", unit = "ms")
     private val dungeonsOnly by BooleanSetting("Only in Dungeons", true, desc = "Only shows the display in dungeons.")
 
     // Set on the netty thread, so client lag spikes don't count as server freezes

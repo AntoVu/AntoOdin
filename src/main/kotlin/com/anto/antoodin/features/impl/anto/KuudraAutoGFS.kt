@@ -16,18 +16,18 @@ object KuudraAutoGFS : Module(
     description = "Automatically gets arrow poison from sacks after the ballista is built.",
     category = Skit.ANTO
 ) {
+    enum class Poison { TOXIC_ARROW_POISON, TWILIGHT_ARROW_POISON }
+
     private val arrowPoisonType by SelectorSetting(
         "Type",
-        "Toxic Arrow Poison",
-        listOf("Toxic Arrow Poison", "Twilight Arrow Poison"),
+        Poison.TOXIC_ARROW_POISON,
         desc = "Which arrow poison to pull from sacks."
     )
 
     private val amount by NumberSetting(
         "Amount",
         32,
-        1,
-        64,
+        1..64,
         1,
         desc = "How much arrow poison to get from sacks."
     )
@@ -41,7 +41,7 @@ object KuudraAutoGFS : Module(
             if (LocationUtils.currentArea != Island.Kuudra) return@on
             if (!ballistaRegex.matches(message)) return@on
 
-            val itemName = if (arrowPoisonType == 0) "Toxic_Arrow_Poison" else "Twilight_Arrow_Poison"
+            val itemName = if (arrowPoisonType == Poison.TOXIC_ARROW_POISON) "Toxic_Arrow_Poison" else "Twilight_Arrow_Poison"
             val delayTicks = Random.nextInt(0, 3)
 
             schedule(delayTicks) {

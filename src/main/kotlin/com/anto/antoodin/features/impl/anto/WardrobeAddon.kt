@@ -1,6 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
@@ -29,7 +29,7 @@ object WardrobeAddon : Module(
     private val unequipKeybind by KeybindSetting("Unequip", GLFW.GLFW_KEY_UNKNOWN, desc = "Keybind to unequip the currently equipped item in the wardrobe.")
     private val disallowUnequippingEquipped by BooleanSetting("Disable Unequip", desc = "Prevents unequipping equipped armor.")
 
-    private val advanced by DropdownSetting("Show Settings")
+    private val advanced by DropdownSetting("Show Settings", desc = "Shows the per-slot keybinds.")
     private val wardrobe1 by KeybindSetting("Wardrobe 1", GLFW.GLFW_KEY_1, desc = "Keybind to equip the first wardrobe slot.").withDependency { advanced }
     private val wardrobe2 by KeybindSetting("Wardrobe 2", GLFW.GLFW_KEY_2, desc = "Keybind to equip the second wardrobe slot.").withDependency { advanced }
     private val wardrobe3 by KeybindSetting("Wardrobe 3", GLFW.GLFW_KEY_3, desc = "Keybind to equip the third wardrobe slot.").withDependency { advanced }
@@ -40,12 +40,12 @@ object WardrobeAddon : Module(
     private val wardrobe8 by KeybindSetting("Wardrobe 8", GLFW.GLFW_KEY_8, desc = "Keybind to equip the eighth wardrobe slot.").withDependency { advanced }
     private val wardrobe9 by KeybindSetting("Wardrobe 9", GLFW.GLFW_KEY_9, desc = "Keybind to equip the ninth wardrobe slot.").withDependency { advanced }
 
-    private val autoCloseDropdown by DropdownSetting("Auto Close")
+    private val autoCloseDropdown by DropdownSetting("Auto Close", desc = "Settings for closing the menu after equipping.")
     private val autoCloseToggle by BooleanSetting("Auto Close Toggle", false, desc = "Automatically closes the wardrobe after selecting a slot.").withDependency { autoCloseDropdown }
-    private val autoCloseDelay by NumberSetting("Auto Close Delay", 100, 0, 500, 10, desc = "Delay in milliseconds before closing the wardrobe.").withDependency { autoCloseDropdown }
-    private val delayVariety by NumberSetting("Delay Variety", 70, 0, 250, 10, desc = "Random extra delay in milliseconds added on top of Auto Close Delay.").withDependency { autoCloseDropdown }
+    private val autoCloseDelay by NumberSetting("Auto Close Delay", 100, 0..500, 10, desc = "Delay in milliseconds before closing the wardrobe.").withDependency { autoCloseDropdown }
+    private val delayVariety by NumberSetting("Delay Variety", 70, 0..250, 10, desc = "Random extra delay in milliseconds added on top of Auto Close Delay.").withDependency { autoCloseDropdown }
 
-    private val equipSoundDropdown by DropdownSetting("Equip Sounds")
+    private val equipSoundDropdown by DropdownSetting("Equip Sounds", desc = "Settings for the equip sound.")
     private val equipSoundToggle by BooleanSetting("Enable Equip Sound", false, desc = "Plays a sound when you equip a wardrobe slot.").withDependency { equipSoundDropdown }
     private val equipSoundSettings = createSoundSettings("Equip Sound", "entity.horse.armor") { equipSoundToggle && equipSoundDropdown }
 
@@ -72,7 +72,7 @@ object WardrobeAddon : Module(
     private fun isWardrobe(title: String) = wardrobeRegex.containsMatchIn(title) || equipmentRegex.containsMatchIn(title)
 
     private fun closeIfOpen() {
-        val screen = mc.screen as? AbstractContainerScreen<*> ?: return
+        val screen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return
         if (!isWardrobe(screen.title.string)) return
         mc.player?.closeContainer()
     }

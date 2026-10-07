@@ -84,7 +84,7 @@ class SoundManagerScreen(private val previous: Screen?) : Screen(Component.liter
 
     override fun onClose() {
         ModuleManager.saveConfigurations()
-        mc.setScreen(previous)
+        mc.gui.setScreen(previous)
     }
 
     override fun isPauseScreen(): Boolean = false

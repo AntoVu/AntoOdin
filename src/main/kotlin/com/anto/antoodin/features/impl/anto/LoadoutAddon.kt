@@ -1,6 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.odtheking.odin.clickgui.settings.Setting.Companion.withDependency
+import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
@@ -27,7 +27,7 @@ object LoadoutAddon : Module(
     private val nextPageKeybind by KeybindSetting("Next Page", GLFW.GLFW_KEY_RIGHT, desc = "Keybind to go to the next page in loadouts.")
     private val previousPageKeybind by KeybindSetting("Previous Page", GLFW.GLFW_KEY_LEFT, desc = "Keybind to go to the previous page in loadouts.")
 
-    private val advanced by DropdownSetting("Show Settings")
+    private val advanced by DropdownSetting("Show Settings", desc = "Shows the per-slot keybinds.")
     private val loadout1 by KeybindSetting("Loadout 1", GLFW.GLFW_KEY_1, desc = "Keybind to equip the first loadout slot.").withDependency { advanced }
     private val loadout2 by KeybindSetting("Loadout 2", GLFW.GLFW_KEY_2, desc = "Keybind to equip the second loadout slot.").withDependency { advanced }
     private val loadout3 by KeybindSetting("Loadout 3", GLFW.GLFW_KEY_3, desc = "Keybind to equip the third loadout slot.").withDependency { advanced }
@@ -41,12 +41,12 @@ object LoadoutAddon : Module(
     private val loadout11 by KeybindSetting("Loadout 11", GLFW.GLFW_KEY_R, desc = "Keybind to equip the eleventh loadout slot.").withDependency { advanced }
     private val loadout12 by KeybindSetting("Loadout 12", GLFW.GLFW_KEY_F, desc = "Keybind to equip the twelfth loadout slot.").withDependency { advanced }
 
-    private val autoCloseDropdown by DropdownSetting("Auto Close")
+    private val autoCloseDropdown by DropdownSetting("Auto Close", desc = "Settings for closing the menu after equipping.")
     private val autoCloseToggle by BooleanSetting("Auto Close Toggle", false, desc = "Automatically closes the loadout menu after selecting a slot.").withDependency { autoCloseDropdown }
-    private val autoCloseDelay by NumberSetting("Auto Close Delay", 100, 0, 500, 10, desc = "Delay in milliseconds before closing the loadout menu.").withDependency { autoCloseDropdown }
-    private val delayVariety by NumberSetting("Delay Variety", 70, 0, 250, 10, desc = "Random extra delay in milliseconds added on top of Auto Close Delay.").withDependency { autoCloseDropdown }
+    private val autoCloseDelay by NumberSetting("Auto Close Delay", 100, 0..500, 10, desc = "Delay in milliseconds before closing the loadout menu.").withDependency { autoCloseDropdown }
+    private val delayVariety by NumberSetting("Delay Variety", 70, 0..250, 10, desc = "Random extra delay in milliseconds added on top of Auto Close Delay.").withDependency { autoCloseDropdown }
 
-    private val equipSoundDropdown by DropdownSetting("Equip Sounds")
+    private val equipSoundDropdown by DropdownSetting("Equip Sounds", desc = "Settings for the equip sound.")
     private val equipSoundToggle by BooleanSetting("Enable Equip Sound", false, desc = "Plays a sound when you equip a loadout slot.").withDependency { equipSoundDropdown }
     private val equipSoundSettings = createSoundSettings("Equip Sound", "entity.horse.armor") { equipSoundToggle && equipSoundDropdown }
 
@@ -69,7 +69,7 @@ object LoadoutAddon : Module(
     }
 
     private fun closeIfOpen() {
-        val screen = mc.screen as? AbstractContainerScreen<*> ?: return
+        val screen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return
         if (!loadoutRegex.containsMatchIn(screen.title.string)) return
         mc.player?.closeContainer()
     }

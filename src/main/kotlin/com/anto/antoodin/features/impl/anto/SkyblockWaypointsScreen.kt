@@ -2,6 +2,7 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.odtheking.odin.OdinMod.mc
+import com.odtheking.odin.OdinMod.scope
 import com.odtheking.odin.config.DungeonWaypointConfig
 import com.odtheking.odin.features.impl.dungeon.dungeonwaypoints.DungeonWaypoints.DungeonWaypoint
 import com.odtheking.odin.features.impl.dungeon.dungeonwaypoints.TextPromptScreen
@@ -15,6 +16,7 @@ import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.layouts.LinearLayout
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
+import kotlinx.coroutines.launch
 
 class SkyblockWaypointsScreen(private val previous: Screen?) : Screen(Component.literal("Skyblock Waypoints")) {
 
@@ -185,22 +187,26 @@ class SkyblockWaypointsScreen(private val previous: Screen?) : Screen(Component.
     }
 
     private fun prompt(title: String, allowBlank: Boolean = false, onDone: (String) -> Unit) {
-        mc.setScreen(TextPromptScreen(title).setCallback { text ->
+        mc.gui.setScreen(TextPromptScreen(title).setCallback { text ->
             if (allowBlank || text.isNotBlank()) onDone(text.trim())
-            mc.setScreen(this)
+            mc.gui.setScreen(this)
         })
     }
 
     private fun importFromClipboard() {
         val clipboard = mc.keyboardHandler.clipboard.trim()
         if (clipboard.isBlank()) return modMessage("§cClipboard is empty!")
-        val waypoints = DungeonWaypointConfig.decodeWaypoints(clipboard) ?: return modMessage("§cFailed to decode waypoints from clipboard.")
-        prompt("Import as New Pack") { name ->
-            if (SkyblockWaypointPacks.create(name, waypoints)) modMessage("§aImported waypoints as pack '$name'!")
+        scope.launch {
+            val waypoints = DungeonWaypointConfig.decodeWaypoints(clipboard) ?: return@launch modMessage("§cFailed to decode waypoints from clipboard.")
+            mc.execute {
+                prompt("Import as New Pack") { name ->
+                    if (SkyblockWaypointPacks.create(name, waypoints)) modMessage("§aImported waypoints as pack '$name'!")
+                }
+            }
         }
     }
 
-    override fun onClose() = mc.setScreen(previous)
+    override fun onClose() = mc.gui.setScreen(previous)
 
     override fun isPauseScreen() = false
 

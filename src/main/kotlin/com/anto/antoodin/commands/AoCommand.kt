@@ -11,15 +11,12 @@ import com.github.stivais.commodore.Commodore
 import com.github.stivais.commodore.nodes.LiteralNode
 import com.github.stivais.commodore.utils.GreedyString
 import com.odtheking.odin.OdinMod.mc
-import com.odtheking.odin.OdinMod.scope
 import com.odtheking.odin.config.DungeonWaypointConfig
 import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.modMessage
-import com.odtheking.odin.utils.network.WebUtils
 import com.odtheking.odin.utils.setClipboardContent
 import com.odtheking.odin.utils.skyblock.dungeon.Floor
-import kotlinx.coroutines.launch
 
 val aoCommand = Commodore("ao") {
     literal("trackmutation") {
@@ -39,7 +36,7 @@ val aoCommand = Commodore("ao") {
     }
 
     // Opened next tick, after chat closes, so the chat screen doesn't replace it
-    literal("sounds").runs { schedule(1) { mc.setScreen(SoundManagerScreen(null)) } }
+    literal("sounds").runs { schedule(1) { mc.gui.setScreen(SoundManagerScreen(null)) } }
 
     literal("chathider") {
         literal("add").runs { pattern: GreedyString -> ChatFilter.addPattern(pattern.string) }
@@ -57,7 +54,7 @@ val aoCommand = Commodore("ao") {
 
 // Mirrors Odin's /dwp
 private fun LiteralNode.waypointCommands() {
-    runs { schedule(1) { mc.setScreen(SkyblockWaypointsScreen(null)) } }
+    runs { schedule(1) { mc.gui.setScreen(SkyblockWaypointsScreen(null)) } }
 
     literal("fill").runs {
         SkyblockWaypoints.filled = !SkyblockWaypoints.filled
@@ -96,11 +93,6 @@ private fun LiteralNode.waypointCommands() {
     }
 
     literal("import").runs { input: GreedyString? ->
-        val text = input?.string?.trim()
-        if (text?.startsWith("https://") != true) return@runs SkyblockWaypointPacks.import(text ?: mc.keyboardHandler.clipboard)
-        scope.launch {
-            val fetched = WebUtils.fetchString(text).getOrNull() ?: return@launch modMessage("§cFailed to fetch $text")
-            mc.execute { SkyblockWaypointPacks.import(fetched) }
-        }
+        SkyblockWaypointPacks.import(input?.string ?: mc.keyboardHandler.clipboard)
     }
 }

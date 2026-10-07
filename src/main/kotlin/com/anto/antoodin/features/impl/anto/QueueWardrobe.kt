@@ -140,7 +140,11 @@ object QueueWardrobe : Module(
                         val currentScreen = mc.gui.screen() as? AbstractContainerScreen<*> ?: return@schedule
                         if (!wardrobeRegex.matches(currentScreen.title.string)) return@schedule
                         mc.player?.clickSlot(qSlot)
-                        mc.player?.closeContainer()
+                        // Close after Hypixel's menu refresh, otherwise the refresh reopens the wardrobe
+                        schedule(delayTicks) {
+                            val screenNow = mc.gui.screen() as? AbstractContainerScreen<*> ?: return@schedule
+                            if (wardrobeRegex.matches(screenNow.title.string)) mc.player?.closeContainer()
+                        }
                     }
                 }
             }

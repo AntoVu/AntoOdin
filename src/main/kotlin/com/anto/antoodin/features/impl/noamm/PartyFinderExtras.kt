@@ -58,6 +58,8 @@ object PartyFinderExtras : Module(
 
     // name -> (fetched at, result). Fetched one at a time, because Odin's own profile cache isn't thread safe
     private const val CACHE_MS = 60 * 60 * 1000L
+    // Failures (often Odin API rate limits) retry sooner
+    private const val RETRY_MS = 30 * 1000L
     private val profiles = ConcurrentHashMap<String, Pair<Long, Result<HypixelData.PlayerInfo>>>()
     private val pending = ConcurrentHashMap.newKeySet<String>()
     private val fetchLock = Semaphore(1)
@@ -148,7 +150,7 @@ object PartyFinderExtras : Module(
     private fun stats(name: String, floor: Int, master: Boolean): String {
         if (!showCataLevel && !showSecrets && !showMagicalPower && !showPb) return ""
         val key = name.lowercase()
-        val cached = profiles[key]?.takeIf { System.currentTimeMillis() - it.first < CACHE_MS }?.second
+        val cached = profiles[key]?.takeIf { (fetchedAt, result) -> System.currentTimeMillis() - fetchedAt < if (result.isSuccess) CACHE_MS else RETRY_MS }?.second
         if (cached == null) {
             fetch(key)
             return "§7(Loading...)"

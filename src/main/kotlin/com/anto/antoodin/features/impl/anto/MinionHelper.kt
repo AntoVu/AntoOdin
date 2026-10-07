@@ -93,7 +93,7 @@ object MinionHelper : Module(
             cancel()
             claimPending = true
 
-            mc.player?.clickSlot(s.menu.containerId, CLAIM_SLOT)
+            mc.player?.clickSlot(CLAIM_SLOT)
             claimPending = false
 
             schedule(msToTicks(claimCloseDelay.toLong() + Random.nextLong(0, 80))) {
@@ -116,7 +116,7 @@ object MinionHelper : Module(
 
             val delayTicks = msToTicks(fuelDelay.toLong() + Random.nextLong(0, 80))
             schedule(delayTicks) {
-                mc.player?.clickSlot(s.menu.containerId, FUEL_SLOT)
+                mc.player?.clickSlot(FUEL_SLOT)
                 fuelPending = false
                 if (autoClose) {
                     schedule(msToTicks(fuelCloseDelay.toLong() + Random.nextLong(0, 60))) {

@@ -20,7 +20,7 @@ import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
 
 object LoadoutAddon : Module(
-    name = "Loadout Addon (A)",
+    name = "Loadout Keybinds (A)",
     description = "Better loadout hotkeys, use this instead of default ones",
     category = Skit.ANTO
 ) {

@@ -61,6 +61,10 @@ Waypoint Placer
  - Uses Odin's areas: islands, dungeon boss rooms (F6/F7 per phase) and Kuudra tiers
  - Color presets with a cycle keybind, plus an editor HUD
 
+Door Highlight
+ - OdinClient's wither/blood door and key highlight, with a depth check for the key box (replaces Odin's Door Highlight)
+ - Line to Door draws a line to the nearest closed wither door, or the blood door once no wither doors are left
+
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
 second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.

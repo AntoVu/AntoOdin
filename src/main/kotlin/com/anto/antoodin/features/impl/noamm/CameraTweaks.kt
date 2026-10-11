@@ -15,16 +15,17 @@ import net.minecraft.world.entity.player.Player
  * @see com.anto.antoodin.mixin.mixins.AbstractClientPlayerMixin
  * @see com.anto.antoodin.mixin.mixins.BlindnessFogEnvironmentMixin
  * @see com.anto.antoodin.mixin.mixins.GameRendererMixin
- * @see com.anto.antoodin.mixin.mixins.GuiMixin
+ * @see com.anto.antoodin.mixin.mixins.LightmapMixin
  */
 object CameraTweaks : Module(
     name = "Camera Tweaks",
-    description = "Custom FOV (beyond vanilla's slider), Slowness FOV strength, and no Blindness or Nausea.",
+    description = "Custom FOV (beyond vanilla's slider), Slowness FOV strength, Full Bright, and no Blindness or Nausea.",
     category = Skit.NOAMM
 ) {
     private val customFov by BooleanSetting("Custom FOV", false, desc = "Overrides your FOV setting.")
     private val fov by NumberSetting("FOV", 110, 30..179, 1, desc = "FOV to use instead of the vanilla setting.").withDependency { customFov }
     private val slownessFov by NumberSetting("Slowness FOV", 100, 0..100, 5, desc = "How much Slowness narrows your FOV. 100% is vanilla, 0% ignores it. Speed and sprinting are unaffected.", unit = "%")
+    private val fullBright by BooleanSetting("Full Bright", false, desc = "Lights the world as if every block were at max light.")
     private val noBlindness by BooleanSetting("No Blindness", false, desc = "Removes the Blindness fog.")
     private val noNausea by BooleanSetting("No Nausea", false, desc = "Removes the Nausea wobble and overlay.")
 
@@ -43,6 +44,9 @@ object CameraTweaks : Module(
         val withoutSlowness = if (1 + amount > 0.01) speed / (1 + amount) else player.getAttributeBaseValue(Attributes.MOVEMENT_SPEED)
         return withoutSlowness + (speed - withoutSlowness) * (slownessFov / 100.0)
     }
+
+    @JvmStatic
+    fun shouldFullBright(): Boolean = enabled && fullBright
 
     @JvmStatic
     fun shouldHideBlindness(): Boolean = enabled && noBlindness

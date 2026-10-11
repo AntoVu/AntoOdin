@@ -27,6 +27,7 @@
     "mixins.GameRendererMixin",
     "mixins.HudMixin",
     "mixins.LavaFogEnvironmentMixin",
+    "mixins.LightmapMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",

@@ -140,7 +140,7 @@ Dragon Extras
  - Needs Odin's Wither Dragons
 
 Camera Tweaks
- - Custom FOV, adjustable Slowness FOV change, no Blindness or Nausea
+ - Custom FOV, adjustable Slowness FOV change, Full Bright, no Blindness or Nausea
 
 Rejoin Timer
  - Shows how long ago you were kicked from SkyBlock

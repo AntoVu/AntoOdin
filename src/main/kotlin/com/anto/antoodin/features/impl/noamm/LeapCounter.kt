@@ -48,7 +48,7 @@ object LeapCounter : Module(
         Spot("Core", coreBox, 4) { P3Section.of(it) == 4 },
         Spot("In Core", coreBox.move(0.0, 0.0, 6.0), 4) { inCoreArea.contains(it) },
         // P5 starts below y 45
-        Spot("Relic", AABB(51.5, 3.0, 73.5, 57.5, 8.0, 79.5), 4) { it.y <= 45 }
+        Spot("Relic", AABB(46.5, 3.0, 68.5, 62.5, 8.0, 84.5), 4) { it.y <= 45 }
     )
 
     private val hud by HUD(name, "Players that have arrived at your P3 spot.", false) { example ->

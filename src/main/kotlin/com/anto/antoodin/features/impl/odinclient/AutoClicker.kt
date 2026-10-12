@@ -34,12 +34,12 @@ object AutoClicker : Module(
     private val allowBreaking by BooleanSetting("Allow breaking blocks", false, desc = "Allows you to break blocks when auto clicking.")
     private val blockBreaker by BooleanSetting("Block dungeon breaker", true, desc = "Prevents auto clicker from working with Dungeon Breaker.")
     private val terminatorOnly by BooleanSetting("Terminator Only", true, desc = "Only click when the terminator and right click are held.")
-    private val cps by NumberSetting("Clicks Per Second", 5.0f, 3.0..15.0, .5, desc = "The amount of clicks per second to perform.").withDependency { terminatorOnly }
+    private val cps by NumberSetting("Clicks Per Second", 5.0f, 3.0..20.0, .5, desc = "The amount of clicks per second to perform.").withDependency { terminatorOnly }
 
     private val enableLeftClick by BooleanSetting("Enable Left Click", true, desc = "Enable auto-clicking for left-click.").withDependency { !terminatorOnly }
     private val enableRightClick by BooleanSetting("Enable Right Click", true, desc = "Enable auto-clicking for right-click.").withDependency { !terminatorOnly }
-    private val leftCps by NumberSetting("Left Clicks Per Second", 5.0f, 3.0..15.0, .5, desc = "The amount of left clicks per second to perform.").withDependency { !terminatorOnly }
-    private val rightCps by NumberSetting("Right Clicks Per Second", 5.0f, 3.0..15.0, .5, desc = "The amount of right clicks per second to perform.").withDependency { !terminatorOnly }
+    private val leftCps by NumberSetting("Left Clicks Per Second", 5.0f, 3.0..20.0, .5, desc = "The amount of left clicks per second to perform.").withDependency { !terminatorOnly }
+    private val rightCps by NumberSetting("Right Clicks Per Second", 5.0f, 3.0..20.0, .5, desc = "The amount of right clicks per second to perform.").withDependency { !terminatorOnly }
     private val leftClickKeybind by KeybindSetting("Left Click", GLFW.GLFW_KEY_UNKNOWN, desc = "The keybind to hold for the auto clicker to click left click.").withDependency { !terminatorOnly }
     private val rightClickKeybind by KeybindSetting("Right Click", GLFW.GLFW_KEY_UNKNOWN, desc = "The keybind to hold for the auto clicker to click right click.").withDependency { !terminatorOnly }
 

@@ -65,9 +65,6 @@ Auction Price Input
  - Undercut mode subtracts from the lowest BIN
  - Enter confirms the Create and Confirm auction menus
 
-Architect Draft
- - Gets an Architect's First Draft from sacks when you fail a puzzle
-
 I Hate Doors
  - Renders entrance, wither and blood doors as colored glass
  - Render only, the door is still solid and map mods still see it
@@ -179,6 +176,7 @@ Fuck Diorite
 
 Auto GFS
  - Refills pearls, jerries, superbooms and leaps from sacks on dungeon start or a timer
+ - Gets an Architect's First Draft from sacks when you fail a puzzle (from NoammAddons' Architect Draft)
 
 Escrow Fix
  - Reopens the AH or BZ after escrow closes it

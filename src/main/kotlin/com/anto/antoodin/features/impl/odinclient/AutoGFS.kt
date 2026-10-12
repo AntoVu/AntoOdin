@@ -1,5 +1,6 @@
 // Taken from OdinFabric (Copyright (c) 2023-2025, odtheking, BSD 3-Clause)
 // Implementation based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
+// Draft fetching ported from NoammAddons by Noamm9 (CC0-1.0)
 package com.anto.antoodin.features.impl.odinclient
 
 import com.anto.antoodin.events.TickStartEvent
@@ -10,13 +11,16 @@ import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.features.impl.dungeon.map.tile.RoomType
+import com.odtheking.odin.utils.handlers.schedule
+import com.odtheking.odin.utils.sendCommand
 import com.odtheking.odin.utils.fillItemFromSack
 import com.odtheking.odin.utils.itemId
 import com.odtheking.odin.utils.skyblock.KuudraUtils
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
+import kotlin.random.Random
 
-// OdinClient's "Auto Get Draft" was left out: Noamm's Architect Draft does the same thing
 object AutoGFS : Module(
     name = "Auto GFS",
     description = "Automatically refills certain items from your sacks.",
@@ -35,6 +39,15 @@ object AutoGFS : Module(
     private val refillTNT by BooleanSetting("Refill TNT", true, desc = "Refill superboom tnt.")
     private val refillLeap by BooleanSetting("Refill Leaps", false, desc = "Refill spirit leaps.")
 
+    private val autoGetDraft by BooleanSetting("Auto Get Draft", true, desc = "Gets an Architect's First Draft from your sacks when you fail a puzzle.")
+    private val draftDelay by NumberSetting("Draft Delay", 1500, 0..3000, 50, desc = "Delay in milliseconds before getting the draft.", unit = "ms").withDependency { autoGetDraft }
+    private val draftDelayVariety by NumberSetting("Draft Delay Variety", 300, 0..1000, 50, desc = "Random extra delay in milliseconds added on top of Draft Delay.", unit = "ms").withDependency { autoGetDraft }
+
+    private val failRegexes = listOf(
+        Regex("""^PUZZLE FAIL! (\w{1,16}) .+$"""),
+        Regex("""^\[STATUE] Oruo the Omniscient: (\w{1,16}) chose the wrong answer! I shall never forget this moment of misrememberance\.$""")
+    )
+
     private val startRegex = Regex("\\[NPC] Mort: Here, I found this map when I first entered the dungeon\\.|\\[NPC] Mort: Right-click the Orb for spells, and Left-click \\(or Drop\\) to use your Ultimate!")
 
     private var last = 0
@@ -50,7 +63,19 @@ object AutoGFS : Module(
 
         on<MessageEvent.Chat> {
             if (refillOnDungeonStart && message.matches(startRegex)) refill()
+            if (autoGetDraft) getDraft(message)
         }
+    }
+
+    // Only for your own fails, in a puzzle room, after a humanized delay
+    private fun getDraft(message: String) {
+        if (!DungeonUtils.inDungeons || DungeonUtils.inBoss) return
+        if (DungeonUtils.currentRoom?.data?.type != RoomType.PUZZLE) return
+        val player = failRegexes.firstNotNullOfOrNull { it.find(message) }?.groupValues?.get(1) ?: return
+        if (player != mc.user.name) return
+
+        val delay = draftDelay.toLong() + Random.nextLong(0, draftDelayVariety.toLong() + 1)
+        schedule(((delay / 1000.0) * 20).toInt().coerceAtLeast(1)) { sendCommand("gfs ARCHITECT_FIRST_DRAFT 1") }
     }
 
     private fun refill() {

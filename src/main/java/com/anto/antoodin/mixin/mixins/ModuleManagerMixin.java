@@ -3,6 +3,8 @@ package com.anto.antoodin.mixin.mixins;
 import com.odtheking.odin.config.ModuleConfig;
 import com.odtheking.odin.features.Module;
 import com.odtheking.odin.features.ModuleManager;
+import com.odtheking.odin.features.impl.boss.LividSolver;
+import com.odtheking.odin.features.impl.boss.SpiritBear;
 import com.odtheking.odin.features.impl.dungeon.DoorHighlight;
 import com.odtheking.odin.features.impl.skyblock.LoadoutKeybinds;
 import com.odtheking.odin.features.impl.skyblock.WardrobeKeybinds;
@@ -17,7 +19,8 @@ public class ModuleManagerMixin {
     @ModifyVariable(method = "registerModules", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static Module[] filterModules(Module[] modules, ModuleConfig config) {
         return Arrays.stream(modules)
-                .filter(module -> !(module instanceof WardrobeKeybinds || module instanceof LoadoutKeybinds || module instanceof DoorHighlight))
+                .filter(module -> !(module instanceof WardrobeKeybinds || module instanceof LoadoutKeybinds || module instanceof DoorHighlight
+                        || module instanceof LividSolver || module instanceof SpiritBear))
                 .toArray(Module[]::new);
     }
 }

@@ -1,6 +1,6 @@
 // Taken from OdinFabric (Copyright (c) 2023-2025, odtheking, BSD 3-Clause)
-// Implementation based on skies-starred OdinClient
-package com.anto.antoodin.features.impl.anto
+// Implementation based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
+package com.anto.antoodin.features.impl.odinclient
 
 import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3
 object DoorHighlight : Module(
     name = "Door Highlight",
     description = "Highlights wither and blood doors and keys in dungeons.",
-    category = Skit.ANTO
+    category = Skit.ODINCLIENT
 ) {
     private val announceKeySpawn by BooleanSetting("Announce Key Spawn", true, desc = "Announces when a key is spawned.")
     private val doorHighlightColor by ColorSetting("Door Highlight Color", Colors.MINECRAFT_RED.withAlpha(0.8f), true, desc = "Color for locked doors.")

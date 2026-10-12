@@ -32,11 +32,6 @@ Loadout Hotkeys (A)
  - Auto close after use
  - Play sound on equip
 
-Auto Experiments
- - First click Delay
- - Auto close Ultrasequencer one early
- - Auto start Ultrasequencer
-
 Drop Guard
  - Block dropping items outside of GUIs during F7/M7 terminals
  - Hold override keybind to drop anyway
@@ -60,10 +55,6 @@ Waypoint Placer
  - Right click blocks to add or remove Odin waypoints (Odin's Waypoints module) with Allow Edits on, sneak to set a label
  - Uses Odin's areas: islands, dungeon boss rooms (F6/F7 per phase) and Kuudra tiers
  - Color presets with a cycle keybind, plus an editor HUD
-
-Door Highlight
- - OdinClient's wither/blood door and key highlight, with a depth check for the key box (replaces Odin's Door Highlight)
- - Line to Door draws a line to the nearest closed wither door, or the blood door once no wither doors are left
 
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
@@ -149,6 +140,55 @@ Party Finder Extras
  - Level requirement and missing classes on each party's head
  - Member stats (Catacombs level, secrets, MP, S+ PB) and missing classes in the tooltip
 
+## OdinClient
+Features from skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (BSD 3-Clause), which is no longer
+maintained, updated to Odin 0.3.6 and MC 26.2. They live in their own "OdinClient" category.
+
+Auto Experiments
+ - First click Delay
+ - Auto close Ultrasequencer one early
+ - Auto start Ultrasequencer
+
+Door Highlight
+ - OdinClient's wither/blood door and key highlight, with a depth check for the key box (replaces Odin's Door Highlight)
+ - Line to Door draws a line to the nearest closed wither door, or the blood door once no wither doors are left
+
+Auto Clicker
+ - Left and right click at a set CPS while holding a keybind, or Terminator only mode
+ - Item whitelist that shows item names, managed with `/ao ac`
+
+Trajectories
+ - Pearl and bow (Terminator spread too) paths, impact boxes and hit entities
+
+Highlight (C)
+ - ESP and tracer for the F7 withers, dungeon bats, and mobs added with `/ao highlight`
+ - Starred mobs and teammate glow are left to Odin's Highlight
+
+Spirit Bear (C)
+ - Odin's Spirit Bear HUD plus a bear highlight and tracer (replaces Odin's Spirit Bear)
+
+Livid Solver (C)
+ - Odin's Livid Solver plus ESP and a tracer to the right Livid (replaces Odin's Livid Solver)
+
+Secret Hitboxes
+ - Full block or 1.8 style hitboxes for levers, buttons, skulls and chests in dungeons
+
+Fuck Diorite
+ - Renders the Storm pillars as glass, pillar colored, one color or random
+ - Render only, the client world keeps the diorite
+
+Auto GFS
+ - Refills pearls, jerries, superbooms and leaps from sacks on dungeon start or a timer
+
+Escrow Fix
+ - Reopens the AH or BZ after escrow closes it
+
+Ghosts
+ - Shows invisible Dwarven Mines ghosts and hides their powered layer
+
+Camera Helper
+ - Camera clip and custom third person distance
+
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`
  - Logs crop collections on start and stop
@@ -166,6 +206,12 @@ Party Finder Extras
 `/ao waypoints` (alias `/ao wp`)
  - Opens Odin's waypoint manager (import/export are there)
  - `color <RRGGBBAA>` sets the next placed waypoint's color
+
+`/ao ac add|remove left|right`, `/ao ac clear left|right|all`, `/ao ac list`
+ - Manages the Auto Clicker whitelist for the held item
+
+`/ao highlight add <name> [#RRGGBB]`, `/ao highlight remove <name>`, `/ao highlight clear|list`
+ - Manages the mobs Highlight (C) draws
 
 ## Planned
 Dungeons Auto GFS

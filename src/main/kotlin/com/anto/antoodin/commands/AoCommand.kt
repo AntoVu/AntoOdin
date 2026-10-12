@@ -5,6 +5,8 @@ import com.anto.antoodin.features.impl.anto.DungeonSplits
 import com.anto.antoodin.features.impl.anto.WaypointPlacer
 import com.anto.antoodin.features.impl.noamm.ChatFilter
 import com.anto.antoodin.features.impl.noamm.SoundManagerScreen
+import com.anto.antoodin.features.impl.odinclient.AutoClicker
+import com.anto.antoodin.features.impl.odinclient.Highlight
 import com.github.stivais.commodore.Commodore
 import com.github.stivais.commodore.nodes.LiteralNode
 import com.github.stivais.commodore.utils.GreedyString
@@ -42,6 +44,23 @@ val aoCommand = Commodore("ao") {
             runs { pattern: GreedyString -> ChatFilter.removePattern(pattern.string) }
         }
         literal("list").runs { ChatFilter.listPatterns() }
+    }
+
+    literal("ac") {
+        literal("add") { for (side in listOf("left", "right")) literal(side).runs { AutoClicker.add(side) } }
+        literal("remove") { for (side in listOf("left", "right")) literal(side).runs { AutoClicker.remove(side) } }
+        literal("clear") { for (side in listOf("left", "right", "all")) literal(side).runs { AutoClicker.clear(side) } }
+        literal("list").runs { AutoClicker.list() }
+    }
+
+    literal("highlight") {
+        literal("add").runs { arg: GreedyString -> Highlight.add(arg.string) }
+        literal("remove").executable {
+            param("name").suggests { Highlight.names() }
+            runs { name: GreedyString -> Highlight.remove(name.string) }
+        }
+        literal("clear").runs { Highlight.clear() }
+        literal("list").runs { Highlight.list() }
     }
 
     // Separate literals, not literal("waypoints", "wp"): Commodore makes aliases brigadier redirects, which skip the bare `runs`

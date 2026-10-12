@@ -7,6 +7,7 @@ import com.odtheking.odin.utils.skyblock.Split
 import com.odtheking.odin.utils.skyblock.floor7SplitGroup
 import com.anto.antoodin.features.impl.anto.*
 import com.anto.antoodin.features.impl.noamm.*
+import com.anto.antoodin.features.impl.odinclient.*
 import com.anto.antoodin.events.dispatcher.FabricEventDispatcher
 import com.anto.antoodin.commands.aoCommand
 import net.fabricmc.api.ClientModInitializer
@@ -22,7 +23,8 @@ object AntoOdin : ClientModInitializer {
             AuctionPriceInput, ArchitectDraft, IHateDoors, HiddenMobs, GateHighlight, DoorFix, ModHider, SnappyTappy,
             MonoAudio, SoundManager, ExplosiveShot, ChatFilter, LeapCounter, MaxorsCrystals, ItemTooltip, DamageSplash,
             LavaToWater, FreezeDisplay, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
-            WaypointPlacer, DoorHighlight)
+            WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight, SpiritBear, LividSolver, EscrowFix, FuckDiorite,
+            SecretHitboxes, AutoGFS, Ghosts, CameraHelper)
 
         JellybeanHider.registerModelHook()
 

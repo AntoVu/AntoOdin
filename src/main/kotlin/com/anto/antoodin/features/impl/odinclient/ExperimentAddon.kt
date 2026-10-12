@@ -1,6 +1,6 @@
-package com.anto.antoodin.features.impl.anto
+package com.anto.antoodin.features.impl.odinclient
 
-// Implementation based on skies-starred OdinClient
+// Implementation based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.ScreenEvent
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 object ExperimentAddon : Module(
     name = "Auto Experiments",
     description = "Automatically click on the Chronomatron and Ultrasequencer experiments.",
-    category = Skit.ANTO
+    category = Skit.ODINCLIENT
 ) {
     private val clickDelay by NumberSetting("Click Delay", 200, 100..1000, 10, unit = "ms", desc = "Time in ms between automatic test clicks.")
     private val delayVariety by NumberSetting("Delay variety", 50, 0..1000, 10, unit = "ms", desc = "Variance in delays")

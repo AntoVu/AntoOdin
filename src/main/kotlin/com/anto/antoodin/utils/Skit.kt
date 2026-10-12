@@ -9,4 +9,8 @@ object Skit {
     // Features ported from NoammAddons
     @JvmField
     val NOAMM = Category.custom("Noamm", 1030, 10)
+
+    // Features ported from skies-starred's OdinClient, which is no longer maintained
+    @JvmField
+    val ODINCLIENT = Category.custom("OdinClient", 1200, 10)
 }

@@ -35,7 +35,6 @@ Loadout Hotkeys (A)
 Drop Guard
  - Block dropping items outside of GUIs during F7/M7 terminals
  - Hold override keybind to drop anyway
- - Fast GUI Drop: holding the drop key in a GUI throws at full rate without the key repeat delay
 
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden

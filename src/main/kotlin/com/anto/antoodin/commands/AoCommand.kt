@@ -1,5 +1,6 @@
 package com.anto.antoodin.commands
 
+import com.anto.antoodin.features.Calculators
 import com.anto.antoodin.features.MutationTracker
 import com.anto.antoodin.features.impl.anto.DungeonSplits
 import com.anto.antoodin.features.impl.anto.WaypointPlacer
@@ -61,6 +62,14 @@ val aoCommand = Commodore("ao") {
         }
         literal("clear").runs { Highlight.clear() }
         literal("list").runs { Highlight.list() }
+    }
+
+    // Nullable greedy args, so Commodore never rejects the input and Calculators prints its own usage
+    literal("calc") {
+        runs { Calculators.run("", emptyList()) }
+        for (type in Calculators.TYPES) literal(type).runs { args: GreedyString? ->
+            Calculators.run(type, args?.string?.split(' ')?.filter { it.isNotBlank() }.orEmpty())
+        }
     }
 
     // Separate literals, not literal("waypoints", "wp"): Commodore makes aliases brigadier redirects, which skip the bare `runs`

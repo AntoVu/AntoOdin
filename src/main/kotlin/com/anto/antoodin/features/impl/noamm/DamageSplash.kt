@@ -2,14 +2,13 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.Skit
+import com.anto.antoodin.utils.legacyText
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Style
-import net.minecraft.network.chat.TextColor
 import net.minecraft.world.entity.decoration.ArmorStand
 import java.util.Optional
 import kotlin.math.floor
@@ -38,7 +37,7 @@ object DamageSplash : Module(
             val stand = entity as? ArmorStand ?: return@on
             if (!LocationUtils.isInSkyblock || synchedDataValues.none { it.value() is Optional<*> }) return@on
             val name = stand.customName ?: return@on
-            reformat(legacy(name))?.let { stand.customName = Component.literal(it) }
+            reformat(name.legacyText())?.let { stand.customName = Component.literal(it) }
         }
     }
 
@@ -80,24 +79,5 @@ object DamageSplash : Module(
         }
     }
 
-    // §0 to §f in order
-    private val legacyColors = listOf(
-        TextColor.BLACK, TextColor.DARK_BLUE, TextColor.DARK_GREEN, TextColor.DARK_AQUA, TextColor.DARK_RED, TextColor.DARK_PURPLE,
-        TextColor.GOLD, TextColor.GRAY, TextColor.DARK_GRAY, TextColor.BLUE, TextColor.GREEN, TextColor.AQUA, TextColor.RED,
-        TextColor.LIGHT_PURPLE, TextColor.YELLOW, TextColor.WHITE
-    )
-
     private fun critColored(text: String) = text.withIndex().joinToString("") { (i, char) -> critColors[i % critColors.size] + char }
-
-    // Rebuilds the § codes from component styles, since Hypixel's names arrive as styled components
-    private fun legacy(component: Component): String = buildString {
-        component.visit({ style, text ->
-            style.color?.let { color ->
-                val code = legacyColors.indexOfFirst { it.value == color.value }
-                if (code >= 0) append('§').append("0123456789abcdef"[code])
-            }
-            append(text)
-            Optional.empty<Unit>()
-        }, Style.EMPTY)
-    }
 }

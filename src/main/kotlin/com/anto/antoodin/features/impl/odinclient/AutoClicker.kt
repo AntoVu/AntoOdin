@@ -4,6 +4,7 @@ package com.anto.antoodin.features.impl.odinclient
 import com.anto.antoodin.events.TickStartEvent
 import com.anto.antoodin.mixin.accessors.KeyMappingAccessor
 import com.anto.antoodin.utils.Skit
+import com.anto.antoodin.utils.legacyText
 import com.anto.antoodin.utils.leftClick
 import com.anto.antoodin.utils.rightClick
 import com.mojang.blaze3d.platform.InputConstants
@@ -21,6 +22,8 @@ import com.odtheking.odin.utils.itemUUID
 import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.noControlCodes
 import net.minecraft.client.KeyMapping
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 import org.lwjgl.glfw.GLFW
@@ -43,7 +46,7 @@ object AutoClicker : Module(
     private val leftClickKeybind by KeybindSetting("Left Click", GLFW.GLFW_KEY_UNKNOWN, desc = "The keybind to hold for the auto clicker to click left click.").withDependency { !terminatorOnly }
     private val rightClickKeybind by KeybindSetting("Right Click", GLFW.GLFW_KEY_UNKNOWN, desc = "The keybind to hold for the auto clicker to click right click.").withDependency { !terminatorOnly }
 
-    // Item key (uuid, else skyblock id, else name) -> item name for the list, blank until the item is seen
+    // Item key (uuid, else skyblock id, else name; an empty hand is "Air") -> colored item name, blank until the item is seen
     private val left by MapSetting("Left Whitelist", mutableMapOf<String, String>())
     private val right by MapSetting("Right Whitelist", mutableMapOf<String, String>())
 
@@ -73,7 +76,7 @@ object AutoClicker : Module(
             val a = !whiteListOnly || held in left
             val b = !whiteListOnly || held in right
             if (!a && !b) return@on
-            fillName(player.mainHandItem)
+            refreshName(player.mainHandItem)
 
             val level = mc.level ?: return@on
             val hit = mc.hitResult as? BlockHitResult
@@ -108,14 +111,15 @@ object AutoClicker : Module(
     private fun key(stack: ItemStack): String =
         stack.itemUUID.ifEmpty { stack.itemId.ifEmpty { stack.hoverName.string } }
 
-    private fun name(stack: ItemStack): String = stack.hoverName.string.noControlCodes
+    private fun name(stack: ItemStack): String = stack.hoverName.legacyText()
 
-    // Imported whitelist entries have no name yet, so record it the first time the item is seen
-    private fun fillName(stack: ItemStack) {
+    // Records the colored name whenever it differs (imported entries, renames, reforges), saving only on a change
+    private fun refreshName(stack: ItemStack) {
         val key = key(stack)
+        val name = name(stack)
         var changed = false
-        for (list in listOf(left, right)) if (list[key]?.isEmpty() == true) {
-            list[key] = name(stack)
+        for (list in listOf(left, right)) if (list[key]?.let { it != name } == true) {
+            list[key] = name
             changed = true
         }
         if (changed) ModuleManager.saveConfigurations()
@@ -124,23 +128,23 @@ object AutoClicker : Module(
     private fun list(side: String) = if (side == "left") left else right
 
     fun add(side: String) {
-        val stack = mc.player?.mainHandItem?.takeUnless { it.isEmpty } ?: return modMessage("Hold an item to whitelist.")
+        val stack = mc.player?.mainHandItem ?: return
         val key = key(stack)
         val list = list(side)
-        if (key in list) return modMessage("\"${name(stack)}\" is already in the $side whitelist.")
+        if (key in list) return modMessage("\"${name(stack)}§r\" is already in the $side whitelist.")
 
         list[key] = name(stack)
         ModuleManager.saveConfigurations()
-        modMessage("Added \"${name(stack)}\" to the $side whitelist.")
+        modMessage("Added \"${name(stack)}§r\" to the $side whitelist.")
     }
 
     fun remove(side: String) {
-        val stack = mc.player?.mainHandItem?.takeUnless { it.isEmpty } ?: return modMessage("Hold an item to remove from whitelist.")
+        val stack = mc.player?.mainHandItem ?: return
         val list = list(side)
-        if (list.remove(key(stack)) == null) return modMessage("\"${name(stack)}\" isn't in the $side whitelist.")
+        if (list.remove(key(stack)) == null) return modMessage("\"${name(stack)}§r\" isn't in the $side whitelist.")
 
         ModuleManager.saveConfigurations()
-        modMessage("Removed \"${name(stack)}\" from the $side whitelist.")
+        modMessage("Removed \"${name(stack)}§r\" from the $side whitelist.")
     }
 
     fun clear(side: String) {
@@ -150,15 +154,29 @@ object AutoClicker : Module(
         modMessage(if (side == "all") "All whitelists cleared." else "${side.replaceFirstChar { it.uppercase() }} whitelist cleared.")
     }
 
-    fun list() {
-        mc.player?.inventory?.forEach(::fillName)
+    private val uuidRegex = Regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
-        fun format(list: Map<String, String>) =
-            list.entries.joinToString(", ") { (key, name) -> if (name.isEmpty() || name == key) key else "$name §8($key)§r" }.ifEmpty { "empty" }
+    fun list() {
+        mc.player?.inventory?.forEach(::refreshName)
+
+        // One row per item; the uuid or SkyBlock id only shows on hover, vanilla items (keyed by name) have none
+        fun send(side: String, list: Map<String, String>) {
+            modMessage("§b$side:${if (list.isEmpty()) " §7empty" else ""}")
+            for ((key, name) in list) {
+                val row = Component.literal("§8 - §r${name.ifEmpty { key }}")
+                val hover = when {
+                    uuidRegex.matches(key) -> "§7UUID: §f$key"
+                    name.isNotEmpty() && key != name.noControlCodes -> "§7SkyBlock ID: §f$key"
+                    else -> null
+                }
+                hover?.let { text -> row.withStyle { it.withHoverEvent(HoverEvent.ShowText(Component.literal(text))) } }
+                modMessage(row, prefix = "")
+            }
+        }
 
         modMessage("Autoclicker whitelist:")
-        modMessage("Left: ${format(left)}")
+        send("Left", left)
         modMessage(getChatBreak().drop(20))
-        modMessage("Right: ${format(right)}")
+        send("Right", right)
     }
 }

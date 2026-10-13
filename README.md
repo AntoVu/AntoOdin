@@ -35,6 +35,7 @@ Loadout Hotkeys (A)
 Drop Guard
  - Block dropping items outside of GUIs during F7/M7 terminals
  - Hold override keybind to drop anyway
+ - Fast GUI Drop: holding the drop key in a GUI throws at full rate without the key repeat delay
 
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden
@@ -47,6 +48,7 @@ Aloe Highlight
 
 Dungeon Splits
  - Splits HUD with tick time and boss entry split
+ - Current Split HUD with the live split's tick time, optionally only in boss and per F7/M7 phase
  - Chat message after each split with tick time and PB comparison
  - Projected run time from your recent runs
  - Time lost to lag at the end of the run
@@ -55,6 +57,9 @@ Waypoint Placer
  - Right click blocks to add or remove Odin waypoints (Odin's Waypoints module) with Allow Edits on, sneak to set a label
  - Uses Odin's areas: islands, dungeon boss rooms (F6/F7 per phase) and Kuudra tiers
  - Color presets with a cycle keybind, plus an editor HUD
+
+Highlight Trash
+ - Highlights junk M7 chest books (Feather Falling, Infinite Quiver, Combo, Jerry, Bank, No Pain No Gain) in your inventory in the Dungeon Hub
 
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
@@ -104,7 +109,7 @@ Maxor's Crystals
  - F7 P1 crystal respawn timer, crystal placement time with PB, unplaced crystal alert
 
 Item Tooltip
- - Lowest BIN, bazaar buy/sell and NPC sell prices on item tooltips (Shift for the whole stack)
+ - Lowest BIN, bazaar buy/sell and NPC sell prices on item tooltips, priced for the whole stack with the unit price beside it
 
 Damage Splash
  - Shortens damage numbers (1.2m) in NEU's style, keeping Hypixel's crit colors
@@ -152,7 +157,7 @@ Door Highlight
 
 Auto Clicker
  - Left and right click at a set CPS while holding a keybind, or Terminator only mode
- - Item whitelist that shows item names, managed with `/ao ac`
+ - Item whitelist (empty hand included) managed with `/ao ac`, listed one colored item per row with the UUID or SkyBlock ID on hover
 
 Trajectories
  - Pearl and bow (Terminator spread too) paths, impact boxes and hit entities
@@ -210,6 +215,15 @@ Camera Helper
 
 `/ao highlight add <name> [#RRGGBB]`, `/ao highlight remove <name>`, `/ao highlight clear|list`
  - Manages the mobs Highlight (C) draws
+
+`/ao calc <type> ...`
+ - `cata <start> <end>`, `skill <start> <end>`: XP needed between levels (decimals allowed)
+ - `pet <tier> <start> <end>`: pet XP, legendary up to 200
+ - `drop <base %> [looting] [magic find] [pet luck]`: drop chance
+ - `coin <gems> <coins> [cookie price]`: coins per gem, compared to booster cookies
+ - `usd <coins> <cookie price>`: rough USD value of coins
+ - `tax <price>`: auction list and claim fees
+ - Amounts accept k/m/b (e.g. `1.5m`)
 
 ## Planned
 Dungeons Auto GFS

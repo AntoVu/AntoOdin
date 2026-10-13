@@ -13,7 +13,7 @@ import kotlin.math.roundToLong
 
 object ItemTooltip : Module(
     name = "Item Tooltip",
-    description = "Adds lowest BIN, bazaar and NPC sell prices to item tooltips. Hold Shift for the whole stack.",
+    description = "Adds lowest BIN, bazaar and NPC sell prices to item tooltips, priced for the whole stack.",
     category = Skit.NOAMM
 ) {
     private val showLowestBin by BooleanSetting("Lowest BIN", true, desc = "Shows the lowest BIN price.")
@@ -45,10 +45,8 @@ object ItemTooltip : Module(
 
     private fun addPriceLine(lines: MutableList<Component>, label: String, unitPrice: Double, quantity: Int) {
         if (unitPrice <= 0.0) return
-        val showStack = quantity > 1 && mc.hasShiftDown()
-        val price = if (showStack) unitPrice * quantity else unitPrice
-        val stackInfo = if (showStack) " §8(${quantity}x ${format(unitPrice)})" else ""
-        lines.add(Component.literal("§e$label: §6${format(price)}$stackInfo"))
+        val stackInfo = if (quantity > 1) " §8(${format(unitPrice)} x$quantity)" else ""
+        lines.add(Component.literal("§e$label: §6${format(unitPrice * quantity)}$stackInfo"))
     }
 
     private fun format(price: Double) = "%,d".format(price.roundToLong())

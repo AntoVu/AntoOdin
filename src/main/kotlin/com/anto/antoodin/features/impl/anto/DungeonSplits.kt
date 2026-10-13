@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import com.odtheking.odin.OdinMod
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
+import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
@@ -20,6 +21,8 @@ import com.odtheking.odin.utils.render.text
 import com.odtheking.odin.utils.skyblock.SplitRow
 import com.odtheking.odin.utils.skyblock.SplitsManager
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonListener
+import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
+import com.odtheking.odin.utils.skyblock.dungeon.M7Phases
 import com.odtheking.odin.utils.skyblock.dungeon.Floor
 import com.odtheking.odin.utils.skyblock.floor7SplitGroup
 import com.odtheking.odin.utils.toFixed
@@ -76,6 +79,22 @@ object DungeonSplits : Module(
         totalWidth to lines.size * 9
     }
 
+    // Taken from OdinFabric's Splits module
+    private val currentSplitHud by HUD("Current Split HUD", "Shows only the current split and its tick time.") { example ->
+        if (example) {
+            val exampleText = "§70s"
+            text(exampleText, 0, 0, Colors.WHITE)
+            return@HUD getStringWidth(exampleText) to 9
+        }
+
+        if (!showCurrentSplit()) return@HUD 0 to 0
+        val current = SplitsManager.currentRows().find { it.isCurrent } ?: return@HUD 0 to 0
+        val displayText = "§7${(current.tickTime / 20f).toFixed()}s"
+        val w = getStringWidth(displayText) + 2
+        text(displayText, -w / 2, 0, Colors.WHITE)
+        w to 9
+    }
+
     private val fixedWidth by BooleanSetting("Fixed Width", true, desc = "Always use a fixed HUD width, right-aligning the times.")
     private val bossEntrySplit by BooleanSetting("Boss Entry Split", true, desc = "Split for boss entry.")
     private val show0Time by BooleanSetting("Show 0 splits", false, desc = "Shows splits which have their time at 0.")
@@ -86,6 +105,13 @@ object DungeonSplits : Module(
     private val projectedChat by BooleanSetting("Projected In Chat", true, desc = "Sends the projected run time in chat after each split.")
     private val projectionRuns by NumberSetting("Projection Runs", 5, 1..MAX_RUNS, 1, desc = "How many recent runs to average for the projected run time.")
         .withDependency { projectedHud || projectedChat }
+    private val currentSplitDropdown by DropdownSetting("Current Split HUD", desc = "When the Current Split HUD shows.")
+    private val onlyInBoss by BooleanSetting("Only In Boss", false, desc = "Only shows the Current Split HUD in the boss room.").withDependency { currentSplitDropdown }
+    private val showMaxor by BooleanSetting("Maxor", true, desc = "Shows it during Maxor (F7/M7, needs Only In Boss).").withDependency { currentSplitDropdown }
+    private val showStorm by BooleanSetting("Storm", true, desc = "Shows it during Storm (F7/M7, needs Only In Boss).").withDependency { currentSplitDropdown }
+    private val showGoldor by BooleanSetting("Goldor", true, desc = "Shows it during Goldor (F7/M7, needs Only In Boss).").withDependency { currentSplitDropdown }
+    private val showNecron by BooleanSetting("Necron", true, desc = "Shows it during Necron (F7/M7, needs Only In Boss).").withDependency { currentSplitDropdown }
+    private val showDragons by BooleanSetting("Dragons", true, desc = "Shows it during Dragons (M7, needs Only In Boss).").withDependency { currentSplitDropdown }
     private val lagMessage by BooleanSetting("Time Lost To Lag", true, desc = "Sends the time lost to server lag when the run ends.")
 
     // Kept out of AntoOdin.json so the module config stays readable
@@ -187,6 +213,20 @@ object DungeonSplits : Module(
 
     private fun bossEntry(segments: List<SplitRow>) =
         SplitRow("§9Boss Entry", segments.take(3).sumOf { it.time }, segments.take(3).sumOf { it.tickTime }, isCurrent = false)
+
+    // Phase toggles only apply in the F7/M7 boss; other floors' bosses always show
+    private fun showCurrentSplit(): Boolean {
+        if (!onlyInBoss) return true
+        if (!DungeonUtils.inBoss) return false
+        return when (DungeonUtils.getF7Phase()) {
+            M7Phases.P1 -> showMaxor
+            M7Phases.P2 -> showStorm
+            M7Phases.P3 -> showGoldor
+            M7Phases.P4 -> showNecron
+            M7Phases.P5 -> showDragons
+            M7Phases.Unknown -> true
+        }
+    }
 
     // Segments finished so far: all of them once the run ends, none before it starts
     private fun completedCount(rows: List<SplitRow>): Int =

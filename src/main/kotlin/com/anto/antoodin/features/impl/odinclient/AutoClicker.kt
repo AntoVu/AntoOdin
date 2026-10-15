@@ -33,7 +33,7 @@ object AutoClicker : Module(
     description = "Auto clicker with options for left-click, right-click, or both.",
     category = Skit.ODINCLIENT
 ) {
-    private val whiteListOnly by BooleanSetting("Whitelist only", false, desc = "Only click when holding a whitelisted item, whitelist using \"/ao ac add [left|right]\" while holding the item.")
+    private val whiteListOnly by BooleanSetting("Whitelist only", false, desc = "Only click when holding a whitelisted item, whitelist using \"/ao ac add [left|right] [key]\" while holding the item. The optional key (e.g. RMB) replaces the Left/Right Click bind for that item.")
     private val allowBreaking by BooleanSetting("Allow breaking blocks", false, desc = "Allows you to break blocks when auto clicking.")
     private val blockBreaker by BooleanSetting("Block dungeon breaker", true, desc = "Prevents auto clicker from working with Dungeon Breaker.")
     private val terminatorOnly by BooleanSetting("Terminator Only", true, desc = "Only click when the terminator and right click are held.")
@@ -49,6 +49,10 @@ object AutoClicker : Module(
     // Item key (uuid, else skyblock id, else name; an empty hand is "Air") -> colored item name, blank until the item is seen
     private val left by MapSetting("Left Whitelist", mutableMapOf<String, String>())
     private val right by MapSetting("Right Whitelist", mutableMapOf<String, String>())
+
+    // Item key -> InputConstants key name (key.mouse.right), replaces the global bind for that item
+    private val leftBinds by MapSetting("Left Binds", mutableMapOf<String, String>())
+    private val rightBinds by MapSetting("Right Binds", mutableMapOf<String, String>())
 
     private var nlc = .0
     private var nrc = .0
@@ -81,8 +85,8 @@ object AutoClicker : Module(
             val level = mc.level ?: return@on
             val hit = mc.hitResult as? BlockHitResult
 
-            val lc = a && enableLeftClick && isHeld(leftClickKeybind)
-            val rc = b && enableRightClick && isHeld(rightClickKeybind)
+            val lc = a && enableLeftClick && isHeld(bindFor(leftBinds, held) ?: leftClickKeybind)
+            val rc = b && enableRightClick && isHeld(bindFor(rightBinds, held) ?: rightClickKeybind)
 
             if (hit != null && !level.getBlockState(hit.blockPos).isAir && lc && allowBreaking) {
                 KeyMapping.set((mc.options.keyAttack as KeyMappingAccessor).boundKey, true)
@@ -108,6 +112,24 @@ object AutoClicker : Module(
         else -> InputConstants.isKeyDown(mc.window, key.value)
     }
 
+    private fun bindFor(binds: Map<String, String>, item: String): InputConstants.Key? =
+        binds[item]?.let { runCatching { InputConstants.getKey(it) }.getOrNull() }
+
+    // LMB/RMB/MMB/MB4/MB5, a keyboard key name (x, f, left.shift) or a full key.* name
+    private fun parseKey(input: String): String? {
+        val name = when (val lower = input.lowercase()) {
+            "lmb" -> "key.mouse.left"
+            "rmb" -> "key.mouse.right"
+            "mmb" -> "key.mouse.middle"
+            "mb4" -> "key.mouse.4"
+            "mb5" -> "key.mouse.5"
+            else -> if (lower.startsWith("key.")) lower else "key.keyboard.$lower"
+        }
+        return name.takeIf { runCatching { InputConstants.getKey(it) != InputConstants.UNKNOWN }.getOrDefault(false) }
+    }
+
+    private fun keyLabel(name: String): String = InputConstants.getKey(name).displayName.string
+
     private fun key(stack: ItemStack): String =
         stack.itemUUID.ifEmpty { stack.itemId.ifEmpty { stack.hoverName.string } }
 
@@ -126,30 +148,35 @@ object AutoClicker : Module(
     }
 
     private fun list(side: String) = if (side == "left") left else right
+    private fun binds(side: String) = if (side == "left") leftBinds else rightBinds
 
-    fun add(side: String) {
+    fun add(side: String, keyInput: String? = null) {
         val stack = mc.player?.mainHandItem ?: return
+        val bind = keyInput?.let { parseKey(it) ?: return modMessage("Unknown key \"$it\". Use LMB, RMB, MMB, MB4, MB5 or a keyboard key.") }
         val key = key(stack)
         val list = list(side)
-        if (key in list) return modMessage("\"${name(stack)}§r\" is already in the $side whitelist.")
+        if (key in list && bind == null) return modMessage("\"${name(stack)}§r\" is already in the $side whitelist.")
 
-        list[key] = name(stack)
+        val added = list.put(key, name(stack)) == null
+        bind?.let { binds(side)[key] = it }
         ModuleManager.saveConfigurations()
-        modMessage("Added \"${name(stack)}§r\" to the $side whitelist.")
+        val suffix = bind?.let { " with key ${keyLabel(it)}" }.orEmpty()
+        modMessage(if (added) "Added \"${name(stack)}§r\" to the $side whitelist$suffix." else "Set $side key for \"${name(stack)}§r\" to ${keyLabel(bind!!)}.")
     }
 
     fun remove(side: String) {
         val stack = mc.player?.mainHandItem ?: return
         val list = list(side)
         if (list.remove(key(stack)) == null) return modMessage("\"${name(stack)}§r\" isn't in the $side whitelist.")
+        binds(side).remove(key(stack))
 
         ModuleManager.saveConfigurations()
         modMessage("Removed \"${name(stack)}§r\" from the $side whitelist.")
     }
 
     fun clear(side: String) {
-        if (side != "right") left.clear()
-        if (side != "left") right.clear()
+        if (side != "right") { left.clear(); leftBinds.clear() }
+        if (side != "left") { right.clear(); rightBinds.clear() }
         ModuleManager.saveConfigurations()
         modMessage(if (side == "all") "All whitelists cleared." else "${side.replaceFirstChar { it.uppercase() }} whitelist cleared.")
     }
@@ -160,10 +187,11 @@ object AutoClicker : Module(
         mc.player?.inventory?.forEach(::refreshName)
 
         // One row per item; the uuid or SkyBlock id only shows on hover, vanilla items (keyed by name) have none
-        fun send(side: String, list: Map<String, String>) {
+        fun send(side: String, list: Map<String, String>, binds: Map<String, String>) {
             modMessage("§b$side:${if (list.isEmpty()) " §7empty" else ""}")
             for ((key, name) in list) {
-                val row = Component.literal("§8 - §r${name.ifEmpty { key }}")
+                val bind = binds[key]?.let { " §7[${keyLabel(it)}]" }.orEmpty()
+                val row = Component.literal("§8 - §r${name.ifEmpty { key }}$bind")
                 val hover = when {
                     uuidRegex.matches(key) -> "§7UUID: §f$key"
                     name.isNotEmpty() && key != name.noControlCodes -> "§7SkyBlock ID: §f$key"
@@ -175,8 +203,8 @@ object AutoClicker : Module(
         }
 
         modMessage("Autoclicker whitelist:")
-        send("Left", left)
+        send("Left", left, leftBinds)
         modMessage(getChatBreak().drop(20))
-        send("Right", right)
+        send("Right", right, rightBinds)
     }
 }

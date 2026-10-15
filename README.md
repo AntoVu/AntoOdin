@@ -157,6 +157,7 @@ Door Highlight
 Auto Clicker
  - Left and right click at a set CPS while holding a keybind, or Terminator only mode
  - Item whitelist (empty hand included) managed with `/ao ac`, listed one colored item per row with the UUID or SkyBlock ID on hover
+ - Optional per-item key (`/ao ac add right RMB`) that replaces the Left/Right Click bind while holding that item
 
 Trajectories
  - Pearl and bow (Terminator spread too) paths, impact boxes and hit entities
@@ -209,7 +210,7 @@ Camera Helper
  - Opens Odin's waypoint manager (import/export are there)
  - `color <RRGGBBAA>` sets the next placed waypoint's color
 
-`/ao ac add|remove left|right`, `/ao ac clear left|right|all`, `/ao ac list`
+`/ao ac add left|right [key]`, `/ao ac remove left|right`, `/ao ac clear left|right|all`, `/ao ac list`
  - Manages the Auto Clicker whitelist for the held item
 
 `/ao highlight add <name> [#RRGGBB]`, `/ao highlight remove <name>`, `/ao highlight clear|list`

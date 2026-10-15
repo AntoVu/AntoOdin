@@ -48,7 +48,12 @@ val aoCommand = Commodore("ao") {
     }
 
     literal("ac") {
-        literal("add") { for (side in listOf("left", "right")) literal(side).runs { AutoClicker.add(side) } }
+        literal("add") {
+            for (side in listOf("left", "right")) literal(side).executable {
+                param("key").suggests { listOf("LMB", "RMB", "MMB", "MB4", "MB5") }
+                runs { key: String? -> AutoClicker.add(side, key) }
+            }
+        }
         literal("remove") { for (side in listOf("left", "right")) literal(side).runs { AutoClicker.remove(side) } }
         literal("clear") { for (side in listOf("left", "right", "all")) literal(side).runs { AutoClicker.clear(side) } }
         literal("list").runs { AutoClicker.list() }

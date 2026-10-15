@@ -42,7 +42,8 @@ object DoorHighlight : Module(
     private val bloodColor by ColorSetting("Blood Color", Colors.MINECRAFT_RED.withAlpha(0.8f), true, desc = "The color of the box.")
     private val depthCheck by BooleanSetting("Depth check", true, desc = "Disable depth check to enable ESP.")
     private val lineToDoor by BooleanSetting("Line to Door", false, desc = "Draws a line to the nearest closed wither door, or the blood door once no wither doors are left.")
-    private val lineColor by ColorSetting("Line Color", Colors.WHITE, true, desc = "The color of the line.").withDependency { lineToDoor }
+    private val witherLineColor by ColorSetting("Wither Line Color", Colors.WHITE, true, desc = "The color of the line to a wither door.").withDependency { lineToDoor }
+    private val bloodLineColor by ColorSetting("Blood Line Color", Colors.MINECRAFT_RED, true, desc = "The color of the line to the blood door.").withDependency { lineToDoor }
     private val lineThickness by NumberSetting("Line Thickness", 3f, 1.0..10.0, 0.5f, desc = "The thickness of the line.").withDependency { lineToDoor }
 
     private var currentKey: KeyType? = null
@@ -107,7 +108,7 @@ object DoorHighlight : Module(
                 }
                 if (better) { target = door; targetDist = dist }
             }
-            target?.let { drawTracer(Vec3(it.worldX + 0.5, 71.0, it.worldZ + 0.5), lineColor, false, lineThickness) }
+            target?.let { drawTracer(Vec3(it.worldX + 0.5, 71.0, it.worldZ + 0.5), if (it.type == DoorType.Blood) bloodLineColor else witherLineColor, false, lineThickness) }
 
             if (currentKey == null || currentKey?.entity == null) return@on
             currentKey?.let { keyType ->

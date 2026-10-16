@@ -6,6 +6,7 @@ import com.odtheking.odin.features.Module
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.util.FormattedCharSequence
 
 /** @see com.anto.antoodin.mixin.mixins.GuiGraphicsExtractorMixin */
 object CommandTooltip : Module(
@@ -14,9 +15,11 @@ object CommandTooltip : Module(
     category = Skit.ANTO
 ) {
     @JvmStatic
-    fun withCommand(tooltip: Component, style: Style): Component {
-        val command = (style.clickEvent as? ClickEvent.RunCommand)?.command ?: return tooltip
-        if (!enabled) return tooltip
-        return tooltip.copy().append("\n\n§7Command: §f/${command.removePrefix("/")}")
+    fun withCommand(lines: List<FormattedCharSequence>, style: Style): List<FormattedCharSequence> {
+        val command = (style.clickEvent as? ClickEvent.RunCommand)?.command ?: return lines
+        if (!enabled) return lines
+        // Same wrap width as vanilla's hover text; the leading newline gives a blank spacer line
+        val width = maxOf(mc.window.guiScaledWidth / 2, 200)
+        return lines + mc.font.split(Component.literal("\n§7Command: §f/${command.removePrefix("/")}"), width)
     }
 }

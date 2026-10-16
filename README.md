@@ -60,6 +60,10 @@ Experiment Solver
  - Chronomatron and Ultrasequencer: marks the next slots to click and blocks wrong clicks
  - Superpairs: remembers uncovered rewards and highlights pairs and powerups
 
+Corpse Highlight
+ - Highlights Lapis, Tungsten, Umber and Vanguard corpses in Glacite Mineshafts
+ - Hides corpses you've opened, optional see-through-walls
+
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden
  - Render only the blocks can still be broken

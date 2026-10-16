@@ -2,10 +2,8 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
@@ -26,10 +24,12 @@ object UnfocusedTweaks : Module(
     private val skipWorldRender by BooleanSetting("Skip World Render", false, desc = "Skips drawing the world while unfocused. The HUD still draws.")
     private val volume by NumberSetting("Unfocused Volume", 100, 0..100, 5, unit = "%", desc = "Volume of all game sounds while unfocused, as a percentage of normal. 0% mutes.")
     private val allowPmSound by BooleanSetting("Allow PM Sound", true, desc = "The private message sound plays at normal volume while unfocused.")
-    private val pmSound by StringSetting("PM Sound", "entity.experience_orb.pickup", desc = "Sound id of the private message sound.", placeholder = "entity.experience_orb.pickup").withDependency { allowPmSound }
-    private val pmPitch by NumberSetting("PM Sound Pitch", 1.0f, 0.0..2.0, 0.01, desc = "Pitch of the private message sound, so other uses of the same sound stay quiet. Sound Manager's Recent tab shows it.").withDependency { allowPmSound }
     private val noVanillaLimit by BooleanSetting("No Vanilla Limit", false, desc = "Turns off vanilla's FPS reduction when unfocused or idle.")
     private val fpsLimit by NumberSetting("FPS Limit", 0, 0..240, 5, desc = "Max FPS while unfocused. 0 leaves it alone.")
+
+    // Hypixel's private message sound. The pitch keeps other uses of the orb sound quiet
+    private val PM_SOUND = Identifier.withDefaultNamespace("entity.experience_orb.pickup")
+    private const val PM_PITCH = 1.0f
 
     private var wasUnfocused = false
 
@@ -55,7 +55,7 @@ object UnfocusedTweaks : Module(
     @JvmStatic
     fun volumeMultiplier(id: Identifier, pitch: Float): Float {
         if (!unfocused() || volume == 100) return 1f
-        if (allowPmSound && abs(pitch - pmPitch) < 0.01f && id == Identifier.tryParse(pmSound.trim())) return 1f
+        if (allowPmSound && id == PM_SOUND && abs(pitch - PM_PITCH) < 0.01f) return 1f
         return volume / 100f
     }
 

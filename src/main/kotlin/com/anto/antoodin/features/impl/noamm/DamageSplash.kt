@@ -4,11 +4,12 @@ package com.anto.antoodin.features.impl.noamm
 import com.anto.antoodin.utils.Skit
 import com.anto.antoodin.utils.legacyText
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
-import com.odtheking.odin.events.EntityEvent
-import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import net.minecraft.network.chat.Component
+import net.minecraft.network.syncher.EntityDataSerializer
+import net.minecraft.network.syncher.SyncedDataHolder
+import net.minecraft.network.syncher.SynchedEntityData.DataValue
 import net.minecraft.world.entity.decoration.ArmorStand
 import java.util.Optional
 import kotlin.math.floor
@@ -31,13 +32,16 @@ object DamageSplash : Module(
     private val normalRegex = Regex("^(§.)([\\d,]+)(.*)$")
     private val formattingCode = Regex("§.")
 
-    init {
-        // Posted after the data is applied, so the server's name is already set and can be replaced
-        on<EntityEvent.SetData> {
-            val stand = entity as? ArmorStand ?: return@on
-            if (!LocationUtils.isInSkyblock || synchedDataValues.none { it.value() is Optional<*> }) return@on
-            val name = stand.customName ?: return@on
-            reformat(name.legacyText())?.let { stand.customName = Component.literal(it) }
+    /** @see com.anto.antoodin.mixin.mixins.SynchedEntityDataMixin */
+    @JvmStatic
+    fun rewrite(holder: SyncedDataHolder, items: List<DataValue<*>>): List<DataValue<*>> {
+        if (!enabled || holder !is ArmorStand || !LocationUtils.isInSkyblock) return items
+        return items.map { value ->
+            // The custom name is an armor stand's only Optional<Component> field
+            val name = (value.value() as? Optional<*>)?.orElse(null) as? Component ?: return@map value
+            val text = reformat(name.legacyText()) ?: return@map value
+            @Suppress("UNCHECKED_CAST")
+            DataValue(value.id(), value.serializer() as EntityDataSerializer<Optional<Component>>, Optional.of(Component.literal(text)))
         }
     }
 

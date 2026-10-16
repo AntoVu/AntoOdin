@@ -69,13 +69,20 @@ object ExperimentSolver : Module(
             val slots = (screen as AbstractContainerScreen<*>).menu.slots
             val size = minOf(54, slots.size - 36)
             // The status slot first, so the phase is current for the other changes this frame
-            for (i in listOf(STATUS_SLOT) + (0 until size).filter { it != STATUS_SLOT }) {
-                if (i >= size) continue
+            val changed = (listOf(STATUS_SLOT) + (0 until size).filter { it != STATUS_SLOT }).filter { i ->
+                if (i >= size) return@filter false
+                val stack = slots[i].item
+                // A click (Q, right click) empties the slot client-side until Hypixel resends it; keep the last real item
+                if (game == Game.Superpairs && stack.isEmpty) return@filter false
+                seen[i]?.let { ItemStack.matches(it, stack) } != true
+            }
+            // Superpairs covers the last failed pair in the same update that reveals the next card, so covers go first
+            val ordered = if (game == Game.Superpairs) changed.sortedBy { !isCover(slots[it].item) } else changed
+            for (i in ordered) {
                 val stack = slots[i].item
                 val old = seen[i]
-                if (old != null && ItemStack.matches(old, stack)) continue
                 seen[i] = stack.copy()
-                onChange(game, i, stack)
+                onChange(game, i, stack, old)
             }
         }
 
@@ -141,7 +148,7 @@ object ExperimentSolver : Module(
         }
     }
 
-    private fun onChange(game: Game, slot: Int, stack: ItemStack) {
+    private fun onChange(game: Game, slot: Int, stack: ItemStack, old: ItemStack?) {
         if (slot == STATUS_SLOT && game != Game.Superpairs) {
             when (stack.item) {
                 Items.GLOWSTONE -> if (!showing) {
@@ -172,15 +179,19 @@ object ExperimentSolver : Module(
                 path(stack).endsWith("stained_glass") && stepOpen && slot in steps.last() -> stepOpen = false
             }
             Game.Ultrasequencer -> if (showing && isDye(stack)) numbers[slot] = stack.count
-            Game.Superpairs -> if (!stack.isEmpty && !isCover(stack) && !isStatus(stack)) reveal(slot, stack)
+            Game.Superpairs -> if (!stack.isEmpty && !isCover(stack) && !isStatus(stack)) {
+                rewards[slot] = stack.copy()
+                // Only a cover turning into a reward is a reveal; a re-sent or half picked-up reward isn't
+                if (old != null && isCover(old)) reveal(slot, stack)
+            }
         }
     }
 
     // Powerups don't take part in a pair, same as NoFrills
     private fun reveal(slot: Int, stack: ItemStack) {
-        rewards[slot] = stack.copy()
         if (isPowerup(stack) || slot in matched) return
-        val first = pending
+        // A first card that's covered again belonged to a pair that already ended, so this reveal starts a new pair
+        val first = pending?.takeUnless { seen[it]?.let(::isCover) == true }
         if (first == null || first == slot) {
             pending = slot
             return

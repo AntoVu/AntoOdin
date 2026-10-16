@@ -1,6 +1,7 @@
 // Ported from NoammAddons by Noamm9 (CC0-1.0)
 package com.anto.antoodin.features.impl.noamm
 
+import com.anto.antoodin.mixin.accessors.AbstractSoundInstanceAccessor
 import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.impl.ActionSetting
 import com.odtheking.odin.clickgui.settings.impl.MapSetting
@@ -29,7 +30,8 @@ object SoundManager : Module(
     private val volumes by MapSetting("Volumes", mutableMapOf<String, Float>())
 
     private const val MAX_RECENT = 100
-    private val recentSounds = LinkedHashSet<Identifier>()
+    // Sound id -> the pitch it last played at (null for sounds that aren't AbstractSoundInstances)
+    private val recentSounds = LinkedHashMap<Identifier, Float?>()
 
     init {
         on<LevelEvent.Load> { synchronized(recentSounds) { recentSounds.clear() } }
@@ -44,12 +46,14 @@ object SoundManager : Module(
         if (mc.gui.screen() is SoundManagerScreen) return
         synchronized(recentSounds) {
             recentSounds.remove(sound.identifier)
-            recentSounds.add(sound.identifier)
-            if (recentSounds.size > MAX_RECENT) recentSounds.remove(recentSounds.first())
+            recentSounds[sound.identifier] = (sound as? AbstractSoundInstanceAccessor)?.requestedPitch
+            if (recentSounds.size > MAX_RECENT) recentSounds.remove(recentSounds.keys.first())
         }
     }
 
-    fun recentSounds(): List<Identifier> = synchronized(recentSounds) { recentSounds.toList().asReversed() }
+    fun recentSounds(): List<Identifier> = synchronized(recentSounds) { recentSounds.keys.toList().asReversed() }
+
+    fun recentPitch(id: Identifier): Float? = synchronized(recentSounds) { recentSounds[id] }
 
     fun changedSounds(): List<Identifier> = volumes.keys.mapNotNull(Identifier::tryParse)
 

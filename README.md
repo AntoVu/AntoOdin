@@ -52,6 +52,14 @@ Unfocused Tweaks
 Command Tooltip
  - Shows the command a chat message runs in its hover tooltip
 
+Calendar Date
+ - Shows the real date and time of events in the SkyBlock calendar
+ - Also when the Fear Mongerer arrives and Jerry's Workshop opens
+
+Experiment Solver
+ - Chronomatron and Ultrasequencer: marks the next slots to click and blocks wrong clicks
+ - Superpairs: remembers uncovered rewards and highlights pairs and powerups
+
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden
  - Render only the blocks can still be broken
@@ -103,6 +111,7 @@ Mono Audio
 
 Sound Manager
  - Per-sound volume from 0 to 200%, open with `/ao sounds`
+ - Recent tab shows the pitch each sound last played at
 
 Explosive Shot
  - Shows Explosive Shot damage per enemy

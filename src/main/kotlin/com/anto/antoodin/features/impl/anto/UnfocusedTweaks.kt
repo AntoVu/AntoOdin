@@ -27,7 +27,7 @@ object UnfocusedTweaks : Module(
     private val volume by NumberSetting("Unfocused Volume", 100, 0..100, 5, unit = "%", desc = "Volume of all game sounds while unfocused, as a percentage of normal. 0% mutes.")
     private val allowPmSound by BooleanSetting("Allow PM Sound", true, desc = "The private message sound plays at normal volume while unfocused.")
     private val pmSound by StringSetting("PM Sound", "entity.experience_orb.pickup", desc = "Sound id of the private message sound.", placeholder = "entity.experience_orb.pickup").withDependency { allowPmSound }
-    private val pmPitch by NumberSetting("PM Sound Pitch", 1.0f, 0.0..2.0, 0.05, desc = "Pitch of the private message sound, so other uses of the same sound stay quiet.").withDependency { allowPmSound }
+    private val pmPitch by NumberSetting("PM Sound Pitch", 1.0f, 0.0..2.0, 0.01, desc = "Pitch of the private message sound, so other uses of the same sound stay quiet. Sound Manager's Recent tab shows it.").withDependency { allowPmSound }
     private val noVanillaLimit by BooleanSetting("No Vanilla Limit", false, desc = "Turns off vanilla's FPS reduction when unfocused or idle.")
     private val fpsLimit by NumberSetting("FPS Limit", 0, 0..240, 5, desc = "Max FPS while unfocused. 0 leaves it alone.")
 

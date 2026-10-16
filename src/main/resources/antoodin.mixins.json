@@ -41,7 +41,8 @@
     "accessors.LanguageManagerAccessor",
     "accessors.AbstractContainerScreenAccessor",
     "accessors.KeyMappingAccessor",
-    "accessors.GuiAccessor"
+    "accessors.GuiAccessor",
+    "accessors.AbstractSoundInstanceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

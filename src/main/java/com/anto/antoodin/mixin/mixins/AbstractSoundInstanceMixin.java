@@ -14,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AbstractSoundInstance.class)
 public class AbstractSoundInstanceMixin {
     @Shadow @Final protected Identifier identifier;
+    @Shadow protected float pitch;
 
     @Inject(method = "getVolume", at = @At("RETURN"), cancellable = true)
     private void applySoundVolume(CallbackInfoReturnable<Float> cir) {
-        float pitch = ((AbstractSoundInstance) (Object) this).getPitch();
         cir.setReturnValue(cir.getReturnValue() * SoundManager.getMultiplier(identifier) * UnfocusedTweaks.volumeMultiplier(identifier, pitch));
     }
 }

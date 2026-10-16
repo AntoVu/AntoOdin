@@ -104,7 +104,8 @@ class SoundManagerScreen(private val previous: Screen?) : Screen(Component.liter
     }
 
     private inner class SoundEntry(private val id: Identifier) : ContainerObjectSelectionList.Entry<SoundEntry>() {
-        private val name = displayName(id)
+        // The Recent tab also shows the pitch the sound last played at, e.g. to copy into Unfocused Tweaks
+        private val name = displayName(id) + if (tab == Tab.Recent) SoundManager.recentPitch(id)?.let { " §7(pitch %.2f)".format(it) }.orEmpty() else ""
 
         private val slider = object : AbstractSliderButton(0, 0, 120, 20, Component.empty(), SoundManager.getVolumePercent(id) / 200.0) {
             init { updateMessage() }

@@ -24,7 +24,7 @@ object AntoOdin : ClientModInitializer {
             MonoAudio, SoundManager, ExplosiveShot, ChatFilter, LeapCounter, MaxorsCrystals, ItemTooltip, DamageSplash,
             LavaToWater, FreezeDisplay, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
             WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight, SpiritBear, LividSolver, EscrowFix, FuckDiorite,
-            SecretHitboxes, AutoGFS, Ghosts, CameraHelper, HighlightTrash)
+            SecretHitboxes, AutoGFS, Ghosts, CameraHelper, HighlightTrash, ChatRules)
 
         JellybeanHider.registerModelHook()
 

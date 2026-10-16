@@ -36,6 +36,14 @@ Drop Guard
  - Block dropping items outside of GUIs during F7/M7 terminals
  - Hold override keybind to drop anyway
 
+Chat Rules
+ - Per-message rules, edited in a menu with `/ao chatrules`
+ - Match by equals, contains, starts with, ends with or regex, optionally case sensitive
+ - Filter by dungeon class and island
+ - Show a title or a custom title HUD, play a sound, hide the message
+ - Run a command (other mods' commands too) after a delay with random variety
+ - Import your NoFrills chat rules with `/ao chatrules import`
+
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden
  - Render only the blocks can still be broken

@@ -125,12 +125,12 @@ object ChatRules : Module(
 
     private fun firstMatch(message: String): ChatRule? {
         val className = DungeonUtils.currentDungeonPlayer.clazz.takeIf { it != DungeonClass.EMPTY }?.name?.lowercase()
-        val area = LocationUtils.currentArea.takeIf { it != Island.Unknown && it != Island.SinglePlayer }?.displayName?.lowercase()
+        val area = LocationUtils.currentArea.takeIf { it in islands }
         return rules.firstOrNull { rule ->
             rule.enabled && rule.match.isNotEmpty() &&
                 // An unknown class or area never filters a rule out
                 (rule.classFilter.isBlank() || className == null || className in rule.classFilter.lowercase()) &&
-                (rule.islandFilter.isBlank() || area == null || area in rule.islandFilter.lowercase()) &&
+                (rule.islandFilter.isBlank() || area == null || area in islandsIn(rule.islandFilter)) &&
                 matches(rule, message)
         }
     }
@@ -145,6 +145,20 @@ object ChatRules : Module(
             MatchType.StartsWith -> text.startsWith(match)
             MatchType.EndsWith -> text.endsWith(match)
             MatchType.Regex -> false
+        }
+    }
+
+    // Islands a filter can name: the same list Odin's waypoint areas come from
+    val islands = Island.entries.filter { it != Island.Unknown && it != Island.SinglePlayer }
+    private val islandFilterCache = HashMap<String, Set<Island>>()
+
+    // Longest names first, each cut out once found, so "dungeon hub" doesn't also count as "hub".
+    // Any separator works, and apostrophes are ignored ("spiders den")
+    private fun islandsIn(filter: String): Set<Island> = islandFilterCache.getOrPut(filter) {
+        var text = filter.lowercase().replace("'", "")
+        islands.sortedByDescending { it.displayName.length }.filterTo(HashSet()) { island ->
+            val name = island.displayName.lowercase().replace("'", "")
+            (name in text).also { if (it) text = text.replace(name, "|") }
         }
     }
 
@@ -188,6 +202,7 @@ object ChatRules : Module(
 
     fun save() {
         regexCache.clear()
+        islandFilterCache.clear()
         runCatching {
             rulesFile.parentFile.mkdirs()
             rulesFile.writeText(gson.toJson(rules, rulesType))

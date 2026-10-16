@@ -125,7 +125,8 @@ class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: S
             Row("Class Filter", null, textBox(rule.classFilter,
                 "Dungeon classes this rule works for, e.g. \"mage archer\". Leave blank for any class.") { rule.classFilter = it }),
             Row("Island Filter", null, textBox(rule.islandFilter,
-                "Islands this rule works on, e.g. \"catacombs kuudra\". Leave blank for anywhere.") { rule.islandFilter = it }),
+                "Islands this rule works on, e.g. \"catacombs, crimson isle\". Any separator works. Leave blank for anywhere.") { rule.islandFilter = it },
+                listOf(infoButton("§lIsland names\n§7" + ChatRules.islands.joinToString("\n") { it.displayName }))),
             Row("Title", null, textBox(rule.title, "Title to show. Use & for color codes. Leave blank for none.") { rule.title = it }, listOf(
                 intBox(rule.titleFadeIn, "Fade in (ticks)") { rule.titleFadeIn = it },
                 intBox(rule.titleStay, "Stay (ticks)") { rule.titleStay = it },
@@ -205,6 +206,12 @@ private class Row(
 
     override fun narratables(): List<NarratableEntry> = widgets
 }
+
+// A small "?" whose tooltip holds reference text
+private fun infoButton(text: String) = Button.builder(Component.literal("§b?")) {}
+    .width(20)
+    .tooltip(Tooltip.create(Component.literal(text)))
+    .build()
 
 private fun textBox(value: String, tip: String, onChange: (String) -> Unit) =
     EditBox(mc.font, 0, 0, 100, 18, Component.literal(tip)).apply {

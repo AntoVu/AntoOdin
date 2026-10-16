@@ -44,6 +44,12 @@ Chat Rules
  - Run a command (other mods' commands too) after a delay with random variety
  - Import your NoFrills chat rules with `/ao chatrules import`
 
+Level Colors
+ - Custom colors for SkyBlock level prefixes in chat, tab, nametags and item lore, edited with `/ao levelcolors`
+ - Add your own ranges past 480 (Hypixel's last color), or recolor Hypixel's prestiges
+ - Separate bracket color, and solid, gradient or per-character digit colors with hex codes
+ - Recolored lines are cached, so the cost stays close to zero
+
 Unfocused Tweaks
  - Lower all game sounds to a set percentage while tabbed out
  - Private message sound still plays at normal volume (configurable sound id and pitch)

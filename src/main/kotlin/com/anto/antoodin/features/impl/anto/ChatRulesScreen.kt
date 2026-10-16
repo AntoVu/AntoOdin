@@ -17,11 +17,11 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 
-private const val LABEL_WIDTH = 90
-private const val GAP = 4
-private const val RED = 0xFFFF5555.toInt()
-private const val GREEN = 0xFF55FF55.toInt()
-private const val WHITE = 0xFFE0E0E0.toInt()
+internal const val LABEL_WIDTH = 90
+internal const val GAP = 4
+internal const val RED = 0xFFFF5555.toInt()
+internal const val GREEN = 0xFF55FF55.toInt()
+internal const val WHITE = 0xFFE0E0E0.toInt()
 
 /** The rule list: name, on/off, edit and delete per rule. */
 class ChatRulesScreen(private val previous: Screen?) : Screen(Component.literal("Chat Rules")) {
@@ -162,7 +162,7 @@ class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: S
     override fun isPauseScreen(): Boolean = false
 }
 
-private class RowList(width: Int, height: Int, y: Int, private val rowWidth: Int) :
+internal class RowList(width: Int, height: Int, y: Int, private val rowWidth: Int) :
     ContainerObjectSelectionList<Row>(mc, width, height, y, 24) {
 
     fun show(rows: List<Row>) = replaceEntries(rows)
@@ -174,7 +174,7 @@ private class RowList(width: Int, height: Int, y: Int, private val rowWidth: Int
 }
 
 /** A label, then [flex] filling the space left of the [fixed] widgets. */
-private class Row(
+internal class Row(
     private val label: String?,
     private val tip: String?,
     private val flex: AbstractWidget?,
@@ -208,12 +208,12 @@ private class Row(
 }
 
 // A small "?" whose tooltip holds reference text
-private fun infoButton(text: String) = Button.builder(Component.literal("§b?")) {}
+internal fun infoButton(text: String) = Button.builder(Component.literal("§b?")) {}
     .width(20)
     .tooltip(Tooltip.create(Component.literal(text)))
     .build()
 
-private fun textBox(value: String, tip: String, onChange: (String) -> Unit) =
+internal fun textBox(value: String, tip: String, onChange: (String) -> Unit) =
     EditBox(mc.font, 0, 0, 100, 18, Component.literal(tip)).apply {
         setMaxLength(512)
         this.value = value
@@ -223,14 +223,14 @@ private fun textBox(value: String, tip: String, onChange: (String) -> Unit) =
         setResponder(onChange)
     }
 
-private fun onOff(value: Boolean, tip: String, onChange: (Boolean) -> Unit): CycleButton<Boolean> =
+internal fun onOff(value: Boolean, tip: String, onChange: (Boolean) -> Unit): CycleButton<Boolean> =
     CycleButton.onOffBuilder(value)
         .displayOnlyValue()
         .withTooltip { Tooltip.create(Component.literal(tip)) }
         .create(0, 0, 50, 20, Component.literal(tip)) { _, it -> onChange(it) }
 
 // Number boxes keep the last valid value and turn red while the text isn't a number
-private fun numberBox(text: String, tip: String, width: Int, apply: (String) -> Boolean) =
+internal fun numberBox(text: String, tip: String, width: Int, apply: (String) -> Boolean) =
     EditBox(mc.font, 0, 0, width, 18, Component.literal(tip)).apply {
         setMaxLength(8)
         value = text
@@ -238,8 +238,8 @@ private fun numberBox(text: String, tip: String, width: Int, apply: (String) -> 
         setResponder { setTextColor(if (apply(it)) WHITE else RED) }
     }
 
-private fun intBox(value: Int, tip: String, onChange: (Int) -> Unit) =
+internal fun intBox(value: Int, tip: String, onChange: (Int) -> Unit) =
     numberBox(value.toString(), tip, 36) { s -> s.toIntOrNull()?.takeIf { it >= 0 }?.also(onChange) != null }
 
-private fun floatBox(value: Float, tip: String, onChange: (Float) -> Unit) =
+internal fun floatBox(value: Float, tip: String, onChange: (Float) -> Unit) =
     numberBox(value.toString(), tip, 32) { s -> s.toFloatOrNull()?.takeIf { it >= 0f }?.also(onChange) != null }

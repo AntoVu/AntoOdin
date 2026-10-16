@@ -4,6 +4,7 @@ import com.anto.antoodin.features.Calculators
 import com.anto.antoodin.features.MutationTracker
 import com.anto.antoodin.features.impl.anto.ChatRules
 import com.anto.antoodin.features.impl.anto.ChatRulesScreen
+import com.anto.antoodin.features.impl.anto.LevelColorsScreen
 import com.anto.antoodin.features.impl.anto.DungeonSplits
 import com.anto.antoodin.features.impl.anto.WaypointPlacer
 import com.anto.antoodin.features.impl.noamm.ChatFilter
@@ -39,6 +40,8 @@ val aoCommand = Commodore("ao") {
 
     // Opened next tick, after chat closes, so the chat screen doesn't replace it
     literal("sounds").runs { schedule(1) { mc.gui.setScreen(SoundManagerScreen(null)) } }
+
+    literal("levelcolors").runs { schedule(1) { mc.gui.setScreen(LevelColorsScreen(null)) } }
 
     literal("chatrules") {
         runs { schedule(1) { mc.gui.setScreen(ChatRulesScreen(null)) } }

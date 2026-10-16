@@ -14,6 +14,7 @@
     "mixins.AnvilScreenMixin",
     "mixins.ChannelMixin",
     "mixins.ChatComponentMixin",
+    "mixins.ClientLanguageMixin",
     "mixins.KeyboardInputMixin",
     "mixins.RenderSectionRegionMixin",
     "mixins.SodiumLevelSliceMixin",

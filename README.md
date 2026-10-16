@@ -87,12 +87,6 @@ Hidden Mobs
 Gate Highlight
  - Highlights the F7 P3 gate of your section until it is destroyed
 
-Door Fix
- - Fixes the iron door rotations in F7 P3 section 3
-
-Mod Hider
- - Stops servers from detecting mods through translation keys in signs and anvils
-
 Snappy Tappy
  - The most recently pressed of two opposing movement keys wins
 
@@ -199,6 +193,22 @@ Ghosts
 
 Camera Helper
  - Camera clip and custom third person distance
+
+## Fixes
+Door Fix
+ - Fixes the iron door rotations in F7 P3 section 3
+
+Mod Hider
+ - Stops servers from detecting mods through translation keys in signs and anvils
+
+Item Count Fix
+ - Shows item counts on unstackable items in menus
+
+Disconnect Fix
+ - Stops corrupted entity data (Tarantula slayer) from disconnecting you
+
+Double Use Fix
+ - Stops Blaze Daggers and fishing rods from activating twice when clicking a block
 
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`

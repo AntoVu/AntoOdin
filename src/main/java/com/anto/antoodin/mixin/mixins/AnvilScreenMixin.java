@@ -1,6 +1,6 @@
 package com.anto.antoodin.mixin.mixins;
 
-import com.anto.antoodin.features.impl.noamm.ModHider;
+import com.anto.antoodin.features.impl.fixes.ModHider;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;

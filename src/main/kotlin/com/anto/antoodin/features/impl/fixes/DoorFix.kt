@@ -1,5 +1,5 @@
 // Ported from NoammAddons by Noamm9 (CC0-1.0)
-package com.anto.antoodin.features.impl.noamm
+package com.anto.antoodin.features.impl.fixes
 
 import com.anto.antoodin.utils.P3Section
 import com.anto.antoodin.utils.Skit
@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 object DoorFix : Module(
     name = "Door Fix",
     description = "Fixes the client-side rotation of the iron doors in F7 P3 section 3.",
-    category = Skit.NOAMM,
+    category = Skit.FIXES,
     toggled = true
 ) {
     private val doorPositions = buildList {

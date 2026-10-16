@@ -13,4 +13,8 @@ object Skit {
     // Features ported from skies-starred's OdinClient, which is no longer maintained
     @JvmField
     val ODINCLIENT = Category.custom("OdinClient", 1200, 10)
+
+    // Fixes for vanilla or Hypixel bugs
+    @JvmField
+    val FIXES = Category.custom("Fixes", 1370, 10)
 }

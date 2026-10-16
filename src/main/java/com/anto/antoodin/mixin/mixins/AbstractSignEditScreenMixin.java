@@ -1,6 +1,6 @@
 package com.anto.antoodin.mixin.mixins;
 
-import com.anto.antoodin.features.impl.noamm.ModHider;
+import com.anto.antoodin.features.impl.fixes.ModHider;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;

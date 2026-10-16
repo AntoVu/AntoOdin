@@ -1,5 +1,5 @@
 // Ported from NoammAddons by Noamm9 (CC0-1.0)
-package com.anto.antoodin.features.impl.noamm
+package com.anto.antoodin.features.impl.fixes
 
 import com.anto.antoodin.mixin.accessors.LanguageInvoker
 import com.anto.antoodin.mixin.accessors.LanguageManagerAccessor
@@ -32,7 +32,7 @@ import kotlin.jvm.optionals.getOrNull
 object ModHider : Module(
     name = "Mod Hider",
     description = "Stops servers from detecting your mods through translation keys in signs and anvils.",
-    category = Skit.NOAMM,
+    category = Skit.FIXES,
     toggled = true
 ) {
     private val serverLanguages = IdentityHashMap<ClientPacketListener?, Language>()

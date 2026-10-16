@@ -18,7 +18,7 @@ object AntoOdin : ClientModInitializer {
     override fun onInitializeClient() {
         listOf(this, FabricEventDispatcher).forEach { EventBus.subscribe(it) }
 
-        ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueWardrobe, KuudraAutoGFS,
+        ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueLoadout, KuudraAutoGFS,
             CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits,
             AuctionPriceInput, IHateDoors, HiddenMobs, GateHighlight, DoorFix, ModHider, SnappyTappy,
             MonoAudio, SoundManager, ExplosiveShot, ChatFilter, LeapCounter, MaxorsCrystals, ItemTooltip, DamageSplash,

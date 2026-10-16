@@ -56,9 +56,17 @@ object AutoClicker : Module(
 
     private var nlc = .0
     private var nrc = .0
+    private var attackWasDown = false
+    private var useWasDown = false
 
     init {
         on<TickStartEvent> {
+            // Vanilla already clicks on the press, so a bind on its own key skips the first auto click (no double click)
+            val attackKey = (mc.options.keyAttack as KeyMappingAccessor).boundKey
+            val useKey = (mc.options.keyUse as KeyMappingAccessor).boundKey
+            val attackPressed = isHeld(attackKey).let { down -> (down && !attackWasDown).also { attackWasDown = down } }
+            val usePressed = isHeld(useKey).let { down -> (down && !useWasDown).also { useWasDown = down } }
+
             if (mc.gui.screen() != null) return@on
             val player = mc.player ?: return@on
             if (player.isUsingItem) return@on
@@ -85,8 +93,12 @@ object AutoClicker : Module(
             val level = mc.level ?: return@on
             val hit = mc.hitResult as? BlockHitResult
 
-            val lc = a && enableLeftClick && isHeld(bindFor(leftBinds, held) ?: leftClickKeybind)
-            val rc = b && enableRightClick && isHeld(bindFor(rightBinds, held) ?: rightClickKeybind)
+            val lcKey = bindFor(leftBinds, held) ?: leftClickKeybind
+            val rcKey = bindFor(rightBinds, held) ?: rightClickKeybind
+            val lc = a && enableLeftClick && isHeld(lcKey)
+            val rc = b && enableRightClick && isHeld(rcKey)
+            if (lc && lcKey == attackKey && attackPressed) nlc = now + 1000.0 / leftCps
+            if (rc && rcKey == useKey && usePressed) nrc = now + 1000.0 / rightCps
 
             if (hit != null && !level.getBlockState(hit.blockPos).isAir && lc && allowBreaking) {
                 KeyMapping.set((mc.options.keyAttack as KeyMappingAccessor).boundKey, true)

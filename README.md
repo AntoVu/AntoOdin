@@ -6,8 +6,8 @@ Wardrobe Hotkeys (A)
  - Auto close after use
  - Play sound on equip
 
-Queue Wardrobe
- - Auto equip wardrobe on keybind
+Queue Loadout
+ - Auto equip loadout 1-12 on keybind (opens /loadouts)
 
 Kuudra Auto GFS
  - Get TAP/TWAP after build
@@ -239,11 +239,8 @@ Ability Timers
  - Shows how long Rag Axe buff lasts
  - Shows how long Reaper buff lasts
 
-Queue Loadout
- - Same as Queue Wardrobe but for Loadouts
-
 Queue Equipment
- - Same as Queue Wardrobe but for Equipments
+ - Same as Queue Loadout but for Equipments
 
 Auto Gloomlock
  - When low mana

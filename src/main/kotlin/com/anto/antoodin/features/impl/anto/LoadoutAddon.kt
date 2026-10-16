@@ -50,7 +50,10 @@ object LoadoutAddon : Module(
     private val equipSoundToggle by BooleanSetting("Enable Equip Sound", false, desc = "Plays a sound when you equip a loadout slot.").withDependency { equipSoundDropdown }
     private val equipSoundSettings = createSoundSettings("Equip Sound", "entity.horse.armor") { equipSoundToggle && equipSoundDropdown }
 
-    private val loadoutRegex = Regex("\\((\\d)/(\\d)\\) Loadouts")
+    val loadoutRegex = Regex("\\((\\d)/(\\d)\\) Loadouts")
+
+    // Loadout n (0-based) sits in rows of 3 starting at slot 14
+    fun loadoutSlot(n: Int) = n + 14 + 6 * (n / 3)
 
     private const val CLICK_COOLDOWN_MS = 300L
     private var lastClick = 0L
@@ -88,7 +91,7 @@ object LoadoutAddon : Module(
         val index = when (keyCode) {
             nextPageKeybind.value -> 44.takeIf { current < total }
             previousPageKeybind.value -> 17.takeIf { current > 1 }
-            else -> if (keyIndex == -1) return false else keyIndex + 14 + 6 * (keyIndex / 3)
+            else -> if (keyIndex == -1) return false else loadoutSlot(keyIndex)
         } ?: return true
 
         // Page keys can be tapped quickly to skip pages; only equipping is rate limited

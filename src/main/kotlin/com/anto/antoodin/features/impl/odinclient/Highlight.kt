@@ -89,7 +89,8 @@ object Highlight : Module(
                 val entity = world.getEntity(id) as? WitherBoss ?: return@forEach
                 if (!entity.isAlive) return@forEach
                 drawStyledBox(entity.renderBoundingBox, witherColor, renderStyle, depthCheck)
-                if (entity.invulnerableTicks != 0 && tracerWither) drawTracer(entity.renderPos, witherColor, depthCheck)
+                // OdinClient also required invulnerableTicks != 0, which seems to stay 0 on the live boss, so the tracer never drew
+                if (tracerWither) drawTracer(entity.renderPos, witherColor, depthCheck)
             }
 
             if (highlightBats && DungeonUtils.inDungeons && !DungeonUtils.inBoss) {

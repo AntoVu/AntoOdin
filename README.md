@@ -43,6 +43,7 @@ Chat Rules
  - Show a title or a custom title HUD, play a sound, hide the message
  - Run a command (other mods' commands too) after a delay with random variety
  - Import your NoFrills chat rules with `/ao chatrules import`
+ - Pre-defined rules (the old Chat Filter categories) that only hide spam: view their patterns and turn them on or off
 
 Level Colors
  - Custom colors for SkyBlock level prefixes in chat, tab, nametags and item lore, edited with `/ao levelcolors`
@@ -125,10 +126,6 @@ Sound Manager
 
 Explosive Shot
  - Shows Explosive Shot damage per enemy
-
-Chat Filter
- - Hides useless chat messages, by category
- - Custom patterns with `/ao chathider`
 
 Leap Counter
  - HUD of how many teammates reached your F7 P3 spot, with a title and sound when everyone is there
@@ -248,10 +245,7 @@ Double Use Fix
 `/ao sounds`
  - Opens the Sound Manager
 
-`/ao chathider add|remove <regex>`, `/ao chathider list`
- - Manages custom Chat Filter patterns (matched against the whole message)
-
-`/ao waypoints` (alias `/ao wp`)
+`/ao waypoints`
  - Opens Odin's waypoint manager (import/export are there)
  - `color <RRGGBBAA>` sets the next placed waypoint's color
 

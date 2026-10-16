@@ -31,7 +31,7 @@ import net.minecraft.world.phys.HitResult
 /** Right-click placement for Odin's own Waypoints module. Waypoints live in Odin's list and config, keyed by [WaypointAreas]. */
 object WaypointPlacer : Module(
     name = "Waypoint Placer",
-    description = "Place Odin waypoints by right clicking blocks. Manage them with /ao wp.",
+    description = "Place Odin waypoints by right clicking blocks. Manage them with /ao waypoints.",
     category = Skit.ANTO
 ) {
     private var allowEdits by BooleanSetting("Allow Edits", false, desc = "Right click a block to add or remove a waypoint.")

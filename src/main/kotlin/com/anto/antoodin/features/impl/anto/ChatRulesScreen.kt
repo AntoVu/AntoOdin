@@ -23,32 +23,42 @@ internal const val RED = 0xFFFF5555.toInt()
 internal const val GREEN = 0xFF55FF55.toInt()
 internal const val WHITE = 0xFFE0E0E0.toInt()
 
-/** The rule list: name, on/off, edit and delete per rule. */
-class ChatRulesScreen(private val previous: Screen?) : Screen(Component.literal("Chat Rules")) {
+/** The rule list: your own rules (name, on/off, edit, delete), or the pre-defined ones (on/off, view). */
+class ChatRulesScreen(private val previous: Screen?, private val showPresets: Boolean = false) : Screen(Component.literal("Chat Rules")) {
     private lateinit var list: RowList
 
     override fun init() {
         super.init()
-        val buttonWidth = 100
-        val left = width / 2 - (buttonWidth * 3 + GAP * 2) / 2
-        addRenderableWidget(Button.builder(Component.literal("Add Rule")) {
-            ChatRules.rules.add(ChatRule())
-            ChatRules.save()
-            mc.gui.setScreen(ChatRuleEditScreen(ChatRules.rules.last(), previous))
-        }.bounds(left, 22, buttonWidth, 20).build())
+        val buttonWidth = 96
+        val left = width / 2 - (buttonWidth * 4 + GAP * 3) / 2
+        // Pre-defined rules can't be added to, so their tab leaves these two slots empty
+        if (!showPresets) {
+            addRenderableWidget(Button.builder(Component.literal("Add Rule")) {
+                ChatRules.rules.add(ChatRule())
+                ChatRules.save()
+                mc.gui.setScreen(ChatRuleEditScreen(ChatRules.rules.last(), previous))
+            }.bounds(left, 22, buttonWidth, 20).build())
 
-        addRenderableWidget(Button.builder(Component.literal("Import NoFrills")) {
-            modMessage(ChatRules.importNoFrills())
-            rebuildRows()
-        }.bounds(left + buttonWidth + GAP, 22, buttonWidth, 20)
-            .tooltip(Tooltip.create(Component.literal("Adds the chat rules from NoFrills' config in this instance. Rules already here are skipped.")))
+            addRenderableWidget(Button.builder(Component.literal("Import NoFrills")) {
+                modMessage(ChatRules.importNoFrills())
+                rebuildRows()
+            }.bounds(left + buttonWidth + GAP, 22, buttonWidth, 20)
+                .tooltip(Tooltip.create(Component.literal("Adds the chat rules from NoFrills' config in this instance. Rules already here are skipped.")))
+                .build())
+        }
+
+        addRenderableWidget(Button.builder(Component.literal(if (showPresets) "Custom Rules" else "Pre-defined Rules")) {
+            ChatRules.save()
+            mc.gui.setScreen(ChatRulesScreen(previous, !showPresets))
+        }.bounds(left + (buttonWidth + GAP) * 2, 22, buttonWidth, 20)
+            .tooltip(Tooltip.create(Component.literal(if (showPresets) "Back to your own rules." else "Built-in rules that hide common spam. Only on/off can be changed.")))
             .build())
 
         // Rules only run while the module is on, so the switch lives here too
         addRenderableWidget(Button.builder(enabledText()) { button ->
             ChatRules.toggle()
             button.message = enabledText()
-        }.bounds(left + (buttonWidth + GAP) * 2, 22, buttonWidth, 20).build())
+        }.bounds(left + (buttonWidth + GAP) * 3, 22, buttonWidth, 20).build())
 
         list = RowList(width, height - 56, 46, 380)
         addRenderableWidget(list)
@@ -58,6 +68,13 @@ class ChatRulesScreen(private val previous: Screen?) : Screen(Component.literal(
     private fun enabledText() = Component.literal(if (ChatRules.enabled) "§aModule Enabled" else "§cModule Disabled")
 
     private fun rebuildRows() {
+        if (showPresets) return list.show(chatRulePresets.map { preset ->
+            val toggle = onOff(ChatRules.isPresetOn(preset), "Turns this rule on or off.") { ChatRules.setPreset(preset, it) }
+            val view = Button.builder(Component.literal("View")) {
+                mc.gui.setScreen(ChatRuleEditScreen(preset.rule, previous, preset))
+            }.width(40).build()
+            Row(preset.name, preset.desc, null, listOf(toggle.also { it.width = 40 }, view))
+        })
         list.show(ChatRules.rules.map { rule ->
             val name = textBox(rule.name, "The name of this rule.") { rule.name = it }
             val toggle = onOff(rule.enabled, "Turns this rule on or off.") { rule.enabled = it }
@@ -76,6 +93,7 @@ class ChatRulesScreen(private val previous: Screen?) : Screen(Component.literal(
 
     override fun extractRenderState(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
         super.extractRenderState(guiGraphics, mouseX, mouseY, delta)
+        if (showPresets) return guiGraphics.centeredText(font, "§lPre-defined Rules §r§7(hide only, can't be edited)", width / 2, 8, -1)
         guiGraphics.centeredText(font, "§lChat Rules §r§7(${ChatRules.rules.size}, first match wins)", width / 2, 8, -1)
         if (ChatRules.rules.isEmpty()) guiGraphics.centeredText(font, "§7No rules yet.", width / 2, 60, -1)
     }
@@ -88,8 +106,8 @@ class ChatRulesScreen(private val previous: Screen?) : Screen(Component.literal(
     override fun isPauseScreen(): Boolean = false
 }
 
-/** Every option of one rule. Esc goes back to the rule list. */
-class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: Screen?) :
+/** Every option of one rule. Esc goes back to the rule list. A [preset] is shown read-only, one pattern per row. */
+class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: Screen?, private val preset: ChatRulePreset? = null) :
     Screen(Component.literal("Chat Rule")) {
 
     override fun init() {
@@ -106,7 +124,7 @@ class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: S
         colorSound(rule.sound)
         sound.setResponder { rule.sound = it; colorSound(it) }
 
-        list.show(listOf(
+        val rows = listOf(
             Row("Name", "The name of this rule.", textBox(rule.name, "The name of this rule.") { rule.name = it }),
             Row("Match Text", "The text (or regex) to match.", textBox(rule.match, "The text (or regex) to match.") { rule.match = it }),
             Row("Match Type", "How the text is compared to the message.", null, listOf(
@@ -146,15 +164,24 @@ class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: S
                 intBox(rule.commandDelay, "Delay (ms)") { rule.commandDelay = it },
                 intBox(rule.commandDelayVariety, "Random extra delay (ms)") { rule.commandDelayVariety = it }
             ))
-        ))
+        )
+
+        if (preset == null) return list.show(rows)
+        // The combined regex is unreadable in one box, so each pattern gets its own row
+        val patterns = preset.patterns.mapIndexed { i, pattern ->
+            Row("Pattern ${i + 1}", "Must match the whole message.", textBox(pattern, pattern) { })
+        }
+        list.show((rows.take(1) + patterns + rows.drop(2)).onEach(Row::lock))
     }
 
     override fun extractRenderState(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
         super.extractRenderState(guiGraphics, mouseX, mouseY, delta)
-        guiGraphics.centeredText(font, "§lChat Rule: §r${rule.name}", width / 2, 8, -1)
+        val title = if (preset != null) "§lPre-defined Rule: §r${rule.name} §7(view only)" else "§lChat Rule: §r${rule.name}"
+        guiGraphics.centeredText(font, title, width / 2, 8, -1)
     }
 
     override fun onClose() {
+        if (preset != null) return mc.gui.setScreen(ChatRulesScreen(listPrevious, true))
         ChatRules.save()
         mc.gui.setScreen(ChatRulesScreen(listPrevious))
     }
@@ -181,6 +208,9 @@ internal class Row(
     private val fixed: List<AbstractWidget> = emptyList()
 ) : ContainerObjectSelectionList.Entry<Row>() {
     private val widgets = listOfNotNull(flex) + fixed
+
+    // Text boxes stay focusable so long values can still be scrolled through
+    fun lock() = widgets.forEach { if (it is EditBox) it.setEditable(false) else it.active = false }
 
     override fun extractContent(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, hovered: Boolean, delta: Float) {
         val start = contentX + if (label != null) LABEL_WIDTH else 0

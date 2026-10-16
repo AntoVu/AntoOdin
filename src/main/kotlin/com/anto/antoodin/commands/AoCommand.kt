@@ -7,12 +7,10 @@ import com.anto.antoodin.features.impl.anto.ChatRulesScreen
 import com.anto.antoodin.features.impl.anto.LevelColorsScreen
 import com.anto.antoodin.features.impl.anto.DungeonSplits
 import com.anto.antoodin.features.impl.anto.WaypointPlacer
-import com.anto.antoodin.features.impl.noamm.ChatFilter
 import com.anto.antoodin.features.impl.noamm.SoundManagerScreen
 import com.anto.antoodin.features.impl.odinclient.AutoClicker
 import com.anto.antoodin.features.impl.odinclient.Highlight
 import com.github.stivais.commodore.Commodore
-import com.github.stivais.commodore.nodes.LiteralNode
 import com.github.stivais.commodore.utils.GreedyString
 import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.features.impl.render.waypoints.WaypointScreen
@@ -48,15 +46,6 @@ val aoCommand = Commodore("ao") {
         literal("import").runs { modMessage(ChatRules.importNoFrills()) }
     }
 
-    literal("chathider") {
-        literal("add").runs { pattern: GreedyString -> ChatFilter.addPattern(pattern.string) }
-        literal("remove").executable {
-            param("pattern").suggests { ChatFilter.patterns() }
-            runs { pattern: GreedyString -> ChatFilter.removePattern(pattern.string) }
-        }
-        literal("list").runs { ChatFilter.listPatterns() }
-    }
-
     literal("ac") {
         literal("add") {
             for (side in listOf("left", "right")) literal(side).executable {
@@ -87,18 +76,14 @@ val aoCommand = Commodore("ao") {
         }
     }
 
-    // Separate literals, not literal("waypoints", "wp"): Commodore makes aliases brigadier redirects, which skip the bare `runs`
-    literal("waypoints") { waypointCommands() }
-    literal("wp") { waypointCommands() }
-}
+    // Odin's waypoint manager, plus the next placed waypoint's color
+    literal("waypoints") {
+        runs { schedule(1) { mc.setScreenAndShow(WaypointScreen(null)) } }
 
-// Odin's waypoint manager, plus the next placed waypoint's color
-private fun LiteralNode.waypointCommands() {
-    runs { schedule(1) { mc.setScreenAndShow(WaypointScreen(null)) } }
-
-    literal("color").runs { hex: String ->
-        if (!hex.matches(Regex("[0-9A-Fa-f]{8}"))) return@runs modMessage("Color hex not properly formatted! Use format RRGGBBAA")
-        WaypointPlacer.color = Color(hex)
-        modMessage("Color changed to: $hex")
+        literal("color").runs { hex: String ->
+            if (!hex.matches(Regex("[0-9A-Fa-f]{8}"))) return@runs modMessage("Color hex not properly formatted! Use format RRGGBBAA")
+            WaypointPlacer.color = Color(hex)
+            modMessage("Color changed to: $hex")
+        }
     }
 }

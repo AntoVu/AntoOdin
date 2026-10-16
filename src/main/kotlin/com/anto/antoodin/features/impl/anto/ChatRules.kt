@@ -7,10 +7,12 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import com.odtheking.odin.OdinMod
 import com.odtheking.odin.clickgui.settings.impl.ActionSetting
+import com.odtheking.odin.clickgui.settings.impl.MapSetting
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.features.ModuleManager
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.modMessage
@@ -33,6 +35,12 @@ import kotlin.random.Random
 /**
  * Per-message rules: the first enabled rule that matches a chat line shows a title, plays a sound,
  * runs a command and/or hides the line. Rules are edited in [ChatRulesScreen] (/ao chatrules).
+ * Pre-defined rules ([chatRulePresets]) only hide, and are checked apart from the custom ones,
+ * so a custom rule still fires on a line a preset hides.
+ *
+ * Lines are hidden when they're added to the chat window, after every mod has seen them. Cancelling
+ * MessageEvent.Chat instead would stop Fabric's ALLOW_GAME chain, so other mods (and our own chat
+ * triggers) would miss lines like [BOSS] dialogue.
  *
  * @see com.anto.antoodin.mixin.mixins.ChatComponentMixin
  */
@@ -79,6 +87,16 @@ object ChatRules : Module(
         mc.gui.setScreen(ChatRulesScreen(mc.gui.screen()))
     }
 
+    // Pre-defined rules that are on, by name. All start off.
+    private val presetStates by MapSetting("Pre-defined Rules", mutableMapOf<String, Boolean>())
+
+    fun isPresetOn(preset: ChatRulePreset) = presetStates[preset.name] == true
+
+    fun setPreset(preset: ChatRulePreset, on: Boolean) {
+        presetStates[preset.name] = on
+        ModuleManager.saveConfigurations()
+    }
+
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val rulesType = object : TypeToken<MutableList<ChatRule>>() {}.type
     private val rulesFile = File(OdinMod.configFile, "addons/antoodin-chat-rules.json")
@@ -119,9 +137,12 @@ object ChatRules : Module(
         on<TickEvent.End> { if (customTitleTicks > 0) customTitleTicks-- }
     }
 
-    // Hides at display time, after every mod has seen the line (see ChatFilter)
     @JvmStatic
-    fun shouldHide(message: Component): Boolean = enabled && firstMatch(message.string.noControlCodes)?.cancel == true
+    fun shouldHide(message: Component): Boolean {
+        if (!enabled) return false
+        val text = message.string.noControlCodes
+        return firstMatch(text)?.cancel == true || chatRulePresets.any { isPresetOn(it) && matches(it.rule, text) }
+    }
 
     private fun firstMatch(message: String): ChatRule? {
         val className = DungeonUtils.currentDungeonPlayer.clazz.takeIf { it != DungeonClass.EMPTY }?.name?.lowercase()

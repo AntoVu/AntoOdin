@@ -34,6 +34,8 @@
     "mixins.ItemStackMixin",
     "mixins.SynchedEntityDataMixin",
     "mixins.MultiPlayerGameModeMixin",
+    "mixins.FramerateLimitTrackerMixin",
+    "mixins.GuiGraphicsExtractorMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",

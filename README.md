@@ -44,6 +44,14 @@ Chat Rules
  - Run a command (other mods' commands too) after a delay with random variety
  - Import your NoFrills chat rules with `/ao chatrules import`
 
+Unfocused Tweaks
+ - Lower all game sounds to a set percentage while tabbed out
+ - Private message sound still plays at normal volume (configurable sound id and pitch)
+ - Skip world rendering, FPS limit and turn off vanilla's FPS reduction while tabbed out
+
+Command Tooltip
+ - Shows the command a chat message runs in its hover tooltip
+
 Jellybean Hider
  - Hides the Magic Jellybean mutation in the Garden
  - Render only the blocks can still be broken

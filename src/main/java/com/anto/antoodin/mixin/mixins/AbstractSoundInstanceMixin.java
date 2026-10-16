@@ -1,5 +1,6 @@
 package com.anto.antoodin.mixin.mixins;
 
+import com.anto.antoodin.features.impl.anto.UnfocusedTweaks;
 import com.anto.antoodin.features.impl.noamm.SoundManager;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.resources.Identifier;
@@ -16,6 +17,7 @@ public class AbstractSoundInstanceMixin {
 
     @Inject(method = "getVolume", at = @At("RETURN"), cancellable = true)
     private void applySoundVolume(CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(cir.getReturnValue() * SoundManager.getMultiplier(identifier));
+        float pitch = ((AbstractSoundInstance) (Object) this).getPitch();
+        cir.setReturnValue(cir.getReturnValue() * SoundManager.getMultiplier(identifier) * UnfocusedTweaks.volumeMultiplier(identifier, pitch));
     }
 }

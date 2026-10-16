@@ -217,6 +217,8 @@ private fun textBox(value: String, tip: String, onChange: (String) -> Unit) =
     EditBox(mc.font, 0, 0, 100, 18, Component.literal(tip)).apply {
         setMaxLength(512)
         this.value = value
+        // setValue scrolls to the end at the placeholder width; the row widens the box later, so start from the left
+        moveCursorToStart(false)
         setTooltip(Tooltip.create(Component.literal(tip)))
         setResponder(onChange)
     }

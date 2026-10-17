@@ -1,5 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
+import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
@@ -16,7 +17,6 @@ import com.odtheking.odin.utils.playSoundSettings
 import com.anto.antoodin.utils.Skit
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
 
 object LoadoutAddon : Module(
@@ -24,22 +24,22 @@ object LoadoutAddon : Module(
     description = "Better loadout hotkeys, use this instead of default ones",
     category = Skit.ANTO
 ) {
-    private val nextPageKeybind by KeybindSetting("Next Page", GLFW.GLFW_KEY_RIGHT, desc = "Keybind to go to the next page in loadouts.")
-    private val previousPageKeybind by KeybindSetting("Previous Page", GLFW.GLFW_KEY_LEFT, desc = "Keybind to go to the previous page in loadouts.")
+    private val nextPageKeybind by KeybindSetting("Next Page", InputConstants.KEY_RIGHT, desc = "Keybind to go to the next page in loadouts.")
+    private val previousPageKeybind by KeybindSetting("Previous Page", InputConstants.KEY_LEFT, desc = "Keybind to go to the previous page in loadouts.")
 
     private val advanced by DropdownSetting("Show Settings", desc = "Shows the per-slot keybinds.")
-    private val loadout1 by KeybindSetting("Loadout 1", GLFW.GLFW_KEY_1, desc = "Keybind to equip the first loadout slot.").withDependency { advanced }
-    private val loadout2 by KeybindSetting("Loadout 2", GLFW.GLFW_KEY_2, desc = "Keybind to equip the second loadout slot.").withDependency { advanced }
-    private val loadout3 by KeybindSetting("Loadout 3", GLFW.GLFW_KEY_3, desc = "Keybind to equip the third loadout slot.").withDependency { advanced }
-    private val loadout4 by KeybindSetting("Loadout 4", GLFW.GLFW_KEY_4, desc = "Keybind to equip the fourth loadout slot.").withDependency { advanced }
-    private val loadout5 by KeybindSetting("Loadout 5", GLFW.GLFW_KEY_5, desc = "Keybind to equip the fifth loadout slot.").withDependency { advanced }
-    private val loadout6 by KeybindSetting("Loadout 6", GLFW.GLFW_KEY_6, desc = "Keybind to equip the sixth loadout slot.").withDependency { advanced }
-    private val loadout7 by KeybindSetting("Loadout 7", GLFW.GLFW_KEY_7, desc = "Keybind to equip the seventh loadout slot.").withDependency { advanced }
-    private val loadout8 by KeybindSetting("Loadout 8", GLFW.GLFW_KEY_8, desc = "Keybind to equip the eighth loadout slot.").withDependency { advanced }
-    private val loadout9 by KeybindSetting("Loadout 9", GLFW.GLFW_KEY_9, desc = "Keybind to equip the ninth loadout slot.").withDependency { advanced }
-    private val loadout10 by KeybindSetting("Loadout 10", GLFW.GLFW_KEY_0, desc = "Keybind to equip the tenth loadout slot.").withDependency { advanced }
-    private val loadout11 by KeybindSetting("Loadout 11", GLFW.GLFW_KEY_R, desc = "Keybind to equip the eleventh loadout slot.").withDependency { advanced }
-    private val loadout12 by KeybindSetting("Loadout 12", GLFW.GLFW_KEY_F, desc = "Keybind to equip the twelfth loadout slot.").withDependency { advanced }
+    private val loadout1 by KeybindSetting("Loadout 1", InputConstants.KEY_1, desc = "Keybind to equip the first loadout slot.").withDependency { advanced }
+    private val loadout2 by KeybindSetting("Loadout 2", InputConstants.KEY_2, desc = "Keybind to equip the second loadout slot.").withDependency { advanced }
+    private val loadout3 by KeybindSetting("Loadout 3", InputConstants.KEY_3, desc = "Keybind to equip the third loadout slot.").withDependency { advanced }
+    private val loadout4 by KeybindSetting("Loadout 4", InputConstants.KEY_4, desc = "Keybind to equip the fourth loadout slot.").withDependency { advanced }
+    private val loadout5 by KeybindSetting("Loadout 5", InputConstants.KEY_5, desc = "Keybind to equip the fifth loadout slot.").withDependency { advanced }
+    private val loadout6 by KeybindSetting("Loadout 6", InputConstants.KEY_6, desc = "Keybind to equip the sixth loadout slot.").withDependency { advanced }
+    private val loadout7 by KeybindSetting("Loadout 7", InputConstants.KEY_7, desc = "Keybind to equip the seventh loadout slot.").withDependency { advanced }
+    private val loadout8 by KeybindSetting("Loadout 8", InputConstants.KEY_8, desc = "Keybind to equip the eighth loadout slot.").withDependency { advanced }
+    private val loadout9 by KeybindSetting("Loadout 9", InputConstants.KEY_9, desc = "Keybind to equip the ninth loadout slot.").withDependency { advanced }
+    private val loadout10 by KeybindSetting("Loadout 10", InputConstants.KEY_0, desc = "Keybind to equip the tenth loadout slot.").withDependency { advanced }
+    private val loadout11 by KeybindSetting("Loadout 11", InputConstants.KEY_R, desc = "Keybind to equip the eleventh loadout slot.").withDependency { advanced }
+    private val loadout12 by KeybindSetting("Loadout 12", InputConstants.KEY_F, desc = "Keybind to equip the twelfth loadout slot.").withDependency { advanced }
 
     private val autoCloseDropdown by DropdownSetting("Auto Close", desc = "Settings for closing the menu after equipping.")
     private val autoCloseToggle by BooleanSetting("Auto Close Toggle", false, desc = "Automatically closes the loadout menu after selecting a slot.").withDependency { autoCloseDropdown }
@@ -62,12 +62,14 @@ object LoadoutAddon : Module(
         // Left and right clicks are normal slot clicks, never binds
         on<ScreenEvent.MouseClick> {
             val s = screen
-            if (s is AbstractContainerScreen<*> && click.button() > 1 && onClick(s, click.button())) cancel()
+            val button = click.button()
+            if (s is AbstractContainerScreen<*> && button != InputConstants.MOUSE_BUTTON_LEFT && button != InputConstants.MOUSE_BUTTON_RIGHT &&
+                onClick(s, InputConstants.Type.MOUSE.getOrCreate(button))) cancel()
         }
 
         on<ScreenEvent.KeyPress> {
             val s = screen
-            if (s is AbstractContainerScreen<*> && onClick(s, input.key)) cancel()
+            if (s is AbstractContainerScreen<*> && onClick(s, InputConstants.getKey(input))) cancel()
         }
     }
 
@@ -78,19 +80,19 @@ object LoadoutAddon : Module(
     }
 
     // Returns true when the key is one of our binds, so vanilla never also handles it (e.g. as a hotbar swap click)
-    private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
+    private fun onClick(screen: AbstractContainerScreen<*>, key: InputConstants.Key): Boolean {
         val (current, total) = loadoutRegex.find(screen.title?.string ?: "")?.destructured?.let {
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory).value) return false
+        if (key == InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_ESCAPE) || key == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory)) return false
 
         val loadoutSlots = arrayOf(loadout1, loadout2, loadout3, loadout4, loadout5, loadout6, loadout7, loadout8, loadout9, loadout10, loadout11, loadout12)
-        val keyIndex = loadoutSlots.indexOfFirst { it.value == keyCode }
+        val keyIndex = loadoutSlots.indexOf(key)
 
-        val index = when (keyCode) {
-            nextPageKeybind.value -> 44.takeIf { current < total }
-            previousPageKeybind.value -> 17.takeIf { current > 1 }
+        val index = when (key) {
+            nextPageKeybind -> 44.takeIf { current < total }
+            previousPageKeybind -> 17.takeIf { current > 1 }
             else -> if (keyIndex == -1) return false else loadoutSlot(keyIndex)
         } ?: return true
 

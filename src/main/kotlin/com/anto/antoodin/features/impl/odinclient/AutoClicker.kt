@@ -11,6 +11,7 @@ import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
+import com.odtheking.odin.clickgui.settings.impl.KeybindSetting.Companion.isDown
 import com.odtheking.odin.clickgui.settings.impl.MapSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.core.on
@@ -26,7 +27,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
-import org.lwjgl.glfw.GLFW
 
 object AutoClicker : Module(
     name = "Auto Clicker",
@@ -43,8 +43,8 @@ object AutoClicker : Module(
     private val enableRightClick by BooleanSetting("Enable Right Click", true, desc = "Enable auto-clicking for right-click.").withDependency { !terminatorOnly }
     private val leftCps by NumberSetting("Left Clicks Per Second", 5.0f, 3.0..20.0, .5, desc = "The amount of left clicks per second to perform.").withDependency { !terminatorOnly }
     private val rightCps by NumberSetting("Right Clicks Per Second", 5.0f, 3.0..20.0, .5, desc = "The amount of right clicks per second to perform.").withDependency { !terminatorOnly }
-    private val leftClickKeybind by KeybindSetting("Left Click", GLFW.GLFW_KEY_UNKNOWN, desc = "The keybind to hold for the auto clicker to click left click.").withDependency { !terminatorOnly }
-    private val rightClickKeybind by KeybindSetting("Right Click", GLFW.GLFW_KEY_UNKNOWN, desc = "The keybind to hold for the auto clicker to click right click.").withDependency { !terminatorOnly }
+    private val leftClickKeybind by KeybindSetting("Left Click", InputConstants.UNKNOWN, desc = "The keybind to hold for the auto clicker to click left click.").withDependency { !terminatorOnly }
+    private val rightClickKeybind by KeybindSetting("Right Click", InputConstants.UNKNOWN, desc = "The keybind to hold for the auto clicker to click right click.").withDependency { !terminatorOnly }
 
     // Item key (uuid, else skyblock id, else name; an empty hand is "Air") -> colored item name, blank until the item is seen
     private val left by MapSetting("Left Whitelist", mutableMapOf<String, String>())
@@ -117,12 +117,8 @@ object AutoClicker : Module(
         }
     }
 
-    // Mouse binds aren't keyboard keys, so InputConstants.isKeyDown can't check them
-    private fun isHeld(key: InputConstants.Key): Boolean = when {
-        key == InputConstants.UNKNOWN -> false
-        key.type == InputConstants.Type.MOUSE -> GLFW.glfwGetMouseButton(mc.window.handle(), key.value) == GLFW.GLFW_PRESS
-        else -> InputConstants.isKeyDown(mc.window, key.value)
-    }
+    // Odin's isDown reads keyboard state at index -1 for an unbound key, which throws
+    private fun isHeld(key: InputConstants.Key): Boolean = key != InputConstants.UNKNOWN && key.isDown()
 
     private fun bindFor(binds: Map<String, String>, item: String): InputConstants.Key? =
         binds[item]?.let { runCatching { InputConstants.getKey(it) }.getOrNull() }

@@ -4,9 +4,11 @@ package com.anto.antoodin.features.impl.noamm
 import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
+import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.core.onReceive
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.Color
+import com.odtheking.odin.utils.Color.Companion.withAlpha
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundResetScorePacket
@@ -20,7 +22,7 @@ import net.minecraft.world.scores.PlayerTeam
 /**
  * Keep SkyHanni's Custom Scoreboard off, or there will be two.
  *
- * @see com.anto.antoodin.mixin.mixins.GuiMixin
+ * @see com.anto.antoodin.mixin.mixins.HudMixin
  */
 object CustomScoreboard : Module(
     name = "Custom Scoreboard",
@@ -29,11 +31,12 @@ object CustomScoreboard : Module(
 ) {
     private val hideServerId by BooleanSetting("Hide Server ID", false, desc = "Removes the server ID (e.g. m151AM) from the date line.")
     private val accentColor by ColorSetting("Accent Color", Color(0, 134, 255), desc = "Color of the bar along the top.")
+    private val backgroundOpacity by NumberSetting("Background Opacity", 75, 0..100, 1, desc = "Opacity of the background. 0% is transparent, 100% is opaque.", unit = "%")
 
     private const val PADDING = 8
     private const val MAX_LINES = 15
-    private val background = Color(15, 15, 15, 190 / 255f)
-    private val border = Color(255, 255, 255, 20 / 255f)
+    private val background = Color(15, 15, 15)
+    private val border = Color(255, 255, 255)
 
     // Set from the netty thread when the scoreboard changes, rebuilt on the render thread
     @Volatile private var dirty = true
@@ -84,8 +87,10 @@ object CustomScoreboard : Module(
         val width = maxOf(font.width(title), lines.maxOfOrNull { font.width(it) } ?: 0) + PADDING * 2
         val height = font.lineHeight + 4 + lines.size * lineHeight + PADDING * 2
 
-        graphics.fill(-1, -1, width + 1, height + 1, border.rgba)
-        graphics.fill(0, 0, width, height, background.rgba)
+        // The border keeps its old 20:190 ratio to the background
+        val alpha = backgroundOpacity / 100f
+        graphics.fill(-1, -1, width + 1, height + 1, border.withAlpha(alpha * 20 / 190).rgba)
+        graphics.fill(0, 0, width, height, background.withAlpha(alpha).rgba)
         graphics.fill(0, 0, width, 2, accentColor.rgba)
 
         graphics.centeredText(font, title, width / 2, PADDING, -1)

@@ -28,6 +28,7 @@ import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.level.block.entity.SignTextSlot
 import net.minecraft.world.level.block.entity.SignBlockEntity
 
 object AuctionPriceInput : Module(
@@ -77,7 +78,7 @@ object AuctionPriceInput : Module(
             if (!enabled || screen !is AbstractSignEditScreen) return@register
             val stack = item ?: return@register
             val sign = (screen as AbstractSignEditScreenAccessor).sign
-            val lines = Array(4) { sign.frontText.getMessage(it, false).string }
+            val lines = sign.getText(SignTextSlot.FRONT).getMessages(false).map { it.string }
             if (lines[1] != "^^^^^^^^^^^^^^^" || lines[2] != "Your auction" || lines[3] != "starting bid") return@register
 
             // Set the field directly: setScreen would close the sign and send its empty text
@@ -96,7 +97,7 @@ object AuctionPriceInput : Module(
 
     private class InputScreen(
         private val sign: SignBlockEntity,
-        private val originalLines: Array<String>,
+        private val originalLines: List<String>,
         private val stack: ItemStack
     ) : Screen(Component.literal("Auction Price Input")) {
         private lateinit var inputField: EditBox
@@ -170,7 +171,7 @@ object AuctionPriceInput : Module(
 
         private fun finish() {
             val line = value()?.toString() ?: input
-            mc.connection?.send(ServerboundSignUpdatePacket(sign.blockPos, true, line, originalLines[1], originalLines[2], originalLines[3]))
+            mc.connection?.send(ServerboundSignUpdatePacket(sign.blockPos, listOf(line, originalLines[1], originalLines[2], originalLines[3]), SignTextSlot.FRONT))
             onClose()
         }
 

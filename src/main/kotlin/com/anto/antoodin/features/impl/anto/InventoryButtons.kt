@@ -1,6 +1,7 @@
 // Feature idea from NotEnoughUpdates (LGPL-3.0). Written from scratch for AntoOdin, no NEU code is used.
 package com.anto.antoodin.features.impl.anto
 
+import com.mojang.blaze3d.platform.InputConstants
 import com.anto.antoodin.mixin.accessors.AbstractContainerScreenAccessor
 import com.anto.antoodin.utils.ItemIcons
 import com.anto.antoodin.utils.Skit
@@ -94,7 +95,7 @@ object InventoryButtons : Module(
             }
             // Returning false cancels the click, so the slot or widget underneath never sees it
             ScreenMouseEvents.allowMouseClick(screen).register { _, event ->
-                if (!enabled || event.button() != 0) return@register true
+                if (!enabled || event.button() != InputConstants.MOUSE_BUTTON_LEFT) return@register true
                 forEachButton(screen) { button, x, y ->
                     if (event.x() >= x && event.x() < x + SIZE && event.y() >= y && event.y() < y + SIZE) {
                         mc.player?.connection?.sendCommand(button.command.trim().removePrefix("/"))

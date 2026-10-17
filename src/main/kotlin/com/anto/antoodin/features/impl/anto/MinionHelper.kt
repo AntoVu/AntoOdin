@@ -1,5 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
+import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
@@ -16,7 +17,6 @@ import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.anto.antoodin.utils.Skit
 import com.anto.antoodin.mixin.accessors.AbstractContainerScreenAccessor
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
 
 object MinionHelper : Module(
@@ -26,7 +26,7 @@ object MinionHelper : Module(
 ) {
     private val claimKeybind by KeybindSetting(
         "Claim Minion Keybind",
-        GLFW.GLFW_KEY_R,
+        InputConstants.KEY_R,
         desc = "Collect all items from the minion then close the GUI."
     )
     private val claimCloseDelay by NumberSetting(
@@ -86,7 +86,7 @@ object MinionHelper : Module(
         on<ScreenEvent.KeyPress> {
             val s = screen as? AbstractContainerScreen<*> ?: return@on
             if (!isPrivateIsland()) return@on
-            if (input.key != claimKeybind.value) return@on
+            if (InputConstants.getKey(input) != claimKeybind) return@on
             if (!isMinionGui(s) || !hasClaimButton(s)) return@on
             if (claimPending) return@on
 

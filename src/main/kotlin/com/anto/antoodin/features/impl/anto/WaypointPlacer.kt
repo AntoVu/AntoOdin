@@ -27,6 +27,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
+import net.minecraft.world.phys.Vec3
 
 /** Right-click placement for Odin's own Waypoints module. Waypoints live in Odin's list and config, keyed by [WaypointAreas]. */
 object WaypointPlacer : Module(
@@ -64,7 +65,7 @@ object WaypointPlacer : Module(
         }
 
         on<InputEvent> {
-            if (!allowEdits || key.value != InputConstants.MOUSE_BUTTON_RIGHT || mc.gui.screen() != null) return@on
+            if (!allowEdits || key.type != InputConstants.Type.MOUSE || key.value != InputConstants.MOUSE_BUTTON_RIGHT || mc.gui.screen() != null) return@on
             val area = WaypointAreas.current()?.key ?: return@on
             val pos = reachPosition ?: return@on
             val hovered = hoveredAt(area, pos)
@@ -72,7 +73,7 @@ object WaypointPlacer : Module(
             if (allowTextEdit && mc.player?.isCrouching == true) {
                 mc.gui.setScreen(TextPromptScreen("Waypoint Name").setCallback { text ->
                     val wp = hovered?.run { Waypoint(area, blockPos, endPos, text.trim(), color, trigger, command, radius, enabled) }
-                        ?: Waypoint(area, pos, label = text.trim(), color = color.copy())
+                        ?: blockWaypoint(area, pos, text.trim())
                     submit(wp, hovered)
                     mc.gui.setScreen(null)
                 })
@@ -82,7 +83,7 @@ object WaypointPlacer : Module(
             if (hovered != null) {
                 Waypoints.remove(hovered)
                 saved()
-            } else submit(Waypoint(area, pos, color = color.copy()), null)
+            } else submit(blockWaypoint(area, pos), null)
         }
     }
 
@@ -96,7 +97,13 @@ object WaypointPlacer : Module(
         if (!Waypoints.enabled) modMessage("§eEnable Odin's Waypoints module to see waypoints.")
     }
 
-    private fun hoveredAt(area: String, pos: BlockPos) = Waypoints.waypoints.firstOrNull { it.area == area && it.blockPos == pos }
+    // Odin 0.3.7 waypoints are Vec3 corners, and a single point with no radius has no size, so span the whole block
+    private fun blockWaypoint(area: String, pos: BlockPos, label: String = "") =
+        Vec3.atLowerCornerOf(pos).let { Waypoint(area, it, it.add(1.0, 1.0, 1.0), label, color.copy()) }
+
+    private fun hoveredAt(area: String, pos: BlockPos) = Vec3.atLowerCornerOf(pos).let { corner ->
+        Waypoints.waypoints.firstOrNull { it.area == area && it.blockPos == corner }
+    }
 
     private val reachPosition: BlockPos?
         get() {

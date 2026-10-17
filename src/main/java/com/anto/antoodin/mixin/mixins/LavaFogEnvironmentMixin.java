@@ -7,6 +7,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.renderer.fog.environment.LavaFogEnvironment;
 import net.minecraft.client.renderer.fog.environment.WaterFogEnvironment;
+import net.minecraft.util.ARGB;
+import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,9 +31,9 @@ public abstract class LavaFogEnvironmentMixin {
     }
 
     @Inject(method = "getBaseColor", at = @At("HEAD"), cancellable = true)
-    private void waterFogColor(ClientLevel level, Camera camera, int renderDistance, float partialTicks, CallbackInfoReturnable<Integer> cir) {
+    private void waterFogColor(ClientLevel level, Camera camera, int renderDistance, float partialTicks, CallbackInfoReturnable<Vector3fc> cir) {
         if (!LavaToWater.isActive()) return;
         Integer tint = LavaToWater.fogColor();
-        cir.setReturnValue(tint != null ? tint : antoodin$waterFog.getBaseColor(level, camera, renderDistance, partialTicks));
+        cir.setReturnValue(tint != null ? ARGB.vector3fFromRGB24(tint) : antoodin$waterFog.getBaseColor(level, camera, renderDistance, partialTicks));
     }
 }

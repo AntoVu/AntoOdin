@@ -1,5 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
+import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
@@ -15,7 +16,6 @@ import com.odtheking.odin.utils.loreString
 import com.odtheking.odin.utils.modMessage
 import com.anto.antoodin.utils.Skit
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
 
 object QueueLoadout : Module(
@@ -45,7 +45,7 @@ object QueueLoadout : Module(
 
     private val advanced by DropdownSetting("Show Settings", desc = "Shows the per-loadout keybinds.")
     private val loadoutBinds = (1..12).map { n ->
-        +KeybindSetting("Loadout $n", GLFW.GLFW_KEY_UNKNOWN, desc = "Keybind to queue loadout $n.").withDependency { advanced }
+        +KeybindSetting("Loadout $n", InputConstants.UNKNOWN, desc = "Keybind to queue loadout $n.").withDependency { advanced }
     }
 
     // Dropped if the menu never opens (e.g. /loadouts is blocked here)
@@ -60,7 +60,7 @@ object QueueLoadout : Module(
 
     init {
         on<InputEvent> {
-            val keyIndex = loadoutBinds.indexOfFirst { it.value.value == key.value }.takeIf { it != -1 } ?: return@on
+            val keyIndex = loadoutBinds.indexOfFirst { it.value == key }.takeIf { it != -1 } ?: return@on
 
             queuedSlot = LoadoutAddon.loadoutSlot(keyIndex)
             queuedNumber = keyIndex + 1

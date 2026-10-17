@@ -1,5 +1,6 @@
 package com.anto.antoodin.features.impl.anto
 
+import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
@@ -16,7 +17,6 @@ import com.odtheking.odin.utils.playSoundSettings
 import com.anto.antoodin.utils.Skit
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import org.lwjgl.glfw.GLFW
 import kotlin.random.Random
 
 object WardrobeAddon : Module(
@@ -24,21 +24,21 @@ object WardrobeAddon : Module(
     description = "Better wardrobe hotkeys, use this instead of default ones. Works with Equipment too",
     category = Skit.ANTO
 ) {
-    private val nextPageKeybind by KeybindSetting("Next Page", GLFW.GLFW_KEY_RIGHT, desc = "Keybind to go to the next page in the wardrobe.")
-    private val previousPageKeybind by KeybindSetting("Previous Page", GLFW.GLFW_KEY_LEFT, desc = "Keybind to go to the previous page in the wardrobe.")
-    private val unequipKeybind by KeybindSetting("Unequip", GLFW.GLFW_KEY_UNKNOWN, desc = "Keybind to unequip the currently equipped item in the wardrobe.")
+    private val nextPageKeybind by KeybindSetting("Next Page", InputConstants.KEY_RIGHT, desc = "Keybind to go to the next page in the wardrobe.")
+    private val previousPageKeybind by KeybindSetting("Previous Page", InputConstants.KEY_LEFT, desc = "Keybind to go to the previous page in the wardrobe.")
+    private val unequipKeybind by KeybindSetting("Unequip", InputConstants.UNKNOWN, desc = "Keybind to unequip the currently equipped item in the wardrobe.")
     private val disallowUnequippingEquipped by BooleanSetting("Disable Unequip", desc = "Prevents unequipping equipped armor.")
 
     private val advanced by DropdownSetting("Show Settings", desc = "Shows the per-slot keybinds.")
-    private val wardrobe1 by KeybindSetting("Wardrobe 1", GLFW.GLFW_KEY_1, desc = "Keybind to equip the first wardrobe slot.").withDependency { advanced }
-    private val wardrobe2 by KeybindSetting("Wardrobe 2", GLFW.GLFW_KEY_2, desc = "Keybind to equip the second wardrobe slot.").withDependency { advanced }
-    private val wardrobe3 by KeybindSetting("Wardrobe 3", GLFW.GLFW_KEY_3, desc = "Keybind to equip the third wardrobe slot.").withDependency { advanced }
-    private val wardrobe4 by KeybindSetting("Wardrobe 4", GLFW.GLFW_KEY_4, desc = "Keybind to equip the fourth wardrobe slot.").withDependency { advanced }
-    private val wardrobe5 by KeybindSetting("Wardrobe 5", GLFW.GLFW_KEY_5, desc = "Keybind to equip the fifth wardrobe slot.").withDependency { advanced }
-    private val wardrobe6 by KeybindSetting("Wardrobe 6", GLFW.GLFW_KEY_6, desc = "Keybind to equip the sixth wardrobe slot.").withDependency { advanced }
-    private val wardrobe7 by KeybindSetting("Wardrobe 7", GLFW.GLFW_KEY_7, desc = "Keybind to equip the seventh wardrobe slot.").withDependency { advanced }
-    private val wardrobe8 by KeybindSetting("Wardrobe 8", GLFW.GLFW_KEY_8, desc = "Keybind to equip the eighth wardrobe slot.").withDependency { advanced }
-    private val wardrobe9 by KeybindSetting("Wardrobe 9", GLFW.GLFW_KEY_9, desc = "Keybind to equip the ninth wardrobe slot.").withDependency { advanced }
+    private val wardrobe1 by KeybindSetting("Wardrobe 1", InputConstants.KEY_1, desc = "Keybind to equip the first wardrobe slot.").withDependency { advanced }
+    private val wardrobe2 by KeybindSetting("Wardrobe 2", InputConstants.KEY_2, desc = "Keybind to equip the second wardrobe slot.").withDependency { advanced }
+    private val wardrobe3 by KeybindSetting("Wardrobe 3", InputConstants.KEY_3, desc = "Keybind to equip the third wardrobe slot.").withDependency { advanced }
+    private val wardrobe4 by KeybindSetting("Wardrobe 4", InputConstants.KEY_4, desc = "Keybind to equip the fourth wardrobe slot.").withDependency { advanced }
+    private val wardrobe5 by KeybindSetting("Wardrobe 5", InputConstants.KEY_5, desc = "Keybind to equip the fifth wardrobe slot.").withDependency { advanced }
+    private val wardrobe6 by KeybindSetting("Wardrobe 6", InputConstants.KEY_6, desc = "Keybind to equip the sixth wardrobe slot.").withDependency { advanced }
+    private val wardrobe7 by KeybindSetting("Wardrobe 7", InputConstants.KEY_7, desc = "Keybind to equip the seventh wardrobe slot.").withDependency { advanced }
+    private val wardrobe8 by KeybindSetting("Wardrobe 8", InputConstants.KEY_8, desc = "Keybind to equip the eighth wardrobe slot.").withDependency { advanced }
+    private val wardrobe9 by KeybindSetting("Wardrobe 9", InputConstants.KEY_9, desc = "Keybind to equip the ninth wardrobe slot.").withDependency { advanced }
 
     private val autoCloseDropdown by DropdownSetting("Auto Close", desc = "Settings for closing the menu after equipping.")
     private val autoCloseToggle by BooleanSetting("Auto Close Toggle", false, desc = "Automatically closes the wardrobe after selecting a slot.").withDependency { autoCloseDropdown }
@@ -60,12 +60,14 @@ object WardrobeAddon : Module(
         // Left and right clicks are normal slot clicks, never binds
         on<ScreenEvent.MouseClick> {
             val s = screen
-            if (s is AbstractContainerScreen<*> && click.button() > 1 && onClick(s, click.button())) cancel()
+            val button = click.button()
+            if (s is AbstractContainerScreen<*> && button != InputConstants.MOUSE_BUTTON_LEFT && button != InputConstants.MOUSE_BUTTON_RIGHT &&
+                onClick(s, InputConstants.Type.MOUSE.getOrCreate(button))) cancel()
         }
 
         on<ScreenEvent.KeyPress> {
             val s = screen
-            if (s is AbstractContainerScreen<*> && onClick(s, input.key)) cancel()
+            if (s is AbstractContainerScreen<*> && onClick(s, InputConstants.getKey(input))) cancel()
         }
     }
 
@@ -78,23 +80,23 @@ object WardrobeAddon : Module(
     }
 
     // Returns true when the key is one of our binds, so vanilla never also handles it (e.g. as a hotbar swap click)
-    private fun onClick(screen: AbstractContainerScreen<*>, keyCode: Int): Boolean {
+    private fun onClick(screen: AbstractContainerScreen<*>, key: InputConstants.Key): Boolean {
         val titleString = screen.title?.string ?: ""
         val (current, total) = (wardrobeRegex.find(titleString) ?: equipmentRegex.find(titleString))?.destructured?.let {
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory).value) return false
+        if (key == InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_ESCAPE) || key == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory)) return false
 
         val equippedIndex = screen.menu.slots.find { equippedRegex.matches(it.item.hoverName.string) }?.index
 
         val wardrobeSlots = arrayOf(wardrobe1, wardrobe2, wardrobe3, wardrobe4, wardrobe5, wardrobe6, wardrobe7, wardrobe8, wardrobe9)
-        val keyIndex = wardrobeSlots.indexOfFirst { it.value == keyCode }
+        val keyIndex = wardrobeSlots.indexOf(key)
 
-        val index = when (keyCode) {
-            nextPageKeybind.value -> 53.takeIf { current < total }
-            previousPageKeybind.value -> 45.takeIf { current > 1 }
-            unequipKeybind.value -> equippedIndex
+        val index = when (key) {
+            nextPageKeybind -> 53.takeIf { current < total }
+            previousPageKeybind -> 45.takeIf { current > 1 }
+            unequipKeybind -> equippedIndex
             else -> if (keyIndex == -1) return false else keyIndex + 36
         } ?: return true
 

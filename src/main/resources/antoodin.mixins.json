@@ -6,7 +6,6 @@
   "mixins": [
     "mixins.MinecraftMixin",
     "mixins.ModuleManagerMixin",
-    "mixins.LocalPlayerMixin",
     "mixins.EntityRendererMixin",
     "mixins.AbstractSignEditScreenMixin",
     "mixins.AbstractSoundInstanceMixin",

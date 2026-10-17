@@ -3,8 +3,6 @@ package com.anto.antoodin
 import com.odtheking.odin.config.ModuleConfig
 import com.odtheking.odin.events.core.EventBus
 import com.odtheking.odin.features.ModuleManager
-import com.odtheking.odin.utils.skyblock.Split
-import com.odtheking.odin.utils.skyblock.floor7SplitGroup
 import com.anto.antoodin.features.impl.anto.*
 import com.anto.antoodin.features.impl.noamm.*
 import com.anto.antoodin.features.impl.odinclient.*
@@ -29,10 +27,6 @@ object AntoOdin : ClientModInitializer {
             ItemCountFix, DisconnectFix, DoubleUseFix)
 
         JellybeanHider.registerModelHook()
-
-        // Hypixel renamed "The Wither King", so Odin 0.3.6's Cleared split never fires
-        // ponytail: delete once the pinned Odin includes its fix (odtheking/Odin 6a08fc5)
-        floor7SplitGroup.replaceAll { if (it.name == "§4Cleared") Split(Regex("""^\[BOSS] (The )?Wither King: You\.\.\. again\?$"""), it.name) else it }
 
         ClientCommandRegistrationCallback.EVENT.register { dispatcher, _ -> aoCommand.register(dispatcher) }
     }

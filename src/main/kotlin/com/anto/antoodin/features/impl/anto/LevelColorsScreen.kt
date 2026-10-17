@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component
 private const val PREVIEW_WIDTH = 30
 
 // Vanilla's 16 chat colors, each name drawn in its own color
-private val MINECRAFT_COLORS = "§lMinecraft colors\n" + listOf(
+internal val MINECRAFT_COLORS = "§lMinecraft colors\n" + listOf(
     "0" to "Black #000000", "1" to "Dark Blue #0000AA", "2" to "Dark Green #00AA00", "3" to "Dark Aqua #00AAAA",
     "4" to "Dark Red #AA0000", "5" to "Dark Purple #AA00AA", "6" to "Gold #FFAA00", "7" to "Gray #AAAAAA",
     "8" to "Dark Gray #555555", "9" to "Blue #5555FF", "a" to "Green #55FF55", "b" to "Aqua #55FFFF",

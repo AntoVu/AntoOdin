@@ -79,7 +79,16 @@ object ItemCustomizer : Module(
     }
 
     fun customName(stack: ItemStack): Component? =
-        customFor(stack)?.name?.takeIf { it.isNotBlank() }?.let { Component.literal(it.replace('&', '§')) }
+        customFor(stack)?.name?.takeIf { it.isNotBlank() }?.let { Component.literal(formatName(it)) }
+
+    private val colorCode = Regex("&([0-9a-fk-orA-FK-OR])")
+    private val masterStar = Regex("\\*([1-5])")
+
+    /** Name shortcuts: *1 to *5 become master stars, ** a dungeon star, and & before a valid code a color/format code (so "R&D" stays). */
+    fun formatName(text: String): String = text
+        .replace(masterStar) { "➊➋➌➍➎"[it.groupValues[1].toInt() - 1].toString() }
+        .replace("**", "✪")
+        .replace(colorCode) { "§" + it.groupValues[1] }
 
     // Last restyled copy per UUID, reused while the item renderer keeps getting the same stack object
     private val displayCache = HashMap<String, Pair<ItemStack, ItemStack>>()

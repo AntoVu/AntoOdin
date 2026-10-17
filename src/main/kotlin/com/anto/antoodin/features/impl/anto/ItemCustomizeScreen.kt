@@ -3,6 +3,7 @@ package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.features.impl.anto.ItemCustomizer.Glint
 import com.anto.antoodin.utils.ItemIcons
+import com.anto.antoodin.utils.legacyText
 import com.odtheking.odin.OdinMod.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
@@ -11,6 +12,10 @@ import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
+
+private val NAME_HELP = "§lShortcuts\n§7** §f→ ✪ §7(dungeon star)\n§7*1 §fto §7*5 §f→ ➊ to ➎ §7(master stars)\n" +
+    "§7&l §lbold§r§7, &o §oitalic§r§7, &n §nunderline§r§7, &m §mstrike§r§7, &k obfuscated, &r reset\n" +
+    "§7& only counts before a valid code, so other & stay as typed.\n\n" + MINECRAFT_COLORS.replace("§lMinecraft colors", "§lColors §7(&0 to &f)")
 
 /** Edits one item's looks. [stack] is the held stack itself, so the preview goes through the same restyle as the real item. */
 class ItemCustomizeScreen(private val stack: ItemStack, private val uuid: String) : Screen(Component.literal("Item Customizer")) {
@@ -30,10 +35,13 @@ class ItemCustomizeScreen(private val stack: ItemStack, private val uuid: String
         dye.setResponder { custom.dye = it; edited(); dye.setTextColor(validColor(it.isBlank(), ItemCustomizer.parseHex(it) != null)) }
         dye.setTextColor(validColor(custom.dye.isBlank(), ItemCustomizer.parseHex(custom.dye) != null))
 
-        val name = textBox(custom.name, "Shown instead of the real name. Use & for color codes. Leave blank to keep the real name.") { custom.name = it; edited() }
+        val name = textBox(custom.name, "Shown instead of the real name. See the ? for color codes and star shortcuts. Leave blank to keep the real name.") { custom.name = it; edited() }
+        val realNameButton = Button.builder(Component.literal("Real Name")) {
+            name.value = realName.legacyText().replace('§', '&')
+        }.width(60).tooltip(Tooltip.create(Component.literal("Fills in the item's real name (with its colors) to edit from."))).build()
 
         list.show(listOf(
-            Row("Name", null, name),
+            Row("Name", null, name, listOf(realNameButton, infoButton(NAME_HELP))),
             Row("Enchant Glint", "Force the glint on or off, or keep the item's own.", null, listOf(
                 CycleButton.builder<Glint>({ Component.literal(it.name) }, custom.glint)
                     .withValues(Glint.entries)

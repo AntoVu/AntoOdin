@@ -45,6 +45,9 @@ object LoadoutAddon : Module(
     private val autoCloseToggle by BooleanSetting("Auto Close Toggle", false, desc = "Automatically closes the loadout menu after selecting a slot.").withDependency { autoCloseDropdown }
     private val autoCloseDelay by NumberSetting("Auto Close Delay", 100, 0..500, 10, desc = "Delay in milliseconds before closing the loadout menu.").withDependency { autoCloseDropdown }
     private val delayVariety by NumberSetting("Delay Variety", 70, 0..250, 10, desc = "Random extra delay in milliseconds added on top of Auto Close Delay.").withDependency { autoCloseDropdown }
+    private val keepOpen = (1..12).map {
+        +BooleanSetting("Keep Open On $it", false, desc = "Loadout $it doesn't auto close the menu.").withDependency { autoCloseDropdown && autoCloseToggle }
+    }
 
     private val equipSoundDropdown by DropdownSetting("Equip Sounds", desc = "Settings for the equip sound.")
     private val equipSoundToggle by BooleanSetting("Enable Equip Sound", false, desc = "Plays a sound when you equip a loadout slot.").withDependency { equipSoundDropdown }
@@ -108,7 +111,7 @@ object LoadoutAddon : Module(
         if (keyIndex != -1) {
             if (equipSoundToggle) playSoundSettings(equipSoundSettings())
 
-            if (autoCloseToggle) {
+            if (autoCloseToggle && !keepOpen[keyIndex].value) {
                 val finalDelay = autoCloseDelay.toLong() + Random.nextLong(0, delayVariety.toLong() + 1)
                 val delayTicks = ((finalDelay / 1000.0) * 20).toInt().coerceAtLeast(1)
 

@@ -29,7 +29,7 @@ Minion Helper
 Loadout Hotkeys (A)
  - Equip slot 1-12
  - Next and Previous page
- - Auto close after use
+ - Auto close after use, with per-slot Keep Open
  - Play sound on equip
 
 Drop Guard

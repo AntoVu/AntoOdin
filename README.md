@@ -106,6 +106,10 @@ Item Customizer
 Highlight Trash
  - Highlights junk M7 chest books (Feather Falling, Infinite Quiver, Combo, Jerry, Bank, No Pain No Gain) in your inventory in the Dungeon Hub
 
+Pane Click Guard
+ - Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server
+ - Terminals and experiment games are left alone
+
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
 second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.

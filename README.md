@@ -106,6 +106,10 @@ Item Customizer
 Highlight Trash
  - Highlights junk M7 chest books (Feather Falling, Infinite Quiver, Combo, Jerry, Bank, No Pain No Gain) in your inventory in the Dungeon Hub
 
+Auto Tip
+ - Runs /tipall on Hypixel every 1000 s by default (adjustable)
+ - Optionally hides the tip reply
+
 Pane Click Guard
  - Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server
  - Terminals and experiment games are left alone

@@ -92,6 +92,10 @@ Waypoint Placer
  - Uses Odin's areas: islands, dungeon boss rooms (F6/F7 per phase) and Kuudra tiers
  - Color presets with a cycle keybind, plus an editor HUD
 
+Inventory Buttons
+ - Buttons around your inventory (and optionally chests) that run a command when clicked, placed with `/ao buttons`
+ - Icons from any item id or a player head skin (`skull:<texture hash>`), or copied from the item in your hand
+
 Highlight Trash
  - Highlights junk M7 chest books (Feather Falling, Infinite Quiver, Combo, Jerry, Bank, No Pain No Gain) in your inventory in the Dungeon Hub
 

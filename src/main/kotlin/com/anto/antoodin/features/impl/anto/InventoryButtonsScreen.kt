@@ -3,10 +3,12 @@ package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.features.impl.anto.InventoryButtons.InvButton
 import com.anto.antoodin.features.impl.anto.InventoryButtons.SIZE
+import com.anto.antoodin.features.impl.anto.InventoryButtons.Style
 import com.anto.antoodin.utils.ItemIcons
 import com.odtheking.odin.OdinMod.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.CycleButton
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.Screen
@@ -26,14 +28,15 @@ class InventoryButtonsScreen(private val previous: Screen?) : Screen(Component.l
     private lateinit var command: EditBox
     private lateinit var icon: EditBox
     private lateinit var heldItem: Button
+    private lateinit var style: CycleButton<Style>
     private lateinit var clear: Button
 
     override fun init() {
         super.init()
-        // Inventory plus its left/right button columns, then the panel
-        left = (width - (176 + 2 * (SIZE + 2) + 10 + panelWidth)) / 2 + SIZE + 2
+        left = (width - 176) / 2
         top = (height - 166) / 2
-        val panelX = left + 176 + SIZE + 12
+        // Right of the right-hand button column, pulled in on narrow screens
+        val panelX = minOf(left + 176 + SIZE + 12, width - panelWidth - 4)
 
         command = textBox("", "The command to run, e.g. /warp dh or /pets. Commands from other mods work too.") { editing()?.command = it }
             .also { it.setPosition(panelX, top + 14); it.width = panelWidth }
@@ -45,12 +48,15 @@ class InventoryButtonsScreen(private val previous: Screen?) : Screen(Component.l
             .bounds(panelX, top + 72, panelWidth, 20)
             .tooltip(Tooltip.create(Component.literal("Sets the icon to the item in your hand. Heads keep their skin.")))
             .build()
+        style = CycleButton.builder<Style>({ Component.literal(it.name) }, Style.Raised)
+            .withValues(Style.entries)
+            .create(panelX, top + 96, panelWidth, 20, Component.literal("Style")) { _, value -> editing()?.style = value }
         clear = Button.builder(Component.literal("§cRemove Button")) {
             InventoryButtons.buttons.remove(selected)
             select(selected)
-        }.bounds(panelX, top + 96, panelWidth, 20).build()
+        }.bounds(panelX, top + 120, panelWidth, 20).build()
 
-        listOf(command, icon, heldItem, clear).forEach(::addRenderableWidget)
+        listOf(command, icon, heldItem, style, clear).forEach(::addRenderableWidget)
         select(selected)
     }
 
@@ -61,7 +67,8 @@ class InventoryButtonsScreen(private val previous: Screen?) : Screen(Component.l
         val button = InventoryButtons.buttons[index]
         command.value = button?.command.orEmpty()
         icon.value = button?.icon.orEmpty()
-        listOf(command, icon, heldItem, clear).forEach { it.visible = index >= 0 }
+        style.value = button?.style ?: Style.Raised
+        listOf(command, icon, heldItem, style, clear).forEach { it.visible = index >= 0 }
         if (index >= 0) setFocused(command)
         colorIcon()
     }

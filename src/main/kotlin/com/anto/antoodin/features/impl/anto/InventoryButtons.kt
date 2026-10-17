@@ -33,7 +33,10 @@ object InventoryButtons : Module(
         mc.gui.setScreen(InventoryButtonsScreen(mc.gui.screen()))
     }
 
-    data class InvButton(var command: String = "", var icon: String = "")
+    /** Background looks to pick from per button. Light styles get a dark letter, the rest a white one. */
+    enum class Style(val light: Boolean) { Raised(true), Slot(true), Dark(false), Flat(false), Clear(false) }
+
+    data class InvButton(var command: String = "", var icon: String = "", var style: Style = Style.Raised)
 
     /** A button position: offset from the screen's top left, or from its right/bottom edge when anchored there. */
     class Spot(val x: Int, val y: Int, val right: Boolean = false, val bottom: Boolean = false, val playerInvOnly: Boolean = false) {
@@ -43,9 +46,10 @@ object InventoryButtons : Module(
 
     const val SIZE = 18
 
-    // Inside the player inventory (crafting grid, around the player model, beside the recipe book button), then the four outside edges
+    // Inside the player inventory (crafting grid, the player model's corners, beside the recipe book button), then the four outside edges.
+    // The model's frame is x 26-74, y 8-77 inside, so its buttons sit 1px in from it.
     val spots: List<Spot> = buildList {
-        listOf(97 to 17, 115 to 17, 97 to 35, 115 to 35, 153 to 27, 26 to 8, 60 to 8, 26 to 60, 60 to 60, 128 to 61, 150 to 61)
+        listOf(97 to 17, 115 to 17, 97 to 35, 115 to 35, 153 to 27, 27 to 9, 56 to 9, 27 to 59, 56 to 59, 128 to 61, 150 to 61)
             .forEach { (x, y) -> add(Spot(x, y, playerInvOnly = true)) }
         for (y in listOf(2, 22, 42, 62)) add(Spot(-SIZE - 2, y))
         for (y in listOf(-84, -64, -44, -24)) add(Spot(-SIZE - 2, y, bottom = true))
@@ -61,8 +65,14 @@ object InventoryButtons : Module(
 
     /** Spot index → button. */
     val buttons: MutableMap<Int, InvButton> = runCatching {
-        gson.fromJson<MutableMap<Int, InvButton>>(buttonsFile.readText(), buttonsType)
+        gson.fromJson<MutableMap<Int, InvButton>>(buttonsFile.readText(), buttonsType).onEach { (_, b) -> sanitize(b) }
     }.getOrNull() ?: mutableMapOf()
+
+    // Gson bypasses Kotlin's null checks, so a missing or unknown style arrives as null
+    @Suppress("SENSELESS_COMPARISON")
+    private fun sanitize(button: InvButton) {
+        if (button.style == null) button.style = Style.Raised
+    }
 
     fun save() {
         buttons.values.removeIf { it.command.isBlank() && it.icon.isBlank() }
@@ -107,15 +117,35 @@ object InventoryButtons : Module(
         }
     }
 
-    /** A raised gray button like the vanilla GUI, with the icon (or the command's first letter) on top. */
-    fun drawButton(graphics: GuiGraphicsExtractor, x: Int, y: Int, button: InvButton?, hovered: Boolean) {
-        graphics.fill(x, y, x + SIZE, y + SIZE, 0xFF555555.toInt())
-        graphics.fill(x, y, x + SIZE - 1, y + SIZE - 1, 0xFFFFFFFF.toInt())
-        graphics.fill(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, if (hovered) 0xFFDADADA.toInt() else 0xFFC6C6C6.toInt())
-        if (button == null) return
+    /** The button's [Style] background, with the icon (or the command's first letter) on top. */
+    fun drawButton(graphics: GuiGraphicsExtractor, x: Int, y: Int, button: InvButton, hovered: Boolean) {
+        val r = x + SIZE
+        val b = y + SIZE
+        when (button.style) {
+            // Light top-left edge, dark bottom-right edge, like vanilla's raised panels (Dark is the same, darker)
+            Style.Raised, Style.Dark -> {
+                val dark = button.style == Style.Dark
+                graphics.fill(x, y, r, b, if (dark) 0xFF1E1E1E.toInt() else 0xFF555555.toInt())
+                graphics.fill(x, y, r - 1, b - 1, if (dark) 0xFF6A6A6A.toInt() else 0xFFFFFFFF.toInt())
+                graphics.fill(x + 1, y + 1, r - 1, b - 1, when {
+                    dark && hovered -> 0xFF4A4A4A.toInt()
+                    dark -> 0xFF373737.toInt()
+                    hovered -> 0xFFDADADA.toInt()
+                    else -> 0xFFC6C6C6.toInt()
+                })
+            }
+            // Sunken, like an inventory slot
+            Style.Slot -> {
+                graphics.fill(x, y, r, b, 0xFFFFFFFF.toInt())
+                graphics.fill(x, y, r - 1, b - 1, 0xFF373737.toInt())
+                graphics.fill(x + 1, y + 1, r - 1, b - 1, if (hovered) 0xFFA0A0A0.toInt() else 0xFF8B8B8B.toInt())
+            }
+            Style.Flat -> graphics.fill(x, y, r, b, if (hovered) 0xB0000000.toInt() else 0x80000000.toInt())
+            Style.Clear -> if (hovered) graphics.fill(x, y, r, b, 0x40FFFFFF)
+        }
         val stack = ItemIcons.parse(button.icon)
         if (!stack.isEmpty) return graphics.item(stack, x + 1, y + 1)
         val letter = button.command.trim().removePrefix("/").take(1).uppercase()
-        graphics.centeredText(mc.font, letter, x + SIZE / 2, y + 5, 0xFF404040.toInt())
+        graphics.centeredText(mc.font, letter, x + SIZE / 2, y + 5, if (button.style.light) 0xFF404040.toInt() else 0xFFFFFFFF.toInt())
     }
 }

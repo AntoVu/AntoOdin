@@ -95,10 +95,12 @@ Waypoint Placer
 Inventory Buttons
  - Buttons around your inventory (and optionally chests) that run a command when clicked, placed with `/ao buttons`
  - Icons from any item id or a player head skin (`skull:<texture hash>`), or copied from the item in your hand
+ - Five button styles: Raised, Slot, Dark, Flat and Clear
 
 Item Customizer
  - Hold an item and use `/ao customize` to change its name (& color codes), enchant glint, model and leather dye color
  - Model can be any item id or a player head skin (`skull:<texture hash>`)
+ - Name shortcuts: `**` for ✪, `*1` to `*5` for master stars, `&` color codes, or start from the real name
  - Only you see it, and other mods still read the real item. Saved per item UUID
 
 Highlight Trash

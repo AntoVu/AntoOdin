@@ -37,13 +37,15 @@
     "mixins.MultiPlayerGameModeMixin",
     "mixins.FramerateLimitTrackerMixin",
     "mixins.GuiGraphicsExtractorMixin",
+    "mixins.ItemModelResolverMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",
     "accessors.AbstractContainerScreenAccessor",
     "accessors.KeyMappingAccessor",
     "accessors.GuiAccessor",
-    "accessors.AbstractSoundInstanceAccessor"
+    "accessors.AbstractSoundInstanceAccessor",
+    "accessors.CustomDataAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

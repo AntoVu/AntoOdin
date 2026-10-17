@@ -7,6 +7,8 @@ import com.anto.antoodin.features.impl.anto.ChatRulesScreen
 import com.anto.antoodin.features.impl.anto.LevelColorsScreen
 import com.anto.antoodin.features.impl.anto.DungeonSplits
 import com.anto.antoodin.features.impl.anto.InventoryButtonsScreen
+import com.anto.antoodin.features.impl.anto.ItemCustomizeScreen
+import com.anto.antoodin.features.impl.anto.ItemCustomizer
 import com.anto.antoodin.features.impl.anto.WaypointPlacer
 import com.anto.antoodin.features.impl.noamm.SoundManagerScreen
 import com.anto.antoodin.features.impl.odinclient.AutoClicker
@@ -41,6 +43,13 @@ val aoCommand = Commodore("ao") {
     literal("sounds").runs { schedule(1) { mc.gui.setScreen(SoundManagerScreen(null)) } }
 
     literal("buttons").runs { schedule(1) { mc.gui.setScreen(InventoryButtonsScreen(null)) } }
+
+    // Keyed by the held item's SkyBlock UUID, so plain items can't be customized
+    literal("customize").runs {
+        val stack = mc.player?.mainHandItem ?: return@runs
+        val uuid = ItemCustomizer.uuid(stack) ?: return@runs modMessage("§cHold a SkyBlock item with a UUID (weapons, armor, tools...) to customize it.")
+        schedule(1) { mc.gui.setScreen(ItemCustomizeScreen(stack, uuid)) }
+    }
 
     literal("levelcolors").runs { schedule(1) { mc.gui.setScreen(LevelColorsScreen(null)) } }
 

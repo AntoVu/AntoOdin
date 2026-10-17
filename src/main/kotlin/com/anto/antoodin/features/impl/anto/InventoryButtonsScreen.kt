@@ -3,6 +3,7 @@ package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.features.impl.anto.InventoryButtons.InvButton
 import com.anto.antoodin.features.impl.anto.InventoryButtons.SIZE
+import com.anto.antoodin.utils.ItemIcons
 import com.odtheking.odin.OdinMod.mc
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
@@ -40,7 +41,7 @@ class InventoryButtonsScreen(private val previous: Screen?) : Screen(Component.l
             editing()?.icon = it
             colorIcon()
         }.also { it.setPosition(panelX, top + 50); it.width = panelWidth }
-        heldItem = Button.builder(Component.literal("Use Held Item")) { icon.value = InventoryButtons.iconOf(mc.player?.mainHandItem ?: return@builder) }
+        heldItem = Button.builder(Component.literal("Use Held Item")) { icon.value = ItemIcons.textOf(mc.player?.mainHandItem ?: return@builder) }
             .bounds(panelX, top + 72, panelWidth, 20)
             .tooltip(Tooltip.create(Component.literal("Sets the icon to the item in your hand. Heads keep their skin.")))
             .build()
@@ -67,7 +68,7 @@ class InventoryButtonsScreen(private val previous: Screen?) : Screen(Component.l
 
     private fun colorIcon() = icon.setTextColor(when {
         icon.value.isBlank() -> WHITE
-        InventoryButtons.icon(icon.value).isEmpty -> RED
+        ItemIcons.parse(icon.value).isEmpty -> RED
         else -> GREEN
     })
 
@@ -110,7 +111,7 @@ class InventoryButtonsScreen(private val previous: Screen?) : Screen(Component.l
         val panelX = command.x
         guiGraphics.text(font, "Command", panelX, top + 4, -1)
         guiGraphics.text(font, "Icon", panelX, top + 40, -1)
-        val preview = InventoryButtons.icon(icon.value)
+        val preview = ItemIcons.parse(icon.value)
         if (!preview.isEmpty) guiGraphics.item(preview, panelX + panelWidth - 16, top + 32)
     }
 

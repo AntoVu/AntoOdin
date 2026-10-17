@@ -2,6 +2,7 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.mixin.accessors.AbstractContainerScreenAccessor
+import com.anto.antoodin.utils.ItemIcons
 import com.anto.antoodin.utils.Skit
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -9,20 +10,14 @@ import com.odtheking.odin.OdinMod
 import com.odtheking.odin.clickgui.settings.impl.ActionSetting
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.features.Module
-import com.odtheking.odin.utils.createSkullStack
 import com.odtheking.odin.utils.modMessage
-import com.odtheking.odin.utils.texture
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.gui.screens.inventory.InventoryScreen
-import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
-import net.minecraft.world.item.ItemStack
 import java.io.File
-import java.util.Base64
 
 /**
  * Buttons around container screens that run a command when clicked, placed with [InventoryButtonsScreen] (/ao buttons).
@@ -118,31 +113,9 @@ object InventoryButtons : Module(
         graphics.fill(x, y, x + SIZE - 1, y + SIZE - 1, 0xFFFFFFFF.toInt())
         graphics.fill(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, if (hovered) 0xFFDADADA.toInt() else 0xFFC6C6C6.toInt())
         if (button == null) return
-        val stack = icon(button.icon)
+        val stack = ItemIcons.parse(button.icon)
         if (!stack.isEmpty) return graphics.item(stack, x + 1, y + 1)
         val letter = button.command.trim().removePrefix("/").take(1).uppercase()
         graphics.centeredText(mc.font, letter, x + SIZE / 2, y + 5, 0xFF404040.toInt())
-    }
-
-    private val iconCache = HashMap<String, ItemStack>()
-
-    /** "skull:<texture hash>" gives a player head, anything else is read as an item id ("diamond_sword", "minecraft:chest"). */
-    fun icon(text: String): ItemStack = iconCache.getOrPut(text) {
-        val value = text.trim().lowercase()
-        if (value.startsWith("skull:")) {
-            val hash = value.removePrefix("skull:")
-            return@getOrPut if (hash.matches(Regex("[0-9a-f]+"))) createSkullStack(hash) else ItemStack.EMPTY
-        }
-        Identifier.tryParse(value)?.let(BuiltInRegistries.ITEM::getOptional)?.map(::ItemStack)?.orElse(null) ?: ItemStack.EMPTY
-    }
-
-    /** The icon text for a stack: its skin as "skull:<hash>" for heads, otherwise its item id. */
-    fun iconOf(stack: ItemStack): String {
-        stack.texture?.let { texture ->
-            val json = runCatching { String(Base64.getDecoder().decode(texture)) }.getOrNull()
-            json?.let { Regex("texture/([0-9a-fA-F]+)").find(it) }?.let { return "skull:${it.groupValues[1]}" }
-        }
-        val key = BuiltInRegistries.ITEM.getKey(stack.item)
-        return if (key.namespace == "minecraft") key.path else key.toString()
     }
 }

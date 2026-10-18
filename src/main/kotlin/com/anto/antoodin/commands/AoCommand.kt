@@ -101,7 +101,7 @@ val aoCommand = Commodore("ao") {
             modMessage("Color changed to: $hex")
         }
     }
-    // Clean Map font: any installed font, or Minecraft for the vanilla one
+    // Dungeon Map (A) font: any installed font, or Minecraft for the vanilla one
     literal("mapfont").executable {
         param("name").suggests { listOf("Minecraft") + SystemFonts.names }
         runs { name: String ->

@@ -44,7 +44,7 @@ import kotlin.math.max
  * one tile is 100 units, so the fractional room/door sizes stay exact with integer fills.
  */
 object CleanMap : Module(
-    name = "Clean Map",
+    name = "Dungeon Map (A)",
     description = "A clean dungeon map in Devonian's style, using Odin's map data.",
     category = Skit.ANTO
 ) {
@@ -292,7 +292,8 @@ object CleanMap : Module(
         }
         // Devonian sizes the font to a quarter of the room
         val size = roomSize.toFloat() * cell * 0.25f * textSize.toFloat()
-        val maxWidth = (box.maxOf { it.x } - box.minOf { it.x } + roomSize.toFloat()) * cell
+        // Devonian's text box: textSize * roomSize of a tile, plus any extra tiles the box spans
+        val maxWidth = (box.maxOf { it.x } - box.minOf { it.x } + textSize.toFloat() * roomSize.toFloat()) * cell
         val lines = name.split(" ").flatMap { hyphenate(it, maxWidth, size) }
         val lineHeight = size * 1.1f
         for ((i, line) in lines.withIndex()) drawText(line, cx, cy + (i - (lines.size - 1) / 2f) * lineHeight, size, color)

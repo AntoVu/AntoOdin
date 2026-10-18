@@ -114,7 +114,7 @@ Pane Click Guard
  - Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server
  - Terminals and experiment games are left alone
 
-Clean Map
+Dungeon Map (A)
  - Dungeon map in [Devonian](https://github.com/Synnerz/devonian)'s style, drawn from Odin's map data
  - Shows hidden rooms (darkened), with their doors read from the world
  - Room names and checkmarks in any installed font (`/ao mapfont`), player heads and arrow, names while holding a leap
@@ -145,10 +145,7 @@ Mono Audio
  - Plays all game audio through a single channel
 
 Sound Manager
- - Per-sound volume from 0 to 200%, open with `/ao mapfont <name>`
- - Sets the Clean Map font to any installed font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
-
-`/ao sounds`
+ - Per-sound volume from 0 to 200%, open with `/ao sounds`
  - Recent tab shows the pitch each sound last played at
 
 Explosive Shot
@@ -270,7 +267,7 @@ Double Use Fix
  - Adds up your PB splits into a theoretical best run (defaults to current floor, else M7)
 
 `/ao mapfont <name>`
- - Sets the Clean Map font to any installed font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
+ - Sets the Dungeon Map (A) font to any installed font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
 
 `/ao sounds`
  - Opens the Sound Manager

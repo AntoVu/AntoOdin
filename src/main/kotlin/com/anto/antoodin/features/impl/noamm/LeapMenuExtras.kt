@@ -33,7 +33,7 @@ import kotlin.math.abs
  * Draws over Odin's Leap Menu tiles (Odin draws first at HIGHEST priority, then cancels, which doesn't stop us),
  * and hides teammates you just leaped onto.
  *
- * Map Leap draws Dungeon Map (A) over the tiles; clicking a teammate's marker leaps to them. Odin's click handler
+ * Map Leap draws Dungeon Map (A) instead of the tiles (Odin's tile draw is scissored to nothing); clicking a teammate's marker leaps to them. Odin's click handler
  * still runs (cancelling doesn't stop it), so `LeapMenuMixin` skips its quadrant leap while the map is shown.
  *
  * @see com.anto.antoodin.mixin.mixins.EntityRendererMixin
@@ -64,6 +64,7 @@ object LeapMenuExtras : Module(
     private var hideUntil = 0L
     private var mapLeapTarget: String? = null
     private var bloodOpened = false
+    private var clipping = false
 
     // Mirrors Odin's per-tile hover animation so the overlay grows with the tile
     private val hoverProgress = List(4) { Animatable(0f) }
@@ -82,6 +83,16 @@ object LeapMenuExtras : Module(
             doorOpener = null
             hideUntil = 0L
             bloodOpened = false
+        }
+
+        // Odin draws its tiles at HIGHEST and can't be skipped, so clip that draw to nothing while the map is shown
+        on<ScreenEvent.Render>(EventPriority.HIGHEST + 1) {
+            clipping = mapLeapShown()
+            if (clipping) guiGraphics.enableScissor(0, 0, 0, 0)
+        }
+        on<ScreenEvent.Render>(EventPriority.HIGHEST - 1) {
+            if (clipping) guiGraphics.disableScissor()
+            clipping = false
         }
 
         on<ScreenEvent.Render>(EventPriority.HIGH) {
@@ -116,7 +127,6 @@ object LeapMenuExtras : Module(
         val ox = (width - 100 * scale) / 2
         val oy = (height - 100 * scale) / 2
 
-        // Above Odin's tiles, which are drawn first and can't be skipped
         graphics.nextStratum()
         graphics.fill(0, 0, width, height, 0xD0000000.toInt())
         graphics.pose().pushMatrix()

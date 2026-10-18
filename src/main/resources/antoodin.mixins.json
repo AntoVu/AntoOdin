@@ -37,6 +37,7 @@
     "mixins.FramerateLimitTrackerMixin",
     "mixins.GuiGraphicsExtractorMixin",
     "mixins.ItemModelResolverMixin",
+    "mixins.LeapMenuMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",

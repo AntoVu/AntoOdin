@@ -25,7 +25,7 @@ object AwtText {
     enum class Shadow { NONE, DROP, OUTLINE }
 
     private data class Key(val text: String, val font: Font, val px: Int, val color: Int, val shadow: Shadow)
-    private class Label(val id: Identifier, val width: Int, val height: Int, var used: Boolean = true)
+    private class Label(val id: Identifier, val width: Int, val height: Int, var lastUsed: Long = System.currentTimeMillis())
 
     private val labels = HashMap<Key, Label>()
     private val frc = FontRenderContext(null, true, true)
@@ -42,7 +42,7 @@ object AwtText {
         val guiScale = mc.window.guiScale
         val pixels = pose.m00() * guiScale // screen pixels per unit here
         val label = labels.getOrPut(Key(text, font, (size * pixels).roundToInt(), color, shadow)) { render(text, font, size * pixels, color, shadow) }
-        label.used = true
+        label.lastUsed = System.currentTimeMillis()
 
         pose.scale(1f / pixels)
         // Snap the top left corner to a whole screen pixel so the 1:1 texture stays sharp
@@ -53,12 +53,10 @@ object AwtText {
         pose.popMatrix()
     }
 
-    /** Frees textures not drawn since the last call. Call once after drawing a frame. */
+    /** Frees textures not drawn for a second. Safe to call any number of times per frame. */
     fun sweep() {
-        labels.values.removeIf { label ->
-            if (!label.used) mc.textureManager.release(label.id)
-            (!label.used).also { label.used = false }
-        }
+        val cutoff = System.currentTimeMillis() - 1000
+        labels.values.removeIf { label -> (label.lastUsed < cutoff).also { if (it) mc.textureManager.release(label.id) } }
     }
 
     private fun render(text: String, base: Font, px: Float, color: Int, shadow: Shadow): Label {

@@ -105,10 +105,20 @@ object CleanMap : Module(
     private const val TILE = 100
 
     private val hud by HUD(name, "The dungeon map.", false) { example ->
-        if (!example && (!DungeonUtils.inDungeons || DungeonUtils.inBoss)) {
-            AwtText.sweep()
-            return@HUD 0 to 0
-        }
+        AwtText.sweep()
+        if (!example && (!DungeonUtils.inDungeons || DungeonUtils.inBoss)) return@HUD 0 to 0
+        drawMap(this, example)
+        SIZE to SIZE
+    }
+
+    /** Teammate marker half size in map units, for clicking them (Leap Menu Extras' Map Leap). */
+    val markerRadius get() = max(2f * headScale.toFloat(), 3f)
+
+    /**
+     * Draws the map in a [SIZE] x [SIZE] box at the current pose. Returns each living teammate's marker
+     * position (not yours) in that box, by name.
+     */
+    fun drawMap(graphics: GuiGraphicsExtractor, example: Boolean): Map<String, Pair<Float, Float>> = graphics.run {
         val (w, h) = if (example) 6 to 6 else gridSize()
         val cell = SIZE / (max(w, h) + padding.toFloat() * 2)
         val ox = (SIZE - w * cell) / 2
@@ -128,10 +138,9 @@ object CleanMap : Module(
         pose().popMatrix()
 
         for (room in rooms) if (roomColor(room) != null) drawRoomLabel(room, ox, oy, cell)
-        if (!example) drawPlayers(ox, oy, cell)
+        val markers = if (example) emptyMap() else drawPlayers(ox, oy, cell)
         drawBorder()
-        AwtText.sweep()
-        SIZE to SIZE
+        markers
     }
 
     init {
@@ -337,13 +346,15 @@ object CleanMap : Module(
         return ox + (ux / 20f + 0.1f) * cell to oy + (uz / 20f + 0.1f) * cell
     }
 
-    private fun GuiGraphicsExtractor.drawPlayers(ox: Float, oy: Float, cell: Float) {
-        val self = mc.player ?: return
+    private fun GuiGraphicsExtractor.drawPlayers(ox: Float, oy: Float, cell: Float): Map<String, Pair<Float, Float>> {
+        val self = mc.player ?: return emptyMap()
+        val markers = HashMap<String, Pair<Float, Float>>()
         val showNames = names && (!namesLeap || self.mainHandItem.itemId in setOf("SPIRIT_LEAP", "INFINITE_SPIRIT_LEAP"))
 
         for (player in DungeonUtils.dungeonTeammatesNoSelf) {
             if (player.isDead) continue
             val (x, y) = playerPos(player.entity, player.mapPos, ox, oy, cell)
+            markers[player.name] = x to y
             val skin = player.playerSkin
             if (heads && skin != null) drawHead(skin, x, y, player.renderYaw) else drawArrow(x, y, player.renderYaw)
             if (showNames) {
@@ -354,6 +365,7 @@ object CleanMap : Module(
 
         val (x, y) = playerPos(self, IVec2(0, 0), ox, oy, cell)
         if (selfMarker || !heads) drawArrow(x, y, self.yRot) else drawHead(self.skin, x, y, self.yRot)
+        return markers
     }
 
     private fun GuiGraphicsExtractor.drawHead(skin: PlayerSkin, x: Float, y: Float, yaw: Float) {

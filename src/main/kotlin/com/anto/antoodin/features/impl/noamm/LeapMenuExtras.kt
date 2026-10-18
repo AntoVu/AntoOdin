@@ -50,6 +50,7 @@ object LeapMenuExtras : Module(
     private val hideTime by NumberSetting("Hide Time", 3.5f, 0.5..5.0, 0.5f, desc = "How long to hide them for.", unit = "s").withDependency { hideAfterLeap }
     private val mapLeap by BooleanSetting("Map Leap", false, desc = "Shows Dungeon Map (A) in the leap menu during clear. Click a teammate on it to leap to them. Keybinds still work.")
     private val mapLeapScale by NumberSetting("Map Leap Scale", 2.5f, 1.0..5.0, 0.1f, desc = "Size of the map in the leap menu.", unit = "x").withDependency { mapLeap }
+    private val mapLeapAfterBlood by BooleanSetting("After Blood Only", false, desc = "Uses the normal leap tiles until the blood door is opened, then the map.").withDependency { mapLeap }
 
     private val deadTint = Color(255, 0, 0, 0.2f)
     private const val SQRT_2 = 1.4142135f
@@ -62,6 +63,7 @@ object LeapMenuExtras : Module(
     private var doorOpener: String? = null
     private var hideUntil = 0L
     private var mapLeapTarget: String? = null
+    private var bloodOpened = false
 
     // Mirrors Odin's per-tile hover animation so the overlay grows with the tile
     private val hoverProgress = List(4) { Animatable(0f) }
@@ -69,13 +71,17 @@ object LeapMenuExtras : Module(
     init {
         on<MessageEvent.Chat> {
             doorOpenedRegex.find(message)?.let { doorOpener = it.groupValues[1] }
-            if (message == "The BLOOD DOOR has been opened!") doorOpener = null
+            if (message == "The BLOOD DOOR has been opened!") {
+                doorOpener = null
+                bloodOpened = true
+            }
             if (hideAfterLeap && leapedRegex.matches(message)) hideUntil = System.currentTimeMillis() + (hideTime * 1000).toLong()
         }
 
         on<LevelEvent.Load> {
             doorOpener = null
             hideUntil = 0L
+            bloodOpened = false
         }
 
         on<ScreenEvent.Render>(EventPriority.HIGH) {
@@ -99,7 +105,8 @@ object LeapMenuExtras : Module(
         (screen as? AbstractContainerScreen<*>)?.title?.string.let { it == "Spirit Leap" || it == "Teleport to Player" }
 
     /** Map Leap replaces the tiles in clear; in boss the map is hidden, so Odin's tiles are used. */
-    fun mapLeapShown() = enabled && mapLeap && LeapMenu.enabled && DungeonUtils.inDungeons && !DungeonUtils.inBoss && isLeapScreen(mc.gui.screen())
+    fun mapLeapShown() = enabled && mapLeap && (!mapLeapAfterBlood || bloodOpened) && LeapMenu.enabled &&
+        DungeonUtils.inDungeons && !DungeonUtils.inBoss && isLeapScreen(mc.gui.screen())
 
     private fun drawMapLeap(event: ScreenEvent.Render) {
         val graphics = event.guiGraphics
@@ -122,10 +129,18 @@ object LeapMenuExtras : Module(
         mapLeapTarget = markers.entries.firstOrNull { (_, pos) ->
             abs(event.mouseX - (ox + pos.first * scale)) <= r && abs(event.mouseY - (oy + pos.second * scale)) <= r
         }?.key
+
+        graphics.nextStratum()
+        // Same ring as on the tiles, just outside the head's corners
+        if (highlightDoorOpener) markers[doorOpener]?.let { (x, y) ->
+            val radius = (CleanMap.markerRadius * scale * SQRT_2 + RING_GAP).toInt()
+            val cx = (ox + x * scale).toInt()
+            val cy = (oy + y * scale).toInt()
+            graphics.roundedOutline(cx - radius, cy - radius, cx + radius, cy + radius, doorOpenerColor.rgba, RING_THICKNESS, radius.toFloat())
+        }
         val (x, y) = mapLeapTarget?.let { markers[it] } ?: return
         val cx = (ox + x * scale).toInt()
         val cy = (oy + y * scale).toInt()
-        graphics.nextStratum()
         graphics.roundedOutline(cx - r.toInt(), cy - r.toInt(), cx + r.toInt(), cy + r.toInt(), Colors.WHITE.rgba, 2f, 3f)
     }
 

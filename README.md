@@ -177,6 +177,7 @@ Leap Menu Extras
  - Tints dead players and rings the last wither door opener's face in Odin's Leap Menu
  - Hides teammates you just leaped onto
  - Map Leap: shows Dungeon Map (A) in the leap menu during clear; click a teammate on the map to leap to them
+   (optionally only after the blood door opens), with the door opener ring on their head
 
 Dragon Extras
  - M7 dragon aim marker for arrow stacks, arrows-hit count per dragon

@@ -3,6 +3,7 @@ package com.anto.antoodin.commands
 import com.anto.antoodin.features.Calculators
 import com.anto.antoodin.features.MutationTracker
 import com.anto.antoodin.features.impl.anto.ChatRules
+import com.anto.antoodin.features.impl.anto.CleanMap
 import com.anto.antoodin.features.impl.anto.ChatRulesScreen
 import com.anto.antoodin.features.impl.anto.LevelColorsScreen
 import com.anto.antoodin.features.impl.anto.DungeonSplits
@@ -13,9 +14,11 @@ import com.anto.antoodin.features.impl.anto.WaypointPlacer
 import com.anto.antoodin.features.impl.noamm.SoundManagerScreen
 import com.anto.antoodin.features.impl.odinclient.AutoClicker
 import com.anto.antoodin.features.impl.odinclient.Highlight
+import com.anto.antoodin.utils.SystemFonts
 import com.github.stivais.commodore.Commodore
 import com.github.stivais.commodore.utils.GreedyString
 import com.odtheking.odin.OdinMod.mc
+import com.odtheking.odin.features.ModuleManager
 import com.odtheking.odin.features.impl.render.waypoints.WaypointScreen
 import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.handlers.schedule
@@ -96,6 +99,18 @@ val aoCommand = Commodore("ao") {
             if (!hex.matches(Regex("[0-9A-Fa-f]{8}"))) return@runs modMessage("Color hex not properly formatted! Use format RRGGBBAA")
             WaypointPlacer.color = Color(hex)
             modMessage("Color changed to: $hex")
+        }
+    }
+    // Clean Map font: any installed TrueType font, or Minecraft for the vanilla one
+    literal("mapfont").executable {
+        param("name").suggests { listOf("Minecraft") + SystemFonts.names }
+        runs { name: String ->
+            if (!name.equals("Minecraft", true) && SystemFonts.find(name) == null) return@runs modMessage("§cNo installed TrueType font named $name.")
+            CleanMap.font = name
+            ModuleManager.saveConfigurations()
+            // ponytail: full resource reload per font change; a FontManager-only reload if it feels slow
+            mc.reloadResourcePacks()
+            modMessage("Map font set to $name.")
         }
     }
 }

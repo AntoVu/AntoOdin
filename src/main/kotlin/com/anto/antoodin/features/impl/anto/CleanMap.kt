@@ -1,7 +1,8 @@
 // Feature idea from Devonian (GPL-3.0). Written from scratch for AntoOdin, no Devonian code is used.
-// Hidden door scan based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
+// Hidden door check based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
 package com.anto.antoodin.features.impl.anto
 
+import com.anto.antoodin.utils.AwtText
 import com.anto.antoodin.utils.Skit
 import com.anto.antoodin.utils.SystemFonts
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
@@ -11,6 +12,8 @@ import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
+import com.odtheking.odin.events.TickEvent
+import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.features.impl.dungeon.map.DungeonScan
 import com.odtheking.odin.features.impl.dungeon.map.buildExampleDoors
@@ -23,21 +26,17 @@ import com.odtheking.odin.utils.itemId
 import com.odtheking.odin.utils.renderX
 import com.odtheking.odin.utils.renderZ
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
-import com.odtheking.odin.utils.toIVec2
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.PlayerFaceExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.FontDescription
-import net.minecraft.network.chat.Style
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.PlayerSkin
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.chunk.LevelChunk
-import java.io.InputStream
+import kotlin.math.ceil
 import kotlin.math.max
 
 /**
@@ -60,12 +59,12 @@ object CleanMap : Module(
     private val borderColor by ColorSetting("Border Color", Color("000000FF"), true, desc = "Border color.").withDependency { styleDropdown }
 
     private val textDropdown by DropdownSetting("Text", desc = "Room names and checkmarks.")
-    var font by StringSetting("Font", "ComicSansMS", 64, desc = "Installed font for map text. Set it with /ao mapfont <name> to reload it.", placeholder = "Minecraft").withDependency { textDropdown }
+    var font by StringSetting("Font", "ComicSansMS", 64, desc = "Installed font for map text, without spaces (/ao mapfont suggests them). Minecraft for the vanilla font.", placeholder = "Minecraft").withDependency { textDropdown }
     private val textSize by NumberSetting("Text Size", 1.13, 0.0..2.0, 0.01, desc = "Room name size.").withDependency { textDropdown }
-    private val textShadow by SelectorSetting("Text Shadow", Shadow.DROP, desc = "Shadow behind the map text.").withDependency { textDropdown }
+    private val textShadow by SelectorSetting("Text Shadow", AwtText.Shadow.DROP, desc = "Shadow behind the map text.").withDependency { textDropdown }
     private val colorNames by BooleanSetting("Color Room Names", true, desc = "Colors names by checkmark: white, green or red.").withDependency { textDropdown }
-    private val normalNames by BooleanSetting("Normal Room Names", false, desc = "Shows names of normal rooms instead of their checkmark.").withDependency { textDropdown }
-    private val checkmarks by BooleanSetting("Checkmarks", true, desc = "Shows checkmarks on rooms without a name.").withDependency { textDropdown }
+    private val normalNames by BooleanSetting("Normal Room Names", true, desc = "Shows names of normal rooms too, not just special ones.").withDependency { textDropdown }
+    private val checkmarks by BooleanSetting("Checkmarks", true, desc = "Shows checkmarks under room names.").withDependency { textDropdown }
     private val iconSize by NumberSetting("Checkmark Size", 0.57, 0.0..2.0, 0.01, desc = "Checkmark size.").withDependency { textDropdown && checkmarks }
 
     private val markerDropdown by DropdownSetting("Markers", desc = "Players on the map.")
@@ -91,9 +90,8 @@ object CleanMap : Module(
     private val bloodDoorColor by ColorSetting("Blood Door", Color("FF0000FF"), desc = "Blood door.").withDependency { colorDropdown }
     private val entranceDoorColor by ColorSetting("Entrance Door", Color("007B00FF"), desc = "Doors out of the entrance. Other doors take the color of the special room they lead to.").withDependency { colorDropdown }
 
-    enum class Shadow { NONE, DROP, OUTLINE }
-
-    private val fontStyle = Style.EMPTY.withFont(FontDescription.Resource(Identifier.fromNamespaceAndPath("antoodin", "map")))
+    private var awtFont: Pair<String, java.awt.Font?> = "" to null
+    private var ticks = 0
     private val frame = Identifier.withDefaultNamespace("textures/map/decorations/frame.png")
     private val cross = Identifier.fromNamespaceAndPath("odin", "map/cross.png")
     private val green = Identifier.fromNamespaceAndPath("odin", "map/green_check.png")
@@ -107,7 +105,10 @@ object CleanMap : Module(
     private const val TILE = 100
 
     private val hud by HUD(name, "The dungeon map.", false) { example ->
-        if (!example && (!DungeonUtils.inDungeons || DungeonUtils.inBoss)) return@HUD 0 to 0
+        if (!example && (!DungeonUtils.inDungeons || DungeonUtils.inBoss)) {
+            AwtText.sweep()
+            return@HUD 0 to 0
+        }
         val (w, h) = if (example) 6 to 6 else gridSize()
         val cell = SIZE / (max(w, h) + padding.toFloat() * 2)
         val ox = (SIZE - w * cell) / 2
@@ -129,7 +130,23 @@ object CleanMap : Module(
         for (room in rooms) if (roomColor(room) != null) drawRoomLabel(room, ox, oy, cell)
         if (!example) drawPlayers(ox, oy, cell)
         drawBorder()
+        AwtText.sweep()
         SIZE to SIZE
+    }
+
+    init {
+        // Listing system fonts takes a moment; do it off the render thread
+        Thread { SystemFonts.names }.apply { isDaemon = true }.start()
+
+        // Doors between rooms nobody opened aren't on the map item, so read them from the world until found
+        on<TickEvent.End> {
+            if (!showHidden || !DungeonUtils.inDungeons || DungeonUtils.inBoss || ++ticks % 20 != 0) return@on
+            val level = mc.level ?: return@on
+            for (x in -12..-2) for (z in -12..-2) {
+                if ((x % 2 == 0) == (z % 2 == 0) || DungeonScan.doors.containsKey(IVec2(x, z)) || !level.hasChunk(x, z)) continue
+                scanDoor(level.getChunk(x, z), x, z)
+            }
+        }
     }
 
     /** Dungeon size in tiles per floor (Odin's map offsets in [DungeonScan.initClient]). */
@@ -170,10 +187,13 @@ object CleanMap : Module(
         else -> unknownColor
     }
 
+    /** The world scan's type when known: the map item draws miniboss and rare rooms as normal ones. */
+    private val DungeonRoom.realType get() = data?.type ?: type
+
     /** Fill color, or null when the room isn't shown. */
     private fun roomColor(room: DungeonRoom): Color? = when {
-        room.isViewable -> if (room.mapSeen || room.type == RoomType.ENTRANCE) typeColor(room.type) else unknownColor
-        showHidden && room.type != RoomType.UNDISCOVERED -> typeColor(room.type).darker(darken.toFloat())
+        room.isViewable -> if (room.mapSeen || room.type == RoomType.ENTRANCE) typeColor(room.realType) else unknownColor
+        showHidden && room.realType != RoomType.UNDISCOVERED -> typeColor(room.realType).darker(darken.toFloat())
         else -> null
     }
 
@@ -205,10 +225,11 @@ object CleanMap : Module(
             door.type == DoorType.Wither -> witherDoorColor
             door.type == DoorType.Blood -> bloodDoorColor
             door.type == DoorType.Fairy -> fairyColor
-            a?.type == RoomType.ENTRANCE || b?.type == RoomType.ENTRANCE -> entranceDoorColor
-            else -> listOfNotNull(a, b).firstOrNull { it.type != RoomType.NORMAL && it.type != RoomType.FAIRY }?.let { typeColor(it.type) } ?: normalColor
+            a?.realType == RoomType.ENTRANCE || b?.realType == RoomType.ENTRANCE -> entranceDoorColor
+            else -> listOfNotNull(a, b).firstOrNull { it.realType != RoomType.NORMAL && it.realType != RoomType.FAIRY }?.let { typeColor(it.realType) } ?: normalColor
         }
-        if (!seen.first || !seen.second) color = color.darker(darken.toFloat())
+        // Wither and blood doors stay bright so the blood rush path stands out
+        if ((!seen.first || !seen.second) && door.type != DoorType.Wither && door.type != DoorType.Blood) color = color.darker(darken.toFloat())
 
         val o = gap
         val half = (doorSize * TILE / 2).toInt()
@@ -233,32 +254,34 @@ object CleanMap : Module(
 
     private fun GuiGraphicsExtractor.drawRoomLabel(room: DungeonRoom, ox: Float, oy: Float, cell: Float) {
         val tiles = tilesOf(room)
-        val cx = ox + (tiles.minOf { it.x } + tiles.maxOf { it.x } + 1) * cell / 2
-        val cy = oy + (tiles.minOf { it.z } + tiles.maxOf { it.z } + 1) * cell / 2
-        val name = room.name
+        // L rooms label their vertical arm (the corner tile and the tile above or below it), like Devonian
+        val corner = if (room.shape == RoomShape.L) tiles.firstOrNull { t -> tiles.any { it.z == t.z && it != t } && tiles.any { it.x == t.x && it != t } } else null
+        val box = if (corner != null) tiles.filter { it.x == corner.x } else tiles
+        val cx = ox + (box.minOf { it.x } + box.maxOf { it.x } + 1) * cell / 2
+        val cy = oy + (box.minOf { it.z } + box.maxOf { it.z } + 1) * cell / 2
 
-        val showName = name != null && when (room.type) {
-            RoomType.ENTRANCE, RoomType.BLOOD, RoomType.FAIRY, RoomType.UNKNOWN, RoomType.UNDISCOVERED -> false
-            RoomType.NORMAL -> normalNames
-            else -> true
-        }
-
-        if (!showName) {
-            if (!checkmarks) return
-            val icon = when (room.checkmark) {
+        if (checkmarks) {
+            when (room.checkmark) {
                 MapCheckmark.WHITE -> white
                 MapCheckmark.GREEN -> green
                 MapCheckmark.RED -> cross
                 MapCheckmark.QUESTION_MARK -> question
-                else -> return
+                else -> null
+            }?.let { icon ->
+                val size = iconSize.toFloat() * roomSize.toFloat() * cell
+                pose().pushMatrix()
+                pose().translate(cx - size / 2, cy - size / 2)
+                pose().scale(size / 16)
+                blit(RenderPipelines.GUI_TEXTURED, icon, 0, 0, 0f, 0f, 16, 16, 16, 16)
+                pose().popMatrix()
             }
-            val size = iconSize.toFloat() * roomSize.toFloat() * cell
-            pose().pushMatrix()
-            pose().translate(cx - size / 2, cy - size / 2)
-            pose().scale(size / 16)
-            blit(RenderPipelines.GUI_TEXTURED, icon, 0, 0, 0f, 0f, 16, 16, 16, 16)
-            pose().popMatrix()
-            return
+        }
+
+        val name = room.name ?: return
+        when (room.realType) {
+            RoomType.ENTRANCE, RoomType.BLOOD, RoomType.FAIRY, RoomType.UNKNOWN, RoomType.UNDISCOVERED -> return
+            RoomType.NORMAL -> if (!normalNames) return
+            else -> {}
         }
 
         val color = if (!colorNames) 0xFFFFFFFF.toInt() else when (room.checkmark) {
@@ -267,26 +290,41 @@ object CleanMap : Module(
             MapCheckmark.RED -> 0xFFFF5555.toInt()
             else -> 0xFFAAAAAA.toInt()
         }
-        // Devonian sizes its font to a quarter of the room; the map font's em is 11 units
-        val scale = roomSize.toFloat() * cell * 0.25f * textSize.toFloat() / 11f
-        val lines = name.split(" ")
-        val lineHeight = mc.font.lineHeight * scale
-        for ((i, line) in lines.withIndex()) {
-            drawText(line, cx, cy + (i - (lines.size - 1) / 2f) * lineHeight, scale, color)
-        }
+        // Devonian sizes the font to a quarter of the room
+        val size = roomSize.toFloat() * cell * 0.25f * textSize.toFloat()
+        val maxWidth = (box.maxOf { it.x } - box.minOf { it.x } + roomSize.toFloat()) * cell
+        val lines = name.split(" ").flatMap { hyphenate(it, maxWidth, size) }
+        val lineHeight = size * 1.1f
+        for ((i, line) in lines.withIndex()) drawText(line, cx, cy + (i - (lines.size - 1) / 2f) * lineHeight, size, color)
     }
 
-    /** Centered on (x, y) in the map font. */
-    private fun GuiGraphicsExtractor.drawText(text: String, x: Float, y: Float, scale: Float, color: Int) {
-        val component = Component.literal(text).withStyle(fontStyle)
-        val w = mc.font.width(component)
-        val tx = -w / 2
+    /** Splits a word too wide for the room into even pieces joined by hyphens ("Wither-", "mancer"). */
+    private fun hyphenate(word: String, maxWidth: Float, size: Float): List<String> {
+        val pieces = ceil(textWidth(word, size) / maxWidth).toInt()
+        if (pieces <= 1 || word.length < 4) return listOf(word)
+        val chunks = word.chunked(ceil(word.length / pieces.toFloat()).toInt())
+        return chunks.dropLast(1).map { "$it-" } + chunks.last()
+    }
+
+    private fun currentFont(): java.awt.Font? {
+        if (awtFont.first != font) awtFont = font to SystemFonts.find(font)
+        return awtFont.second
+    }
+
+    private fun textWidth(text: String, size: Float): Float =
+        currentFont()?.let { AwtText.width(text, it, size) } ?: (mc.font.width(text) * size / 8f)
+
+    /** Centered on (x, y), [size] GUI px per em. Vanilla font when the font setting isn't an installed font. */
+    private fun GuiGraphicsExtractor.drawText(text: String, x: Float, y: Float, size: Float, color: Int) {
+        currentFont()?.let { return AwtText.draw(this, text, it, size, x, y, color, textShadow) }
+        val scale = size / 8f // vanilla glyphs are about 8 px per em
+        val tx = -mc.font.width(text) / 2
         val ty = -mc.font.lineHeight / 2
         pose().pushMatrix()
         pose().translate(x, y)
         pose().scale(scale)
-        if (textShadow == Shadow.OUTLINE) for ((dx, dy) in arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)) text(mc.font, component, tx + dx, ty + dy, 0xFF000000.toInt(), false)
-        text(mc.font, component, tx, ty, color, textShadow == Shadow.DROP)
+        if (textShadow == AwtText.Shadow.OUTLINE) for ((dx, dy) in arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)) text(mc.font, text, tx + dx, ty + dy, 0xFF000000.toInt(), false)
+        text(mc.font, text, tx, ty, color, textShadow == AwtText.Shadow.DROP)
         pose().popMatrix()
     }
 
@@ -308,8 +346,8 @@ object CleanMap : Module(
             val skin = player.playerSkin
             if (heads && skin != null) drawHead(skin, x, y, player.renderYaw) else drawArrow(x, y, player.renderYaw)
             if (showNames) {
-                val scale = 0.3f * nameScale.toFloat()
-                drawText(player.name, x, y - 2f * headScale.toFloat() - mc.font.lineHeight * scale / 2, scale, 0xFFFFFFFF.toInt())
+                val size = 2.4f * nameScale.toFloat() // 0.3 * nameScale of a vanilla 8 px em
+                drawText(player.name, x, y - 2f * headScale.toFloat() - size * 0.6f, size, 0xFFFFFFFF.toInt())
             }
         }
 
@@ -337,28 +375,12 @@ object CleanMap : Module(
         pose().popMatrix()
     }
 
-    /** Serves the map font file to [com.anto.antoodin.mixin.mixins.TrueTypeGlyphProviderDefinitionMixin]. */
-    fun openFont(location: Identifier): InputStream? {
-        if (location.namespace != "antoodin" || location.path != "font/map.ttf") return null
-        return SystemFonts.find(font)?.inputStream()
-    }
-
-    /**
-     * Odin only learns doors from the map item, so doors between rooms nobody opened are read from the world.
-     * Called by `WorldScanMixin` after Odin scans a chunk.
-     */
-    fun scanDoor(chunk: LevelChunk) {
-        if (!enabled || !showHidden) return
-        val (x, z) = chunk.pos.toIVec2()
-        if (x !in -12..-2 || z !in -12..-2) return
-        if ((x % 2 == 0) == (z % 2 == 0)) return
-
+    /** A door chunk (one odd chunk coordinate) has open sky above the door and a floor under it. */
+    private fun scanDoor(chunk: LevelChunk, x: Int, z: Int) {
         val pos = IVec2(x, z)
-        if (DungeonScan.doors.containsKey(pos)) return
-
         val x1 = x * 16 + 7
         val z1 = z * 16 + 7
-        if ((86..160).any { !chunk.getBlockState(BlockPos(x1, it, z1)).isAir }) return
+        if ((86..160).any { val state = chunk.getBlockState(BlockPos(x1, it, z1)); !state.isAir && !state.`is`(Blocks.GOLD_BLOCK) }) return
         if (chunk.getBlockState(BlockPos(x1, 68, z1)).isAir) return
 
         val type = when (chunk.getBlockState(BlockPos(x1, 69, z1)).block) {

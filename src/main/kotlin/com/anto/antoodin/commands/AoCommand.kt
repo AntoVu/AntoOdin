@@ -101,15 +101,13 @@ val aoCommand = Commodore("ao") {
             modMessage("Color changed to: $hex")
         }
     }
-    // Clean Map font: any installed TrueType font, or Minecraft for the vanilla one
+    // Clean Map font: any installed font, or Minecraft for the vanilla one
     literal("mapfont").executable {
         param("name").suggests { listOf("Minecraft") + SystemFonts.names }
         runs { name: String ->
-            if (!name.equals("Minecraft", true) && SystemFonts.find(name) == null) return@runs modMessage("§cNo installed TrueType font named $name.")
+            if (!name.equals("Minecraft", true) && SystemFonts.find(name) == null) return@runs modMessage("§cNo installed font named $name.")
             CleanMap.font = name
             ModuleManager.saveConfigurations()
-            // ponytail: full resource reload per font change; a FontManager-only reload if it feels slow
-            mc.reloadResourcePacks()
             modMessage("Map font set to $name.")
         }
     }

@@ -37,8 +37,6 @@
     "mixins.FramerateLimitTrackerMixin",
     "mixins.GuiGraphicsExtractorMixin",
     "mixins.ItemModelResolverMixin",
-    "mixins.TrueTypeGlyphProviderDefinitionMixin",
-    "mixins.WorldScanMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",

@@ -146,7 +146,7 @@ Mono Audio
 
 Sound Manager
  - Per-sound volume from 0 to 200%, open with `/ao mapfont <name>`
- - Sets the Clean Map font to an installed TrueType font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
+ - Sets the Clean Map font to any installed font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
 
 `/ao sounds`
  - Recent tab shows the pitch each sound last played at
@@ -270,7 +270,7 @@ Double Use Fix
  - Adds up your PB splits into a theoretical best run (defaults to current floor, else M7)
 
 `/ao mapfont <name>`
- - Sets the Clean Map font to an installed TrueType font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
+ - Sets the Clean Map font to any installed font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
 
 `/ao sounds`
  - Opens the Sound Manager

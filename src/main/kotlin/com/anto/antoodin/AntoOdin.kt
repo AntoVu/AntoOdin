@@ -25,7 +25,7 @@ object AntoOdin : ClientModInitializer {
             WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight, SpiritBear, LividSolver, EscrowFix, FuckDiorite,
             SecretHitboxes, AutoGFS, Ghosts, CameraHelper, HighlightTrash, ChatRules, UnfocusedTweaks, CommandTooltip, LevelColors, CalendarDate, ExperimentSolver, CorpseHighlight, InventoryButtons, ItemCustomizer,
             AutoTip, PaneClickGuard, CleanMap,
-            ItemCountFix, DisconnectFix, DoubleUseFix)
+            ItemCountFix, DisconnectFix, DoubleUseFix, NameReplacerOff)
 
         JellybeanHider.registerModelHook()
 

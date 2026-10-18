@@ -38,6 +38,7 @@
     "mixins.GuiGraphicsExtractorMixin",
     "mixins.ItemModelResolverMixin",
     "mixins.LeapMenuMixin",
+    "mixins.CustomNameReplacerMixin",
     "accessors.AbstractSignEditScreenAccessor",
     "accessors.LanguageInvoker",
     "accessors.LanguageManagerAccessor",

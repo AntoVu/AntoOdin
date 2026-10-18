@@ -260,6 +260,9 @@ Disconnect Fix
 Double Use Fix
  - Stops Blaze Daggers and fishing rods from activating twice when clicking a block
 
+Name Replacer Off
+ - Turns off Odin's dev custom names, which regex-scan all on-screen text every frame (about 3.6% of the render thread)
+
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`
  - Logs crop collections on start and stop

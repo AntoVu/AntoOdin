@@ -16,6 +16,8 @@ import com.odtheking.odin.features.Module
 import com.odtheking.odin.features.impl.dungeon.map.DungeonScan
 import com.odtheking.odin.features.impl.dungeon.map.tile.DoorType
 import com.odtheking.odin.features.impl.dungeon.map.tile.DungeonDoor
+import com.odtheking.odin.features.impl.dungeon.map.tile.DungeonRoom
+import com.odtheking.odin.features.impl.dungeon.map.tile.RoomType
 import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.Color.Companion.withAlpha
 import com.odtheking.odin.utils.Colors
@@ -41,7 +43,7 @@ object DoorHighlight : Module(
     private val witherColor by ColorSetting("Wither Color", Colors.BLACK.withAlpha(0.8f), true, desc = "The color of the box.")
     private val bloodColor by ColorSetting("Blood Color", Colors.MINECRAFT_RED.withAlpha(0.8f), true, desc = "The color of the box.")
     private val depthCheck by BooleanSetting("Depth check", true, desc = "Disable depth check to enable ESP.")
-    private val lineToDoor by BooleanSetting("Line to Door", false, desc = "Draws a line to the nearest closed wither door, or the blood door once no wither doors are left.")
+    private val lineToDoor by BooleanSetting("Line to Door", false, desc = "Draws a line to the next closed wither door (the one leading out of explored rooms), or the blood door once no wither doors are left.")
     private val witherLineColor by ColorSetting("Wither Line Color", Colors.WHITE, true, desc = "The color of the line to a wither door.").withDependency { lineToDoor }
     private val bloodLineColor by ColorSetting("Blood Line Color", Colors.MINECRAFT_RED, true, desc = "The color of the line to the blood door.").withDependency { lineToDoor }
     private val lineThickness by NumberSetting("Line Thickness", 3f, 1.0..10.0, 0.5f, desc = "The thickness of the line.").withDependency { lineToDoor }
@@ -83,6 +85,7 @@ object DoorHighlight : Module(
             if (!DungeonUtils.inClear) return@on
             val playerPos = mc.player?.position()
             var target: DungeonDoor? = null
+            var targetRank = Int.MAX_VALUE
             var targetDist = Double.MAX_VALUE
 
             DungeonScan.doors.forEach { (_, door) ->
@@ -98,15 +101,15 @@ object DoorHighlight : Module(
                 }
                 drawStyledBox(box, if (isOpenable) openableColor else doorHighlightColor, BoxStyle.FILLED_OUTLINE, false)
 
-                // Same doors as the boxes (the map scan retypes a door once it's opened), any wither door before blood
+                // Same doors as the boxes (the map scan retypes a door once it's opened). The next door is the one
+                // between an explored and an unexplored room; doors deeper in (known from a world scan, e.g.
+                // Dungeon Map (A)'s hidden rooms) can be closer in a straight line but aren't reachable yet.
+                // Rank: next door before deeper ones, wither before blood, then nearest.
                 if (!lineToDoor || playerPos == null) return@forEach
+                val next = explored(DungeonScan.tiles[door.originTileIndex].room) != explored(DungeonScan.tiles.getOrNull(door.destinationTileIndex)?.room)
+                val rank = (if (next) 0 else 2) + (if (door.type == DoorType.Wither) 0 else 1)
                 val dist = box.center.distanceToSqr(playerPos)
-                val better = when {
-                    target == null -> true
-                    target!!.type != door.type -> door.type == DoorType.Wither
-                    else -> dist < targetDist
-                }
-                if (better) { target = door; targetDist = dist }
+                if (rank < targetRank || (rank == targetRank && dist < targetDist)) { target = door; targetRank = rank; targetDist = dist }
             }
             target?.let { drawTracer(Vec3(it.worldX + 0.5, 71.0, it.worldZ + 0.5), if (it.type == DoorType.Blood) bloodLineColor else witherLineColor, false, lineThickness) }
 
@@ -128,6 +131,9 @@ object DoorHighlight : Module(
             bloodOpened = false
         }
     }
+
+    /** A room the party has been in: colored on the map, walked into, or the entrance. */
+    private fun explored(room: DungeonRoom?) = room != null && (room.mapSeen || room.walkedInto || room.type == RoomType.ENTRANCE)
 
     private enum class KeyType(val displayName: String, val color: () -> Color, val colorCode: Char) {
         Wither("Wither Key", { witherColor }, '8'),

@@ -120,7 +120,7 @@ class SoundManagerScreen(private val previous: Screen?) : Screen(Component.liter
         }
 
         private val play = Button.builder(Component.literal("Play")) {
-            playSoundAtPlayer(SoundEvent.createVariableRangeEvent(id), 0.25f)
+            playSoundAtPlayer(SoundEvent.createVariableRangeEvent(id), 1f)
         }.width(40).build()
 
         override fun extractContent(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, hovered: Boolean, delta: Float) {

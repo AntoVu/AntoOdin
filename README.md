@@ -159,6 +159,7 @@ Maxor's Crystals
 
 Item Tooltip
  - Lowest BIN, bazaar buy/sell and NPC sell prices on item tooltips, priced for the whole stack with the unit price beside it
+ - Item creation date and age (years, months, days; never rounded up)
 
 Damage Splash
  - Shortens damage numbers (1.2m) in NEU's style, keeping Hypixel's crit colors

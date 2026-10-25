@@ -119,6 +119,10 @@ Dungeon Map (A)
  - Shows hidden rooms (darkened), with their doors read from the world
  - Room names and checkmarks in any installed font (`/ao mapfont`), player heads and arrow, names while holding a leap
 
+Dupe Class Alert
+ - Title, sound and chat message when teammates share a class at the start of a dungeon run
+ - Optional party chat message naming the duplicate classes and players
+
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
 second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.

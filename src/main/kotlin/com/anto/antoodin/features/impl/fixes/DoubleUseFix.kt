@@ -19,8 +19,7 @@ import net.minecraft.world.phys.HitResult
 object DoubleUseFix : Module(
     name = "Double Use Fix",
     description = "Stops Blaze Daggers and fishing rods from activating twice when clicking a block.",
-    category = Skit.FIXES,
-    toggled = true
+    category = Skit.FIXES
 ) {
     // A rod can't use blocks (levers, chests) while this is on, same as NoFrills
     @JvmStatic

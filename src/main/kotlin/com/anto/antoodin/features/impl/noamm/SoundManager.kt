@@ -19,8 +19,7 @@ import kotlin.math.roundToInt
 object SoundManager : Module(
     name = "Sound Manager",
     description = "Adjust the volume of every sound in the game. Open it with /ao sounds.",
-    category = Skit.NOAMM,
-    toggled = true
+    category = Skit.NOAMM
 ) {
     private val openScreen by ActionSetting("Open Sound Manager", desc = "Opens the per-sound volume menu.") {
         mc.gui.setScreen(SoundManagerScreen(mc.gui.screen()))

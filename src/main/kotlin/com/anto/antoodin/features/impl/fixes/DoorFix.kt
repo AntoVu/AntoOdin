@@ -16,8 +16,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 object DoorFix : Module(
     name = "Door Fix",
     description = "Fixes the client-side rotation of the iron doors in F7 P3 section 3.",
-    category = Skit.FIXES,
-    toggled = true
+    category = Skit.FIXES
 ) {
     private val doorPositions = buildList {
         for (i in 0..6) {

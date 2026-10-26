@@ -32,8 +32,7 @@ import kotlin.jvm.optionals.getOrNull
 object ModHider : Module(
     name = "Mod Hider",
     description = "Stops servers from detecting your mods through translation keys in signs and anvils.",
-    category = Skit.FIXES,
-    toggled = true
+    category = Skit.FIXES
 ) {
     private val serverLanguages = IdentityHashMap<ClientPacketListener?, Language>()
     private val vanillaLanguage by lazy { LanguageInvoker.invokeLoadDefault() }

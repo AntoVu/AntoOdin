@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class AnvilMenuMixin {
     @WrapOperation(method = "createResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/Component;getString()Ljava/lang/String;"))
     private String hideTranslations(Component instance, Operation<String> original) {
-        return ModHider.getString(instance);
+        return ModHider.INSTANCE.getEnabled() ? ModHider.getString(instance) : original.call(instance);
     }
 }

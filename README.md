@@ -311,13 +311,6 @@ Dungeons Auto GFS
 Warp Cooldown
  - Mineshaft warp cooldown
 
-Ability Timers
- - Shows how long Rag Axe buff lasts
- - Shows how long Reaper buff lasts
-
-Queue Equipment
- - Same as Queue Loadout but for Equipments
-
 Auto Gloomlock
  - When low mana
  - When low health

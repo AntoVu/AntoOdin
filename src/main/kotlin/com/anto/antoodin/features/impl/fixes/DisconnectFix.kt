@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory
 object DisconnectFix : Module(
     name = "Disconnect Fix",
     description = "Stops corrupted entity data (Tarantula slayer) from disconnecting you.",
-    category = Skit.FIXES,
-    toggled = true
+    category = Skit.FIXES
 ) {
     private val logger = LoggerFactory.getLogger("AntoOdin")
 

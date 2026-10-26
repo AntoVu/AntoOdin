@@ -13,8 +13,7 @@ import com.odtheking.odin.features.Module
 object ItemCountFix : Module(
     name = "Item Count Fix",
     description = "Shows item counts on unstackable items in menus.",
-    category = Skit.FIXES,
-    toggled = true
+    category = Skit.FIXES
 ) {
     // The integrated server shares this code, so singleplayer keeps vanilla stack limits
     @JvmStatic

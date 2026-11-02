@@ -55,19 +55,24 @@ object QueueLoadout : Module(
     private var queuedAt = 0L
     private var clickScheduled = false
 
+    /** Opens /loadouts and equips loadout [number] (1-12) once the menu loads. Needs this module enabled to run. */
+    fun queue(number: Int) {
+        if (number !in 1..12) return
+        queuedSlot = LoadoutAddon.loadoutSlot(number - 1)
+        queuedNumber = number
+        queuedAt = System.currentTimeMillis()
+        clickScheduled = false
+        if (showChatMessage) modMessage("§aQueued loadout $queuedNumber.")
+        mc.player?.connection?.sendCommand("loadouts")
+    }
+
     private fun loadoutOpen(): AbstractContainerScreen<*>? =
         (mc.gui.screen() as? AbstractContainerScreen<*>)?.takeIf { LoadoutAddon.loadoutRegex.containsMatchIn(it.title.string) }
 
     init {
         on<InputEvent> {
             val keyIndex = loadoutBinds.indexOfFirst { it.value == key }.takeIf { it != -1 } ?: return@on
-
-            queuedSlot = LoadoutAddon.loadoutSlot(keyIndex)
-            queuedNumber = keyIndex + 1
-            queuedAt = System.currentTimeMillis()
-            clickScheduled = false
-            if (showChatMessage) modMessage("§aQueued loadout $queuedNumber.")
-            mc.player?.connection?.sendCommand("loadouts")
+            queue(keyIndex + 1)
         }
 
         // Slot items arrive after the screen opens, so wait until the queued slot has loaded

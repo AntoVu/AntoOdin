@@ -127,6 +127,11 @@ Dupe Class Alert
  - Title, sound and chat message when teammates share a class at the start of a dungeon run
  - Optional party chat message naming the duplicate classes and players
 
+Death Bow Swap
+ - In M7 Storm as Archer, after you shoot your Death Bow: swaps to a set hotbar slot, then queues a set loadout
+ - Separate delays with random variety for the swap and the loadout, once per run
+ - ! Requires Queue Loadout enabled
+
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
 second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.

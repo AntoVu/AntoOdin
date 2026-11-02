@@ -34,7 +34,7 @@ import net.minecraft.world.phys.Vec3
 
 object DoorHighlight : Module(
     name = "Door Highlight",
-    description = "Highlights wither and blood doors and keys in dungeons.",
+    description = "Highlights wither, blood and other doors and keys in dungeons.",
     category = Skit.ODINCLIENT
 ) {
     private val announceKeySpawn by BooleanSetting("Announce Key Spawn", true, desc = "Announces when a key is spawned.")
@@ -47,6 +47,9 @@ object DoorHighlight : Module(
     private val witherLineColor by ColorSetting("Wither Line Color", Colors.WHITE, true, desc = "The color of the line to a wither door.").withDependency { lineToDoor }
     private val bloodLineColor by ColorSetting("Blood Line Color", Colors.MINECRAFT_RED, true, desc = "The color of the line to the blood door.").withDependency { lineToDoor }
     private val lineThickness by NumberSetting("Line Thickness", 3f, 1.0..10.0, 0.5f, desc = "The thickness of the line.").withDependency { lineToDoor }
+    private val highlightOtherDoors by BooleanSetting("Highlight Other Doors", false, desc = "Highlights the normal doors between rooms (and the blood door once it's opened).")
+    private val otherDoorColor by ColorSetting("Other Door Color", Colors.MINECRAFT_GRAY.withAlpha(0.6f), true, desc = "Color for other doors.").withDependency { highlightOtherDoors }
+    private val otherDoorsCurrentRoomOnly by BooleanSetting("Current Room Only", true, desc = "Only highlights the other doors of the room you're in. Off highlights every other door on the map.").withDependency { highlightOtherDoors }
 
     private var currentKey: KeyType? = null
     private var witherKeys = 0
@@ -87,12 +90,18 @@ object DoorHighlight : Module(
             var target: DungeonDoor? = null
             var targetRank = Int.MAX_VALUE
             var targetDist = Double.MAX_VALUE
+            // Null with Current Room Only on means no other doors are drawn (e.g. standing in a hallway gap)
+            val otherDoorRoom = if (highlightOtherDoors && otherDoorsCurrentRoomOnly) playerRoom() else null
 
             DungeonScan.doors.forEach { (_, door) ->
-                if (!door.type.equalsOneOf(DoorType.Wither, DoorType.Blood)) return@forEach
-                if (door.type == DoorType.Blood && bloodOpened) return@forEach
-
                 val box = AABB(door.worldX - 1.0, 69.0, door.worldZ - 1.0, door.worldX + 2.0, 73.0, door.worldZ + 2.0)
+
+                // Normal and fairy doors, plus opened wither (retyped by the map scan) and blood doors
+                if (!door.type.equalsOneOf(DoorType.Wither, DoorType.Blood) || (door.type == DoorType.Blood && bloodOpened)) {
+                    if (highlightOtherDoors && (!otherDoorsCurrentRoomOnly || (otherDoorRoom != null && door.touches(otherDoorRoom))))
+                        drawStyledBox(box, otherDoorColor, BoxStyle.FILLED_OUTLINE, false)
+                    return@forEach
+                }
 
                 val isOpenable = when (door.type) {
                     DoorType.Wither -> witherKeys > 0
@@ -131,6 +140,19 @@ object DoorHighlight : Module(
             bloodOpened = false
         }
     }
+
+    /** The room the player is standing in, from the tile under them if Odin hasn't matched the room yet. */
+    private fun playerRoom(): DungeonRoom? {
+        DungeonUtils.currentRoom?.let { return it }
+        val player = mc.player ?: return null
+        val tileX = (player.blockX + 201) shr 5
+        val tileZ = (player.blockZ + 201) shr 5
+        if (tileX !in 0..5 || tileZ !in 0..5) return null
+        return DungeonScan.tiles[tileX + tileZ * 6].room
+    }
+
+    private fun DungeonDoor.touches(room: DungeonRoom) =
+        DungeonScan.tiles.getOrNull(originTileIndex)?.room === room || DungeonScan.tiles.getOrNull(destinationTileIndex)?.room === room
 
     /** A room the party has been in: colored on the map, walked into, or the entrance. */
     //~ if >= 26.3 'room.isViewable ||' -> 'room.mapSeen ||'

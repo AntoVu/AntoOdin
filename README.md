@@ -214,6 +214,7 @@ Auto Experiments
 Door Highlight
  - OdinClient's wither/blood door and key highlight, with a depth check for the key box (replaces Odin's Door Highlight)
  - Line to Door draws a line to the next closed wither door (the one leading out of explored rooms), or the blood door once no wither doors are left
+ - Highlight Other Doors boxes the normal doors between rooms in their own color, for only the room you're in or every door on the map
 
 Auto Clicker
  - Left and right click at a set CPS while holding a keybind, or Terminator only mode

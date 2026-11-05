@@ -27,9 +27,11 @@ public class MultiPlayerGameModeMixin {
         if (DoubleUseFix.skipItemUse(player, hand)) cir.setReturnValue(InteractionResult.PASS);
     }
 
-    // The drop key's only path: removes the held item locally and sends the drop packet. GUI drops are container clicks
+    //? if >= 26.3 {
+    /*// The drop key's only path: removes the held item locally and sends the drop packet. GUI drops are container clicks
     @Inject(method = "dropItem", at = @At("HEAD"), cancellable = true)
     private void blockDrop(LocalPlayer player, boolean fullStack, CallbackInfo ci) {
         if (DropGuard.INSTANCE.shouldBlockDrop()) ci.cancel();
     }
+    *///?}
 }

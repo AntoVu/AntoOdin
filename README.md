@@ -1,5 +1,9 @@
 # AntoOdin
 Simple odin addon for more features I wanted
+
+Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.6) or `anto-odin-<version>+26.3.jar`
+(Odin 0.3.7). Features that need newer Odin APIs may be 26.3-only.
+
 ## Features
 Wardrobe Hotkeys (A)
  - Supports Equipment Wardrobe

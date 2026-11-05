@@ -37,21 +37,32 @@ jobs:
 
       - run: ./gradlew build
 
-      - name: Resolve built mod jar
+      # One jar per Minecraft version (Stonecutter), each uploaded as its own artifact
+      - name: Resolve built mod jars
         id: mod-jar
         run: |
-          mapfile -t jars < <(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | sort)
+          for v in 26.2 26.3; do
+            mapfile -t jars < <(find "versions/$v/build/libs" -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | sort)
 
-          if [ "${#jars[@]}" -ne 1 ]; then
-            printf 'Expected exactly one non-sources jar, found %s:\n' "${#jars[@]}"
-            printf '%s\n' "${jars[@]}"
-            exit 1
-          fi
+            if [ "${#jars[@]}" -ne 1 ]; then
+              printf 'Expected exactly one non-sources jar for %s, found %s:
+' "$v" "${#jars[@]}"
+              printf '%s
+' "${jars[@]}"
+              exit 1
+            fi
 
-          echo "path=${jars[0]}" >> "$GITHUB_OUTPUT"
+            echo "path-${v//./-}=${jars[0]}" >> "$GITHUB_OUTPUT"
+          done
 
-      - name: Upload built mod jar
+      - name: Upload 26.2 jar
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ steps.mod-jar.outputs.path }}
+          path: ${{ steps.mod-jar.outputs.path-26-2 }}
+          archive: false
+
+      - name: Upload 26.3 jar
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.mod-jar.outputs.path-26-3 }}
           archive: false

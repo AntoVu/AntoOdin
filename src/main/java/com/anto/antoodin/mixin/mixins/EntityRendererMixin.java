@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin<T extends Entity> {
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
-    private void onShouldRender(T entity, Frustum culler, double camX, double camY, double camZ, float partialTicks, CallbackInfoReturnable<Boolean> cir) {
+    //~ if >= 26.3 'camZ, Callback' -> 'camZ, float partialTicks, Callback'
+    private void onShouldRender(T entity, Frustum culler, double camX, double camY, double camZ, CallbackInfoReturnable<Boolean> cir) {
         if (JellybeanHider.INSTANCE.shouldHideEntity(entity) || LeapMenuExtras.shouldHideEntity(entity)) cir.setReturnValue(false);
     }
 }

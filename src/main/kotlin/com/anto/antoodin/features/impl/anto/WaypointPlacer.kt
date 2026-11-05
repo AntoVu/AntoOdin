@@ -27,7 +27,8 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
-import net.minecraft.world.phys.Vec3
+//? if >= 26.3
+/*import net.minecraft.world.phys.Vec3*/
 
 /** Right-click placement for Odin's own Waypoints module. Waypoints live in Odin's list and config, keyed by [WaypointAreas]. */
 object WaypointPlacer : Module(
@@ -97,13 +98,20 @@ object WaypointPlacer : Module(
         if (!Waypoints.enabled) modMessage("§eEnable Odin's Waypoints module to see waypoints.")
     }
 
-    // Odin 0.3.7 waypoints are Vec3 corners, and a single point with no radius has no size, so span the whole block
+    //? if >= 26.3 {
+    /*// Odin 0.3.7 waypoints are Vec3 corners, and a single point with no radius has no size, so span the whole block
     private fun blockWaypoint(area: String, pos: BlockPos, label: String = "") =
         Vec3.atLowerCornerOf(pos).let { Waypoint(area, it, it.add(1.0, 1.0, 1.0), label, color.copy()) }
 
     private fun hoveredAt(area: String, pos: BlockPos) = Vec3.atLowerCornerOf(pos).let { corner ->
         Waypoints.waypoints.firstOrNull { it.area == area && it.blockPos == corner }
     }
+    *///?} else {
+    // Odin 0.3.6 waypoints are block positions
+    private fun blockWaypoint(area: String, pos: BlockPos, label: String = "") = Waypoint(area, pos, label = label, color = color.copy())
+
+    private fun hoveredAt(area: String, pos: BlockPos) = Waypoints.waypoints.firstOrNull { it.area == area && it.blockPos == pos }
+    //?}
 
     private val reachPosition: BlockPos?
         get() {

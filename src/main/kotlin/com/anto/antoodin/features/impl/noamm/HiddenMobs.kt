@@ -9,7 +9,8 @@ import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.world.entity.EquipmentSlot
-import net.minecraft.world.entity.monster.Enderman
+//~ if >= 26.3 'EnderMan' -> 'Enderman'
+import net.minecraft.world.entity.monster.EnderMan
 import net.minecraft.world.entity.monster.Giant
 
 object HiddenMobs : Module(
@@ -35,7 +36,8 @@ object HiddenMobs : Module(
             val name = entity.displayName.string.trim()
 
             val reveal = when (val e = entity) {
-                is Enderman -> showFels && name == "Dinnerbone"
+                //~ if >= 26.3 'EnderMan' -> 'Enderman'
+                is EnderMan -> showFels && name == "Dinnerbone"
                 is AbstractClientPlayer -> (showShadowAssassins && "Shadow Assassin" in name) || (showStealthy && name in watcherMobs)
                 is Giant -> showStealthy && !e.getItemBySlot(EquipmentSlot.FEET).isEmpty
                 else -> false

@@ -133,7 +133,8 @@ object DoorHighlight : Module(
     }
 
     /** A room the party has been in: colored on the map, walked into, or the entrance. */
-    private fun explored(room: DungeonRoom?) = room != null && (room.mapSeen || room.walkedInto || room.type == RoomType.ENTRANCE)
+    //~ if >= 26.3 'room.isViewable ||' -> 'room.mapSeen ||'
+    private fun explored(room: DungeonRoom?) = room != null && (room.isViewable || room.walkedInto || room.type == RoomType.ENTRANCE)
 
     private enum class KeyType(val displayName: String, val color: () -> Color, val colorCode: Char) {
         Wither("Wither Key", { witherColor }, '8'),

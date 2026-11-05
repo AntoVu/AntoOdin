@@ -201,7 +201,8 @@ object CleanMap : Module(
 
     /** Fill color, or null when the room isn't shown. */
     private fun roomColor(room: DungeonRoom): Color? = when {
-        room.isViewable -> if (room.mapSeen || room.type == RoomType.ENTRANCE) typeColor(room.realType) else unknownColor
+        //~ if >= 26.3 'room.isViewable ||' -> 'room.mapSeen ||'
+        room.isViewable -> if (room.isViewable || room.type == RoomType.ENTRANCE) typeColor(room.realType) else unknownColor
         showHidden && room.realType != RoomType.UNDISCOVERED -> typeColor(room.realType).darker(darken.toFloat())
         else -> null
     }

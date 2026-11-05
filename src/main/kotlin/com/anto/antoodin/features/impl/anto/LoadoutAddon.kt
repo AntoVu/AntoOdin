@@ -88,7 +88,8 @@ object LoadoutAddon : Module(
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false
-        if (key == InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_ESCAPE) || key == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory)) return false
+        //~ if >= 26.3 'KEYSYM' -> 'KEYBOARD'
+        if (key == InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_ESCAPE) || key == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory)) return false
 
         val loadoutSlots = arrayOf(loadout1, loadout2, loadout3, loadout4, loadout5, loadout6, loadout7, loadout8, loadout9, loadout10, loadout11, loadout12)
         val keyIndex = loadoutSlots.indexOf(key)

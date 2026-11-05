@@ -86,7 +86,8 @@ object WardrobeAddon : Module(
             it.component1().toIntOrNull() to it.component2().toIntOrNull()
         } ?: return false
         if (current == null || total == null) return false
-        if (key == InputConstants.Type.KEYBOARD.getOrCreate(InputConstants.KEY_ESCAPE) || key == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory)) return false
+        //~ if >= 26.3 'KEYSYM' -> 'KEYBOARD'
+        if (key == InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_ESCAPE) || key == KeyMappingHelper.getBoundKeyOf(mc.options.keyInventory)) return false
 
         val equippedIndex = screen.menu.slots.find { equippedRegex.matches(it.item.hoverName.string) }?.index
 

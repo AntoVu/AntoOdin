@@ -7,7 +7,8 @@ plugins {
 }
 
 group = property("maven_group")!!
-version = property("mod_version")!!
+val mcVersion = property("minecraft_version") as String
+version = "${property("mod_version")}+$mcVersion"
 
 repositories {
     mavenCentral()
@@ -31,6 +32,8 @@ dependencies {
 loom {
     runConfigs.named("client") {
         generateRunConfig.set(true)
+        // One game folder per version: worlds and Odin configs don't load across versions
+        runDir = "../../run/$mcVersion"
         jvmArguments.addAll(
             "-Dmixin.debug.export=true",
             "-Ddevauth.enabled=true",

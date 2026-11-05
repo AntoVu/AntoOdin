@@ -6,6 +6,7 @@ import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.customData
+import com.odtheking.odin.utils.itemId
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback
 import net.minecraft.network.chat.Component
@@ -31,12 +32,14 @@ object ItemTooltip : Module(
     private val showNpcSell by BooleanSetting("NPC Sell", true, desc = "Shows the NPC sell price.")
     private val showCreated by BooleanSetting("Created Date", true, desc = "Shows the date and time the item was created.")
     private val showAge by BooleanSetting("Item Age", true, desc = "Shows how old the item is, never rounded up.")
+    private val showItemId by BooleanSetting("SkyBlock ID", true, desc = "Shows the item's SkyBlock ID (e.g. SUPER_UNDEAD_BOW).")
 
     init {
         ItemTooltipCallback.EVENT.register { stack, _, _, lines ->
             if (!enabled || !LocationUtils.isInSkyblock) return@register
             addPrices(stack, lines)
             addAge(stack, lines)
+            if (showItemId) stack.itemId.takeIf { it.isNotEmpty() }?.let { lines.add(Component.literal("§8ID: $it")) }
         }
     }
 

@@ -11,7 +11,7 @@ import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
-import com.odtheking.odin.clickgui.settings.impl.KeybindSetting.Companion.isDown
+import com.anto.antoodin.utils.isHeld
 import com.odtheking.odin.clickgui.settings.impl.MapSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.core.on
@@ -117,8 +117,7 @@ object AutoClicker : Module(
         }
     }
 
-    // Odin's isDown reads keyboard state at index -1 for an unbound key, which throws
-    private fun isHeld(key: InputConstants.Key): Boolean = key != InputConstants.UNKNOWN && key.isDown()
+    private fun isHeld(key: InputConstants.Key): Boolean = key.isHeld()
 
     private fun bindFor(binds: Map<String, String>, item: String): InputConstants.Key? =
         binds[item]?.let { runCatching { InputConstants.getKey(it) }.getOrNull() }

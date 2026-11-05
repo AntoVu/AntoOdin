@@ -2,7 +2,7 @@ package com.anto.antoodin.features.impl.anto
 
 import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.impl.KeybindSetting
-import com.odtheking.odin.clickgui.settings.impl.KeybindSetting.Companion.isDown
+import com.anto.antoodin.utils.isHeld
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
@@ -50,6 +50,4 @@ object DropGuard : Module(
         return !overrideKey.isHeld()
     }
 
-    // Odin's isDown reads keyboard state at index -1 for an unbound key, which throws
-    private fun InputConstants.Key.isHeld(): Boolean = this != InputConstants.UNKNOWN && isDown()
 }

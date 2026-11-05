@@ -43,6 +43,8 @@ object DeathBowSwap : Module(
             val player = mc.player ?: return@onSend
             if (player.mainHandItem.itemId != DEATH_BOW) return@onSend
             if (player.ticksUsingItem < MIN_DRAW_TICKS) return@onSend
+            // Checked before the shot counts, so a shot with Queue Loadout off doesn't use up the run's swap
+            if (!QueueLoadout.enabled) return@onSend modMessage("§cDeath Bow Swap needs Queue Loadout enabled to equip loadout $loadout.")
 
             triggered = true
             schedule(delayTicks(swapDelay, swapDelayVariety)) {
@@ -51,7 +53,6 @@ object DeathBowSwap : Module(
 
                 schedule(delayTicks(loadoutDelay, loadoutDelayVariety)) {
                     if (!inStorm()) return@schedule
-                    if (!QueueLoadout.enabled) return@schedule modMessage("§cDeath Bow Swap needs Queue Loadout enabled to equip loadout $loadout.")
                     QueueLoadout.queue(loadout)
                 }
             }

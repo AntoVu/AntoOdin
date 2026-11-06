@@ -287,8 +287,10 @@ Disconnect Fix
 Double Use Fix
  - Stops Blaze Daggers and fishing rods from activating twice when clicking a block
 
-Name Replacer Off
- - Turns off Odin's dev custom names, which regex-scan all on-screen text every frame (about 3.6% of the render thread)
+Cosmetic Disabler
+ - Shows players as they really are: turns off custom names, sizes and emblems from other mods, each with its own toggle
+ - Odin's dev names (which also regex-scan all on-screen text every frame, about 3.6% of the render thread) and dev sizes
+ - Donor names, emblems and sizes from skies-starred's mods (Detexturify's bundled kontext library), if installed
 
 ## Commands
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`

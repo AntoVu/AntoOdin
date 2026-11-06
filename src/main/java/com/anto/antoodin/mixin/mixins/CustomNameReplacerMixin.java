@@ -1,6 +1,6 @@
 package com.anto.antoodin.mixin.mixins;
 
-import com.anto.antoodin.features.impl.fixes.NameReplacerOff;
+import com.anto.antoodin.features.impl.fixes.CosmeticDisabler;
 import com.odtheking.odin.features.impl.render.CustomNameReplacer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CustomNameReplacerMixin {
     @Inject(method = "isEnabled", at = @At("HEAD"), cancellable = true)
     private static void disable(CallbackInfoReturnable<Boolean> cir) {
-        if (NameReplacerOff.shouldDisable()) cir.setReturnValue(false);
+        if (CosmeticDisabler.disableOdinNames()) cir.setReturnValue(false);
     }
 }

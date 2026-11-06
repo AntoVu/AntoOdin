@@ -270,8 +270,16 @@ object CleanMap : Module(
         val cx = ox + (box.minOf { it.x } + box.maxOf { it.x } + 1) * cell / 2
         val cy = oy + (box.minOf { it.z } + box.maxOf { it.z } + 1) * cell / 2
 
+        // Odin reads the checkmark from the room's center pixel, so blood's red fill reads as a red X and the
+        // entrance's green fill as a green check. Entrance never has one; blood only once done, and as a green
+        // check (Hypixel marks it white, but nothing is left to do there).
+        val mark = when (room.realType) {
+            RoomType.ENTRANCE -> null
+            RoomType.BLOOD -> if (room.checkmark == MapCheckmark.WHITE || room.checkmark == MapCheckmark.GREEN) MapCheckmark.GREEN else null
+            else -> room.checkmark
+        }
         if (checkmarks) {
-            when (room.checkmark) {
+            when (mark) {
                 MapCheckmark.WHITE -> white
                 MapCheckmark.GREEN -> green
                 MapCheckmark.RED -> cross

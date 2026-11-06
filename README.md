@@ -4,337 +4,353 @@ Simple odin addon for more features I wanted
 Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.6) or `anto-odin-<version>+26.3.jar`
 (Odin 0.3.7). Features that need newer Odin APIs may be 26.3-only.
 
-## Features
-Wardrobe Hotkeys (A)
+<details>
+<summary><b>Anto</b></summary>
+
+**Wardrobe Hotkeys (A)**
  - Supports Equipment Wardrobe
  - Auto close after use
  - Play sound on equip
 
-Queue Loadout
+**Queue Loadout**
  - Auto equip loadout 1-12 on keybind (opens /loadouts)
 
-Kuudra Auto GFS
+**Kuudra Auto GFS**
  - Get TAP/TWAP after build
 
-CPS Display
+**CPS Display**
  - Displays cps for left, right, or both
 
-Pearl Refill
+**Pearl Refill**
  - Auto refill pearls after set amount
 
-Diana Auto Warp
+**Diana Auto Warp**
  - Auto warp to next location after digging burrow
  - ! Requires SkyHanni's Burrow Guess
 
-Minion Helper
+**Minion Helper**
  - Claim minion keybind and auto close
  - Click item to auto place in fuel
 
-Loadout Hotkeys (A)
+**Loadout Hotkeys (A)**
  - Equip slot 1-12
  - Next and Previous page
- - Auto close after use, with per-slot Keep Open
+ - Auto close after use, per-slot Keep Open
  - Play sound on equip
 
-Drop Guard
- - Block dropping items outside of GUIs during F7/M7 terminals
+**Drop Guard**
+ - Block dropping items outside GUIs during F7/M7 terminals
  - Hold override keybind to drop anyway
 
-Chat Rules
- - Per-message rules, edited in a menu with `/ao chatrules`
- - Match by equals, contains, starts with, ends with or regex, optionally case sensitive
+**Chat Rules**
+ - Per-message rules, edit with `/ao chatrules`
+ - Match by equals, contains, starts/ends with or regex
  - Filter by dungeon class and island
- - Show a title or a custom title HUD, play a sound, hide the message
- - Run a command (other mods' commands too) after a delay with random variety
- - Import your NoFrills chat rules with `/ao chatrules import`
- - Pre-defined rules (the old Chat Filter categories) that only hide spam: view their patterns and turn them on or off
+ - Show title, play sound, hide message, or run a command (other mods' too) after a delay
+ - Import NoFrills rules with `/ao chatrules import`
+ - Pre-defined rules (old Chat Filter) that only hide spam, toggle on/off
 
-Level Colors
- - Custom colors for SkyBlock level prefixes in chat, tab, nametags and item lore, edited with `/ao levelcolors`
- - Add your own ranges past 480 (Hypixel's last color), or recolor Hypixel's prestiges
- - Separate bracket color, and solid, gradient or per-character digit colors with hex codes
- - Recolored lines are cached, so the cost stays close to zero
+**Level Colors**
+ - Custom colors for SkyBlock level prefixes in chat, tab, nametags and lore, edit with `/ao levelcolors`
+ - Add ranges past 480 or recolor prestiges
+ - Bracket color, solid/gradient/per-character digit colors
 
-Unfocused Tweaks
- - Lower all game sounds to a set percentage while tabbed out
- - Private message sound still plays at normal volume (configurable sound id and pitch)
- - Skip world rendering, FPS limit and turn off vanilla's FPS reduction while tabbed out
+**Unfocused Tweaks**
+ - Lower game sounds while tabbed out (PM sound stays normal)
+ - Skip world rendering, FPS limit, no vanilla FPS reduction while tabbed out
 
-Command Tooltip
- - Shows the command a chat message runs in its hover tooltip
+**Command Tooltip**
+ - Shows the command a chat message runs on hover
 
-Calendar Date
- - Shows the real date and time of events in the SkyBlock calendar
- - Also when the Fear Mongerer arrives and Jerry's Workshop opens
+**Calendar Date**
+ - Real date and time of SkyBlock calendar events
+ - Fear Mongerer arrival and Jerry's Workshop opening
 
-Experiment Solver
- - Chronomatron and Ultrasequencer: marks the next slots to click and blocks wrong clicks
- - Superpairs: remembers uncovered rewards and highlights pairs and powerups
+**Experiment Solver**
+ - Chronomatron and Ultrasequencer: marks next slots, blocks wrong clicks
+ - Superpairs: remembers rewards, highlights pairs and powerups
 
-Corpse Highlight
+**Corpse Highlight**
  - Highlights Lapis, Tungsten, Umber and Vanguard corpses in Glacite Mineshafts
- - Hides corpses you've opened, optional see-through-walls
+ - Hides opened ones, optional see-through-walls
 
-Jellybean Hider
+**Jellybean Hider**
  - Hides the Magic Jellybean mutation in the Garden
- - Render only the blocks can still be broken
+ - Only renders blocks that can still be broken
  - Configurable hide Y level
 
-Aloe Highlight
+**Aloe Highlight**
  - Highlights aloe by growth stage in the Garden
- - Colors for Not Ready, Not Optimal, Ready and Harvest Now
 
-Dungeon Splits
+**Dungeon Splits**
  - Splits HUD with tick time and boss entry split
- - Current Split HUD with the live split's tick time, optionally only in boss and per F7/M7 phase
- - Chat message after each split with tick time and PB comparison
- - Projected run time from your recent runs
- - Time lost to lag at the end of the run
+ - Current Split HUD, optionally only in boss and per F7/M7 phase
+ - Chat message after each split with PB comparison
+ - Projected run time from recent runs
+ - Time lost to lag
 
-Waypoint Placer
- - Right click blocks to add or remove Odin waypoints (Odin's Waypoints module) with Allow Edits on, sneak to set a label
- - Uses Odin's areas: islands, dungeon boss rooms (F6/F7 per phase) and Kuudra tiers
- - Color presets with a cycle keybind, plus an editor HUD
+**Waypoint Placer**
+ - Right click blocks to add/remove Odin waypoints (Allow Edits on), sneak to set a label
+ - Uses Odin's areas: islands, F6/F7 boss phases, Kuudra tiers
+ - Color presets with cycle keybind, editor HUD
 
-Inventory Buttons
- - Buttons around your inventory (and optionally chests) that run a command when clicked, placed with `/ao buttons`
- - Icons from any item id or a player head skin (`skull:<texture hash>`), or copied from the item in your hand
- - Five button styles: Raised, Slot, Dark, Flat and Clear
+**Inventory Buttons**
+ - Command buttons around your inventory (and chests), place with `/ao buttons`
+ - Icon from an item id, player head (`skull:<texture hash>`) or your held item
+ - Five styles: Raised, Slot, Dark, Flat, Clear
 
-Item Customizer
- - Hold an item and use `/ao customize` to change its name (& color codes), enchant glint, model and leather dye color
- - Model can be any item id or a player head skin (`skull:<texture hash>`)
- - Name shortcuts: `**` for ✪, `*1` to `*5` for master stars, `&` color codes, or start from the real name
- - Only you see it, and other mods still read the real item. Saved per item UUID
+**Item Customizer**
+ - `/ao customize` on held item: name (& codes), glint, model, leather dye
+ - Model is an item id or `skull:<texture hash>`
+ - Name shortcuts: `**` for ✪, `*1` to `*5` for master stars
+ - Only you see it, saved per item UUID
 
-Highlight Trash
- - Highlights junk M7 chest books (Feather Falling, Infinite Quiver, Combo, Jerry, Bank, No Pain No Gain) in your inventory in the Dungeon Hub
+**Highlight Trash**
+ - Highlights junk M7 chest books in your inventory in the Dungeon Hub
 
-Auto Tip
- - Runs /tipall on Hypixel every 1000 s by default (adjustable)
- - Optionally hides the tip reply
+**Auto Tip**
+ - Runs /tipall every 1000 s (adjustable)
+ - Optionally hides the reply
 
-Pane Click Guard
- - Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server
+**Pane Click Guard**
+ - Ignores clicks on blank glass panes, nothing sent to the server
  - Terminals and experiment games are left alone
 
-Terminal Click Limit
- - Holds back terminal clicks Hypixel would ignore (over 5 in 500 ms), so Odin's solver stays in sync, also when holding Q
+**Terminal Click Limit**
+ - Holds back terminal clicks Hypixel would ignore (over 5 in 500 ms), also when holding Q
  - Needs Odin's Terminal Solver
 
-Dungeon Map (A)
- - Dungeon map in [Devonian](https://github.com/Synnerz/devonian)'s style, drawn from Odin's map data
- - Shows hidden rooms (darkened), with their doors read from the world
- - Room names and checkmarks in any installed font (`/ao mapfont`), player heads and arrow, names while holding a leap
+**Dungeon Map (A)**
+ - Map in [Devonian](https://github.com/Synnerz/devonian)'s style, from Odin's map data
+ - Hidden rooms (darkened), doors read from the world
+ - Names and checkmarks in any installed font (`/ao mapfont`), player heads, names while holding a leap
 
-Dupe Class Alert
- - Title, sound and chat message when teammates share a class at the start of a dungeon run
- - Optional party chat message naming the duplicate classes and players
+**Dupe Class Alert**
+ - Title, sound and chat when teammates share a class at run start
+ - Optional party chat message
 
-Death Bow Swap
- - In M7 Storm as Archer, after you shoot your Death Bow: swaps to a set hotbar slot, then queues a set loadout
- - Separate delays with random variety for the swap and the loadout, once per run
- - ! Requires Queue Loadout enabled
+**Death Bow Swap**
+ - M7 Storm as Archer: after shooting Death Bow, swaps to a hotbar slot then queues a loadout
+ - Separate delays for each, once per run
+ - ! Requires Queue Loadout
 
-Blood Rush Waypoints
- - Master mode blood rush (3 players, Healer on doors): your class's mob boxes in each room, numbered in kill order, with your stack
- - Picks the plan by the door you came in through, and your role by class (Archer or Mage), or override to a role or both
- - Show on All Classes: a general clear guide with Archer and Mage boxes (plus mobs neither kills) after the blood door opens, or all run for other classes, in one color you can set
- - Miniboss rooms show every box; a chat line tells you the door used and your box count
- - A room's boxes disappear once it's cleared (white or green checkmark) and stay hidden for the rest of the run
+**Blood Rush Waypoints**
+ - Master mode blood rush: your class's mob boxes per room, numbered in kill order, with your stack
+ - Plan picked by the door you came in through, role by class (Archer/Mage) or override
+ - Show on All Classes: general clear guide after the blood door opens, or all run
+ - Miniboss rooms show every box, chat line tells the door and box count
+ - Boxes hide once the room is cleared
 
-## Noamm
-Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
-second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.
+</details>
 
-Auction Price Input
- - Replaces the auction price sign with a text box
- - Undercut mode subtracts from the lowest BIN
- - Enter confirms the Create and Confirm auction menus
+<details>
+<summary><b>Noamm</b></summary>
 
-I Hate Doors
- - Renders entrance, wither and blood doors as colored glass
- - Render only, the door is still solid and map mods still see it
+Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin. Own "Noamm" category.
 
-Hidden Mobs
+**Auction Price Input**
+ - Text box instead of the auction price sign
+ - Undercut mode subtracts from lowest BIN
+ - Enter confirms Create and Confirm menus
+
+**I Hate Doors**
+ - Entrance, wither and blood doors render as colored glass
+ - Render only, door stays solid
+
+**Hidden Mobs**
  - Reveals invisible Shadow Assassins, Fels and stealthy blood mobs
 
-Gate Highlight
- - Highlights the F7 P3 gate of your section until it is destroyed
+**Gate Highlight**
+ - Highlights your F7 P3 gate until destroyed
 
-Snappy Tappy
- - The most recently pressed of two opposing movement keys wins
+**Snappy Tappy**
+ - Last pressed of two opposing movement keys wins
 
-Mono Audio
- - Plays all game audio through a single channel
+**Mono Audio**
+ - All game audio through a single channel
 
-Sound Manager
- - Per-sound volume from 0 to 200%, open with `/ao sounds`
- - Recent tab shows the pitch each sound last played at
+**Sound Manager**
+ - Per-sound volume 0-200%, open with `/ao sounds`
+ - Recent tab shows last played pitch
 
-Explosive Shot
- - Shows Explosive Shot damage per enemy
+**Explosive Shot**
+ - Explosive Shot damage per enemy
 
-Leap Counter
- - HUD of how many teammates reached your F7 P3 spot, with a title and sound when everyone is there
+**Leap Counter**
+ - HUD of teammates at your F7 P3 spot, title and sound when all are there
 
-Maxor's Crystals
- - F7 P1 crystal respawn timer, crystal placement time with PB, unplaced crystal alert
+**Maxor's Crystals**
+ - F7 P1 crystal respawn timer, placement time with PB, unplaced alert
 
-Item Tooltip
- - Lowest BIN, bazaar buy/sell and NPC sell prices on item tooltips, priced for the whole stack with the unit price beside it
- - Item creation date and age (years, months, days; never rounded up)
- - SkyBlock item ID (e.g. `SUPER_UNDEAD_BOW`)
+**Item Tooltip**
+ - Lowest BIN, bazaar and NPC sell prices, whole stack with unit price
+ - Item creation date and age
+ - SkyBlock item ID
 
-Damage Splash
- - Shortens damage numbers (1.2m) in NEU's style, keeping Hypixel's crit colors
+**Damage Splash**
+ - Shortens damage numbers (1.2m), keeps crit colors
 
-Lava To Water
- - Renders lava as see-through water and removes lava fog
- - Everywhere, or only in Catacombs, Kuudra and the Crimson Isle
+**Lava To Water**
+ - Lava as see-through water, no lava fog
+ - Everywhere, or only Catacombs, Kuudra and Crimson Isle
 
-Freeze Display
- - Shows how long the server has been frozen past a threshold
+**Freeze Display**
+ - How long the server has been frozen past a threshold
 
-Custom Scoreboard
- - Restyled scoreboard, optionally hiding the server ID
+**Custom Scoreboard**
+ - Restyled scoreboard, optionally hides server ID
 
-Leap Menu Extras
- - Tints dead players and rings the last wither door opener's face in Odin's Leap Menu
+**Leap Menu Extras**
+ - Tints dead players, rings the last wither door opener in Odin's Leap Menu
  - Hides teammates you just leaped onto
- - Map Leap: shows Dungeon Map (A) in the leap menu during clear; click a teammate on the map to leap to them
-   (optionally only after the blood door opens), with the door opener ring on their head
+ - Map Leap: Dungeon Map (A) in the leap menu, click a teammate to leap (optionally after blood door opens)
 
-Dragon Extras
- - M7 dragon aim marker for arrow stacks, arrows-hit count per dragon
+**Dragon Extras**
+ - M7 dragon aim marker, arrows-hit count per dragon
  - Needs Odin's Wither Dragons
 
-Camera Tweaks
- - Custom FOV, adjustable Slowness FOV change, Full Bright, no Blindness or Nausea
+**Camera Tweaks**
+ - Custom FOV, Slowness FOV change, Full Bright, no Blindness or Nausea
 
-Rejoin Timer
- - Shows how long ago you were kicked from SkyBlock
+**Rejoin Timer**
+ - How long ago you were kicked from SkyBlock
 
-Party Finder Extras
- - Level requirement and missing classes on each party's head
- - Member stats (Catacombs level, secrets, MP, S+ PB) and missing classes in the tooltip
+**Party Finder Extras**
+ - Level requirement and missing classes on party heads
+ - Member stats (Cata level, secrets, MP, S+ PB) in the tooltip
 
-## OdinClient
-Features from skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (BSD 3-Clause), which is no longer
-maintained, updated to Odin 0.3.6 and MC 26.2. They live in their own "OdinClient" category.
+</details>
 
-Auto Experiments
+<details>
+<summary><b>OdinClient</b></summary>
+
+From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (BSD 3-Clause), no longer maintained, updated to Odin 0.3.6 and MC 26.2. Own "OdinClient" category.
+
+**Auto Experiments**
  - First click Delay
  - Auto close Ultrasequencer one early
  - Auto start Ultrasequencer
 
-Door Highlight
- - OdinClient's wither/blood door and key highlight, with a depth check for the key box (replaces Odin's Door Highlight)
- - Line to Door draws a line to the next closed wither door (the one leading out of explored rooms), or the blood door once no wither doors are left
- - Highlight Other Doors boxes the normal doors between rooms in their own color, for only the room you're in or every door on the map
+**Door Highlight**
+ - Wither/blood door and key highlight with depth check (replaces Odin's)
+ - Line to Door: line to the next closed wither door, then blood door
+ - Highlight Other Doors: boxes normal doors in their own color, current room or all
 
-Auto Clicker
- - Left and right click at a set CPS while holding a keybind, or Terminator only mode
- - Item whitelist (empty hand included) managed with `/ao ac`, listed one colored item per row with the UUID or SkyBlock ID on hover
- - Optional per-item key (`/ao ac add right RMB`) that replaces the Left/Right Click bind while holding that item
+**Auto Clicker**
+ - Left/right click at a set CPS while holding a keybind, or Terminator only
+ - Item whitelist (empty hand too), manage with `/ao ac`
+ - Optional per-item key (`/ao ac add right RMB`)
 
-Trajectories
- - Pearl and bow (Terminator spread too) paths, impact boxes and hit entities
+**Trajectories**
+ - Pearl and bow (Terminator too) paths, impact boxes, hit entities
 
-Highlight (C)
- - ESP and tracer for the F7 withers, dungeon bats, and mobs added with `/ao highlight`
- - Starred mobs and teammate glow are left to Odin's Highlight
+**Highlight (C)**
+ - ESP and tracer for F7 withers, dungeon bats and mobs from `/ao highlight`
+ - Starred mobs and teammate glow stay with Odin's Highlight
 
-Spirit Bear (C)
- - Odin's Spirit Bear HUD plus a bear highlight and tracer (replaces Odin's Spirit Bear)
+**Spirit Bear (C)**
+ - Odin's Spirit Bear HUD plus highlight and tracer (replaces Odin's)
 
-Livid Solver (C)
- - Odin's Livid Solver plus ESP and a tracer to the right Livid (replaces Odin's Livid Solver)
+**Livid Solver (C)**
+ - Odin's Livid Solver plus ESP and tracer (replaces Odin's)
 
-Secret Hitboxes
- - Full block or 1.8 style hitboxes for levers, buttons, skulls and chests in dungeons
+**Secret Hitboxes**
+ - Full block or 1.8 hitboxes for levers, buttons, skulls and chests in dungeons
 
-Fuck Diorite
- - Renders the Storm pillars as glass, pillar colored, one color or random
- - Render only, the client world keeps the diorite
+**Fuck Diorite**
+ - Storm pillars as glass, pillar colored, one color or random
+ - Render only
 
-Auto GFS
+**Auto GFS**
  - Refills pearls, jerries, superbooms and leaps from sacks on dungeon start or a timer
- - Gets an Architect's First Draft from sacks when you fail a puzzle (from NoammAddons' Architect Draft)
+ - Gets an Architect's First Draft when you fail a puzzle
 
-Escrow Fix
+**Escrow Fix**
  - Reopens the AH or BZ after escrow closes it
 
-Ghosts
- - Shows invisible Dwarven Mines ghosts and hides their powered layer
+**Ghosts**
+ - Shows invisible Dwarven Mines ghosts, hides their powered layer
 
-Camera Helper
+**Camera Helper**
  - Camera clip and custom third person distance
 
-## Fixes
-Door Fix
- - Fixes the iron door rotations in F7 P3 section 3
+</details>
 
-Mod Hider
- - Stops servers from detecting mods through translation keys in signs and anvils
+<details>
+<summary><b>Fixes</b></summary>
 
-Item Count Fix
- - Shows item counts on unstackable items in menus
+**Door Fix**
+ - Fixes iron door rotations in F7 P3 section 3
 
-Disconnect Fix
+**Mod Hider**
+ - Stops servers detecting mods through translation keys in signs and anvils
+
+**Item Count Fix**
+ - Item counts on unstackable items in menus
+
+**Disconnect Fix**
  - Stops corrupted entity data (Tarantula slayer) from disconnecting you
 
-Double Use Fix
- - Stops Blaze Daggers and fishing rods from activating twice when clicking a block
+**Double Use Fix**
+ - Stops Blaze Daggers and fishing rods activating twice on a block
 
-Cosmetic Disabler
- - Shows players as they really are: turns off custom names, sizes and emblems from other mods, each with its own toggle
- - Odin's dev names (which also regex-scan all on-screen text every frame, about 3.6% of the render thread) and dev sizes
- - Donor names, emblems and sizes from skies-starred's mods (Detexturify's bundled kontext library), if installed
+**Cosmetic Disabler**
+ - Turns off custom names, sizes and emblems from other mods, each with its own toggle
+ - Odin dev names (also saves ~3.6% of render thread) and sizes
+ - skies-starred's donor names, emblems and sizes (Detexturify's kontext), if installed
 
-## Commands
+</details>
+
+<details>
+<summary><b>Commands</b></summary>
+
 `/ao trackmutation start|stop <jellybean|thunderling|aloe>`
- - Logs crop collections on start and stop
- - On stop, copies collection gained per crop and NPC crop profit to clipboard
+ - Logs crop collections, on stop copies gained collection and NPC profit to clipboard
 
 `/ao best [floor]`
- - Adds up your PB splits into a theoretical best run (defaults to current floor, else M7)
+ - Sums your PB splits into a theoretical best run (current floor, else M7)
 
 `/ao mapfont <name>`
- - Sets the Dungeon Map (A) font to any installed font (e.g. `ComicSansMS`), or `Minecraft` for the vanilla one
+ - Dungeon Map (A) font, any installed font (e.g. `ComicSansMS`) or `Minecraft`
 
 `/ao sounds`
- - Opens the Sound Manager
+ - Opens Sound Manager
 
 `/ao waypoints`
- - Opens Odin's waypoint manager (import/export are there)
- - `color <RRGGBBAA>` sets the next placed waypoint's color
+ - Opens Odin's waypoint manager (import/export)
+ - `color <RRGGBBAA>` sets the next waypoint's color
 
 `/ao ac add left|right [key]`, `/ao ac remove left|right`, `/ao ac clear left|right|all`, `/ao ac list`
- - Manages the Auto Clicker whitelist for the held item
+ - Auto Clicker whitelist for the held item
 
 `/ao highlight add <name> [#RRGGBB]`, `/ao highlight remove <name>`, `/ao highlight clear|list`
- - Manages the mobs Highlight (C) draws
+ - Mobs Highlight (C) draws
 
 `/ao calc <type> ...`
- - `cata <start> <end>`, `skill <start> <end>`: XP needed between levels (decimals allowed)
+ - `cata <start> <end>`, `skill <start> <end>`: XP between levels
  - `pet <tier> <start> <end>`: pet XP, legendary up to 200
  - `drop <base %> [looting] [magic find] [pet luck]`: drop chance
- - `coin <gems> <coins> [cookie price]`: coins per gem, compared to booster cookies
- - `usd <coins> <cookie price>`: rough USD value of coins
- - `tax <price>`: auction list and claim fees
- - Amounts accept k/m/b (e.g. `1.5m`)
+ - `coin <gems> <coins> [cookie price]`: coins per gem vs booster cookies
+ - `usd <coins> <cookie price>`: rough USD value
+ - `tax <price>`: auction fees
+ - Amounts accept k/m/b (`1.5m`)
 
-## Planned
-Dungeons Auto GFS
+</details>
+
+<details>
+<summary><b>Planned</b></summary>
+
+**Dungeons Auto GFS**
  - Get 2 TWAP after lightning
  - Get 2 TWAP after terminals
  - Get 6 TWAP after goldor
  - Get 6 TWAP on dragon spawn
 
-Warp Cooldown
+**Warp Cooldown**
  - Mineshaft warp cooldown
 
-Auto Gloomlock
+**Auto Gloomlock**
  - When low mana
  - When low health
+
+</details>

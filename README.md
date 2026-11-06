@@ -118,6 +118,10 @@ Pane Click Guard
  - Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server
  - Terminals and experiment games are left alone
 
+Terminal Click Limit
+ - Holds back terminal clicks Hypixel would ignore (over 5 in 500 ms), so Odin's solver stays in sync, also when holding Q
+ - Needs Odin's Terminal Solver
+
 Dungeon Map (A)
  - Dungeon map in [Devonian](https://github.com/Synnerz/devonian)'s style, drawn from Odin's map data
  - Shows hidden rooms (darkened), with their doors read from the world

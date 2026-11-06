@@ -132,6 +132,13 @@ Death Bow Swap
  - Separate delays with random variety for the swap and the loadout, once per run
  - ! Requires Queue Loadout enabled
 
+Blood Rush Waypoints
+ - Master mode blood rush (3 players, Healer on doors): your class's mob boxes in each room, numbered in kill order, with your stack
+ - Picks the plan by the door you came in through, and your role by class (Archer or Mage), or override to a role or both
+ - Show on All Classes: a general clear guide with Archer and Mage boxes (plus mobs neither kills) after the blood door opens, or all run for other classes, in one color you can set
+ - Miniboss rooms show every box; a chat line tells you the door used and your box count
+ - A room's boxes disappear once it's cleared (white or green checkmark) and stay hidden for the rest of the run
+
 ## Noamm
 Features ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-1.0), rebuilt on Odin so a
 second dungeon/chat/packet library isn't needed. They live in their own "Noamm" category.

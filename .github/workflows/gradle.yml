@@ -45,24 +45,22 @@ jobs:
             mapfile -t jars < <(find "versions/$v/build/libs" -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | sort)
 
             if [ "${#jars[@]}" -ne 1 ]; then
-              printf 'Expected exactly one non-sources jar for %s, found %s:
-' "$v" "${#jars[@]}"
-              printf '%s
-' "${jars[@]}"
+              printf 'Expected exactly one non-sources jar for %s, found %s:\n' "$v" "${#jars[@]}"
+              printf '%s\n' "${jars[@]}"
               exit 1
             fi
 
-            echo "path-${v//./-}=${jars[0]}" >> "$GITHUB_OUTPUT"
+            echo "path_${v//./_}=${jars[0]}" >> "$GITHUB_OUTPUT"
           done
 
       - name: Upload 26.2 jar
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ steps.mod-jar.outputs.path-26-2 }}
+          path: ${{ steps.mod-jar.outputs.path_26_2 }}
           archive: false
 
       - name: Upload 26.3 jar
         uses: actions/upload-artifact@v7
         with:
-          path: ${{ steps.mod-jar.outputs.path-26-3 }}
+          path: ${{ steps.mod-jar.outputs.path_26_3 }}
           archive: false

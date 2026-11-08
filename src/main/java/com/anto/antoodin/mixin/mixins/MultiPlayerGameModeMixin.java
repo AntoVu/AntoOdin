@@ -1,9 +1,12 @@
 package com.anto.antoodin.mixin.mixins;
 
 import com.anto.antoodin.features.impl.anto.DropGuard;
+import com.anto.antoodin.features.impl.anto.RelicUtils;
 import com.anto.antoodin.features.impl.fixes.DoubleUseFix;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -25,6 +28,12 @@ public class MultiPlayerGameModeMixin {
     @Inject(method = "useItem", at = @At("HEAD"), cancellable = true)
     private void skipItemUse(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         if (DoubleUseFix.skipItemUse(player, hand)) cir.setReturnValue(InteractionResult.PASS);
+    }
+
+    // Left clicking a relic into the wrong cauldron. continueDestroyBlock covers holding the button
+    @Inject(method = {"startDestroyBlock", "continueDestroyBlock"}, at = @At("HEAD"), cancellable = true)
+    private void blockWrongRelic(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
+        if (RelicUtils.shouldBlockClick(pos)) cir.setReturnValue(false);
     }
 
     //? if >= 26.3 {

@@ -24,6 +24,10 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Pearl Refill**
  - Auto refill pearls after set amount
 
+**Relic Utils**
+ - Blocks placing an M7 relic at the wrong cauldron or anvil
+ - Blocks right clicking the SkyBlock menu for 2s (adjustable) after placing a relic
+
 **Diana Auto Warp**
  - Auto warp to next location after digging burrow
  - ! Requires SkyHanni's Burrow Guess

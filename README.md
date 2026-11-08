@@ -129,6 +129,10 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
  - Title, sound and chat when teammates share a class at run start
  - Optional party chat message
 
+**Shadow Assassin Notify**
+ - Title and sound when a Shadow Assassin is about to teleport to you
+ - Ignores the F3/M3 boss, which also uses the world border
+
 **Death Bow Swap**
  - M7 Storm as Archer: after shooting Death Bow, swaps to a hotbar slot then queues a loadout
  - Separate delays for each, once per run

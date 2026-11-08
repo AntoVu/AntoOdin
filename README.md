@@ -204,7 +204,7 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
  - Restyled scoreboard, optionally hides server ID
 
 **Leap Menu Extras**
- - Tints dead players, rings the last wither door opener in Odin's Leap Menu
+ - Tints dead players (red) and teammates inside the F7/M7 core (green), rings the last wither door opener in Odin's Leap Menu
  - Hides teammates you just leaped onto
  - Map Leap: Dungeon Map (A) in the leap menu, click a teammate to leap (optionally after blood door opens)
 

@@ -27,6 +27,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.phys.AABB
 import kotlin.math.abs
 
 /**
@@ -40,12 +41,13 @@ import kotlin.math.abs
  */
 object LeapMenuExtras : Module(
     name = "Leap Menu Extras",
-    description = "Tints dead players and rings the last door opener in Odin's Leap Menu, and hides players after you leap.",
+    description = "Tints dead and in-core players, rings the last door opener in Odin's Leap Menu, and hides players after you leap.",
     category = Skit.NOAMM
 ) {
     private val tintDead by BooleanSetting("Tint Dead", true, desc = "Tints dead players red in the leap menu.")
     private val highlightDoorOpener by BooleanSetting("Highlight Door Opener", true, desc = "Draws a ring around the face of whoever opened the last wither door.")
     private val doorOpenerColor by ColorSetting("Door Opener Color", Colors.MINECRAFT_GOLD, true, desc = "Color of the door opener ring.").withDependency { highlightDoorOpener }
+    private val highlightInCore by BooleanSetting("Highlight In Core", true, desc = "Tints teammates green once they are inside the F7/M7 core after it opens.")
     private val hideAfterLeap by BooleanSetting("Hide After Leap", true, desc = "Hides teammates standing on you right after you leap to them.")
     private val hideTime by NumberSetting("Hide Time", 3.5f, 0.5..5.0, 0.5f, desc = "How long to hide them for.", unit = "s").withDependency { hideAfterLeap }
     private val mapLeap by BooleanSetting("Map Leap", false, desc = "Shows Dungeon Map (A) in the leap menu during clear. Click a teammate on it to leap to them. Keybinds still work.")
@@ -53,6 +55,8 @@ object LeapMenuExtras : Module(
     private val mapLeapAfterBlood by BooleanSetting("After Blood Only", false, desc = "Uses the normal leap tiles until the blood door is opened, then the map.").withDependency { mapLeap }
 
     private val deadTint = Color(255, 0, 0, 0.2f)
+    private val inCoreTint = Color(0, 255, 0, 0.25f)
+    private val inCoreArea = AABB(68.0, 106.0, 54.0, 42.0, 155.0, 119.0)
     private const val SQRT_2 = 1.4142135f
     private const val RING_GAP = 3f
     private const val RING_THICKNESS = 3f
@@ -64,6 +68,7 @@ object LeapMenuExtras : Module(
     private var hideUntil = 0L
     private var mapLeapTarget: String? = null
     private var bloodOpened = false
+    private var coreOpened = false
     private var clipping = false
 
     // Mirrors Odin's per-tile hover animation so the overlay grows with the tile
@@ -76,6 +81,7 @@ object LeapMenuExtras : Module(
                 doorOpener = null
                 bloodOpened = true
             }
+            if (message == "The Core entrance is opening!") coreOpened = true
             if (hideAfterLeap && leapedRegex.matches(message)) hideUntil = System.currentTimeMillis() + (hideTime * 1000).toLong()
         }
 
@@ -83,6 +89,7 @@ object LeapMenuExtras : Module(
             doorOpener = null
             hideUntil = 0L
             bloodOpened = false
+            coreOpened = false
         }
 
         // Odin draws its tiles at HIGHEST and can't be skipped, so clip that draw to nothing while the map is shown
@@ -175,8 +182,9 @@ object LeapMenuExtras : Module(
             val player = DungeonUtils.leapTeammates.getOrNull(i) ?: return@repeat
             if (player.clazz == DungeonClass.EMPTY) return@repeat
             val dead = tintDead && player.isDead
+            val inCore = !dead && highlightInCore && coreOpened && player.entity?.position()?.let { inCoreArea.contains(it) } == true
             val opener = highlightDoorOpener && player.name == doorOpener
-            if (!dead && !opener) return@repeat
+            if (!dead && !inCore && !opener) return@repeat
 
             // Same transform as Odin's tile
             val grow = hoverProgress[i].value * 5f
@@ -187,11 +195,11 @@ object LeapMenuExtras : Module(
             val localX = if (col == 0) -width else 0
             val localY = if (row == 0) -height else 0
 
-            if (dead) {
+            if (dead || inCore) {
                 graphics.pose().pushMatrix()
                 graphics.pose().translate(nearX, nearY)
                 graphics.pose().scale(scaleX, scaleY)
-                graphics.roundedRect(localX, localY, localX + width, localY + height, deadTint.rgba, 9f)
+                graphics.roundedRect(localX, localY, localX + width, localY + height, (if (dead) deadTint else inCoreTint).rgba, 9f)
                 graphics.pose().popMatrix()
             }
 

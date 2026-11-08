@@ -200,6 +200,9 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
 **Relic Spawn Timer**
  - Countdown to the M7 relic spawn after Necron dies, in your class color
 
+**Time Changer**
+ - Sky and fog drawn at a fixed time of day: presets, real time, or a custom tick
+
 **Custom Scoreboard**
  - Restyled scoreboard, optionally hides server ID
 

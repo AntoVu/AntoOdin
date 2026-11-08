@@ -5,6 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "mixins.MinecraftMixin",
+    "mixins.SkyRendererMixin",
+    "mixins.AtmosphericFogEnvironmentMixin",
+    "mixins.AttributeTrackSamplerMixin",
     "mixins.ModuleManagerMixin",
     "mixins.LocalPlayerMixin",
     "mixins.EntityRendererMixin",

@@ -25,7 +25,7 @@ object AntoOdin : ClientModInitializer {
             CPSDisplay, PearlRefill, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits,
             AuctionPriceInput, IHateDoors, HiddenMobs, GateHighlight, DoorFix, ModHider, SnappyTappy,
             MonoAudio, SoundManager, ExplosiveShot, LeapCounter, MaxorsCrystals, ItemTooltip, DamageSplash,
-            LavaToWater, FreezeDisplay, RelicSpawnTimer, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
+            LavaToWater, FreezeDisplay, RelicSpawnTimer, TimeChanger, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
             WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight, SpiritBear, LividSolver, EscrowFix, FuckDiorite,
             SecretHitboxes, AutoGFS, Ghosts, CameraHelper, HighlightTrash, ChatRules, UnfocusedTweaks, CommandTooltip, LevelColors, CalendarDate, DupeClassAlert, DeathBowSwap, BloodRushWaypoints, ExperimentSolver, CorpseHighlight, InventoryButtons, ItemCustomizer,
             AutoTip, PaneClickGuard, CleanMap, TerminalClickLimit,

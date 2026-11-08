@@ -30,9 +30,22 @@ object MutationTracker {
     private var startType: String? = null
     private var startValues: Map<String, Long> = emptyMap()
 
+    // Starting while a tracker runs would overwrite its start values, so it needs the same command again within 10 s
+    private const val OVERRIDE_WINDOW_MS = 10_000L
+    private var overrideType: String? = null
+    private var overrideUntil = 0L
+
     fun start(type: String) {
         val crops = MUTATIONS[type] ?: return modMessage("§cUnknown mutation type: $type")
         if (busy) return modMessage("§cTracker is busy.")
+        val running = startType
+        if (running != null && (overrideType != type || System.currentTimeMillis() > overrideUntil)) {
+            overrideType = type
+            overrideUntil = System.currentTimeMillis() + OVERRIDE_WINDOW_MS
+            modMessage("§eThe $running tracker is already running. Run §f/ao trackmutation start $type §eagain within 10s to override it.")
+            return
+        }
+        overrideType = null
         busy = true
         modMessage("§aTracker is now on, logging collections...")
         scan(crops) { values ->

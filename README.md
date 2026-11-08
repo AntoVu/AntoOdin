@@ -319,8 +319,9 @@ From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (
 <details>
 <summary><b>Commands</b></summary>
 
-`/ao trackmutation start|stop <jellybean|thunderling|aloe>`
+`/ao trackmutation start|stop <jellybean|thunderling|aloe|devourer>`
  - Logs crop collections, on stop copies gained collection and NPC profit to clipboard
+ - Starting while a tracker is running asks you to run the command again within 10s to override it
 
 `/ao best [floor]`
  - Sums your PB splits into a theoretical best run (current floor, else M7)

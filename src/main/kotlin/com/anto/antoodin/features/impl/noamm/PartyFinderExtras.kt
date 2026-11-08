@@ -8,6 +8,7 @@ import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.DropdownSetting
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.events.SetSlotEvent
+import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.utils.calculateDungeonLevel
@@ -73,8 +74,17 @@ object PartyFinderExtras : Module(
     private val profiles = ConcurrentHashMap<String, Pair<Long, Result<HypixelData.PlayerInfo>>>()
     private val pending = ConcurrentHashMap.newKeySet<String>()
     private val fetchLock = Semaphore(1)
+    // Names on the open Party Finder page, refreshed each tick. Queued fetches for anyone else are dropped,
+    // so a refreshed page or a closed menu doesn't leave minutes of stale requests in the queue
+    @Volatile private var listed = emptySet<String>()
 
     init {
+        on<TickEvent.End> {
+            listed = partyFinderScreen()?.menu?.slots?.mapNotNull { partyHead(it) }
+                ?.flatMap { head -> head.loreString.mapNotNull { memberRegex.matchEntire(it)?.groupValues?.get(1)?.lowercase() } }
+                ?.toSet() ?: emptySet()
+        }
+
         // Your selected class shows in the Catacombs Gate menu
         on<SetSlotEvent> {
             if (slotIndex != 45 || (mc.gui.screen() as? AbstractContainerScreen<*>)?.title?.string != "Catacombs Gate") return@on
@@ -184,6 +194,7 @@ object PartyFinderExtras : Module(
         OdinMod.scope.launch {
             fetchLock.withPermit {
                 delay(nextRequestAt - System.currentTimeMillis())
+                if (key !in listed) return@withPermit
                 val result = RequestUtils.getProfile(key)
                 val now = System.currentTimeMillis()
                 if (result.isSuccess) {

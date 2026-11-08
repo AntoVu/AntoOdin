@@ -123,7 +123,7 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Dungeon Map (A)**
  - Map in [Devonian](https://github.com/Synnerz/devonian)'s style, from Odin's map data
  - Hidden rooms (darkened), doors read from the world
- - Names and checkmarks in any installed font (`/ao mapfont`), player heads, names while holding a leap
+ - Names and checkmarks in any installed font (`/ao mapfont`), player heads outlined in their class color, names while holding a leap
 
 **Dupe Class Alert**
  - Title, sound and chat when teammates share a class at run start
@@ -207,6 +207,7 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
  - Tints dead players (red) and teammates inside the F7/M7 core (green), rings the last wither door opener in Odin's Leap Menu
  - Hides teammates you just leaped onto
  - Map Leap: Dungeon Map (A) in the leap menu, click a teammate to leap (optionally after blood door opens)
+ - Map Leap Names: teammate names on the leap map, with or without the map's own name setting
 
 **Dragon Extras**
  - M7 dragon aim marker, arrows-hit count per dragon

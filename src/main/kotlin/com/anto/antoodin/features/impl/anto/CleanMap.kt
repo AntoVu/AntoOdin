@@ -25,6 +25,7 @@ import com.odtheking.odin.utils.IVec2
 import com.odtheking.odin.utils.itemId
 import com.odtheking.odin.utils.renderX
 import com.odtheking.odin.utils.renderZ
+import com.odtheking.odin.utils.skyblock.dungeon.DungeonClass
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.PlayerFaceExtractor
@@ -70,6 +71,7 @@ object CleanMap : Module(
     private val markerDropdown by DropdownSetting("Markers", desc = "Players on the map.")
     private val heads by BooleanSetting("Player Heads", true, desc = "Draws teammates as their heads.").withDependency { markerDropdown }
     private val headScale by NumberSetting("Head Size", 2.5, 0.0..10.0, 0.01, desc = "Head size.").withDependency { markerDropdown && heads }
+    private val classOutline by BooleanSetting("Class Outline", true, desc = "Outlines teammate heads in their class color.").withDependency { markerDropdown && heads }
     private val selfMarker by BooleanSetting("Marker For Self", true, desc = "Draws you as an arrow instead of a head.").withDependency { markerDropdown }
     private val markerScale by NumberSetting("Marker Size", 1.96, 0.0..10.0, 0.01, desc = "Arrow size.").withDependency { markerDropdown }
     private val names by BooleanSetting("Player Names", true, desc = "Shows teammate names above their markers.").withDependency { markerDropdown }
@@ -116,9 +118,9 @@ object CleanMap : Module(
 
     /**
      * Draws the map in a [SIZE] x [SIZE] box at the current pose. Returns each living teammate's marker
-     * position (not yours) in that box, by name.
+     * position (not yours) in that box, by name. [forceNames] shows names even with Player Names off and no leap held.
      */
-    fun drawMap(graphics: GuiGraphicsExtractor, example: Boolean): Map<String, Pair<Float, Float>> = graphics.run {
+    fun drawMap(graphics: GuiGraphicsExtractor, example: Boolean, forceNames: Boolean = false): Map<String, Pair<Float, Float>> = graphics.run {
         val (w, h) = if (example) 6 to 6 else gridSize()
         val cell = SIZE / (max(w, h) + padding.toFloat() * 2)
         val ox = (SIZE - w * cell) / 2
@@ -138,7 +140,7 @@ object CleanMap : Module(
         pose().popMatrix()
 
         for (room in rooms) if (roomColor(room) != null) drawRoomLabel(room, ox, oy, cell)
-        val markers = if (example) emptyMap() else drawPlayers(ox, oy, cell)
+        val markers = if (example) emptyMap() else drawPlayers(ox, oy, cell, forceNames)
         drawBorder()
         markers
     }
@@ -355,17 +357,18 @@ object CleanMap : Module(
         return ox + (ux / 20f + 0.1f) * cell to oy + (uz / 20f + 0.1f) * cell
     }
 
-    private fun GuiGraphicsExtractor.drawPlayers(ox: Float, oy: Float, cell: Float): Map<String, Pair<Float, Float>> {
+    private fun GuiGraphicsExtractor.drawPlayers(ox: Float, oy: Float, cell: Float, forceNames: Boolean): Map<String, Pair<Float, Float>> {
         val self = mc.player ?: return emptyMap()
         val markers = HashMap<String, Pair<Float, Float>>()
-        val showNames = names && (!namesLeap || self.mainHandItem.itemId in setOf("SPIRIT_LEAP", "INFINITE_SPIRIT_LEAP"))
+        val showNames = forceNames || names && (!namesLeap || self.mainHandItem.itemId in setOf("SPIRIT_LEAP", "INFINITE_SPIRIT_LEAP"))
 
         for (player in DungeonUtils.dungeonTeammatesNoSelf) {
             if (player.isDead) continue
             val (x, y) = playerPos(player.entity, player.mapPos, ox, oy, cell)
             markers[player.name] = x to y
             val skin = player.playerSkin
-            if (heads && skin != null) drawHead(skin, x, y, player.renderYaw) else drawArrow(x, y, player.renderYaw)
+            val outline = player.clazz.takeIf { classOutline && it != DungeonClass.EMPTY }?.color?.rgba
+            if (heads && skin != null) drawHead(skin, x, y, player.renderYaw, outline) else drawArrow(x, y, player.renderYaw)
             if (showNames) {
                 val size = 2.4f * nameScale.toFloat() // 0.3 * nameScale of a vanilla 8 px em
                 drawText(player.name, x, y - 2f * headScale.toFloat() - size * 0.6f, size, 0xFFFFFFFF.toInt())
@@ -377,11 +380,13 @@ object CleanMap : Module(
         return markers
     }
 
-    private fun GuiGraphicsExtractor.drawHead(skin: PlayerSkin, x: Float, y: Float, yaw: Float) {
+    private fun GuiGraphicsExtractor.drawHead(skin: PlayerSkin, x: Float, y: Float, yaw: Float, outline: Int? = null) {
         pose().pushMatrix()
         pose().translate(x, y)
         pose().rotate(Math.toRadians(180.0 + yaw).toFloat())
         pose().scale(headScale.toFloat() / 2f) // 8 px face -> 4 * headScale px
+        // One face pixel wide, turns with the head
+        if (outline != null) fill(-5, -5, 5, 5, outline)
         PlayerFaceExtractor.extractRenderState(this, skin, -4, -4, 8)
         pose().popMatrix()
     }

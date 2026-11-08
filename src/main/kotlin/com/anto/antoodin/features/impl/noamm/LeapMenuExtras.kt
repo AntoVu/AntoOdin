@@ -52,6 +52,7 @@ object LeapMenuExtras : Module(
     private val hideTime by NumberSetting("Hide Time", 3.5f, 0.5..5.0, 0.5f, desc = "How long to hide them for.", unit = "s").withDependency { hideAfterLeap }
     private val mapLeap by BooleanSetting("Map Leap", false, desc = "Shows Dungeon Map (A) in the leap menu during clear. Click a teammate on it to leap to them. Keybinds still work.")
     private val mapLeapScale by NumberSetting("Map Leap Scale", 2.5f, 1.0..5.0, 0.1f, desc = "Size of the map in the leap menu.", unit = "x").withDependency { mapLeap }
+    private val mapLeapNames by BooleanSetting("Map Leap Names", true, desc = "Shows teammate names on the leap map. Size comes from Dungeon Map (A)'s Name Size.").withDependency { mapLeap }
     private val mapLeapAfterBlood by BooleanSetting("After Blood Only", false, desc = "Uses the normal leap tiles until the blood door is opened, then the map.").withDependency { mapLeap }
 
     private val deadTint = Color(255, 0, 0, 0.2f)
@@ -139,7 +140,7 @@ object LeapMenuExtras : Module(
         graphics.pose().pushMatrix()
         graphics.pose().translate(ox, oy)
         graphics.pose().scale(scale)
-        val markers = CleanMap.drawMap(graphics, false)
+        val markers = CleanMap.drawMap(graphics, false, mapLeapNames)
         graphics.pose().popMatrix()
 
         val r = CleanMap.markerRadius * scale + 2

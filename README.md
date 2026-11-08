@@ -262,6 +262,8 @@ From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (
 
 **Trajectories**
  - Pearl and bow (Terminator too) paths, impact boxes, hit entities
+ - Archer Rapid Fire path while the ult is active, alongside the bow or pearl line
+ - Separate colors for bows, pearls and Rapid Fire
 
 **Highlight (C)**
  - ESP and tracer for F7 withers, dungeon bats and mobs from `/ao highlight`

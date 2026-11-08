@@ -7,10 +7,13 @@ import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDepe
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
+import com.odtheking.odin.events.LevelEvent
+import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.features.Module
+import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.Color.Companion.multiplyAlpha
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.addVec
@@ -41,6 +44,9 @@ object Trajectories : Module(
     category = Skit.ODINCLIENT
 ) {
     private val bows by BooleanSetting("Bows", true, desc = "Render trajectories of bow arrows.")
+    private val rapidFire by BooleanSetting("Rapid Fire", true, desc = "Render the trajectory of the Archer ultimate's arrows while it's active, whatever you're holding.")
+    private val rapidSeconds by NumberSetting("Rapid Fire Duration", 7, 5..10, 1, unit = "s", desc = "5s plus 1s per 10 Archer levels (Archer 30 = 8s).")
+        .withDependency { rapidFire }
     private val pearls by BooleanSetting("Pearls", true, desc = "Render trajectories of ender pearls.")
     private val plane by BooleanSetting("Show Plane", false, desc = "Shows a flat square rotated relative to the predicted block that will be hit.")
     private val boxes by BooleanSetting("Show Boxes", true, desc = "Shows boxes displaying where arrows or pearls will hit.")
@@ -50,7 +56,10 @@ object Trajectories : Module(
     private val width by NumberSetting("Line Width", 1f, 0.1..5.0, 0.1f, desc = "The width of the line.")
     private val planeSize by NumberSetting("Plane Size", 2f, 0.1..5.0, 0.1f, desc = "The size of the plane.").withDependency { plane }
     private val boxSize by NumberSetting("Box Size", 0.5f, 0.5..3.0, 0.1f, desc = "The size of the box.").withDependency { boxes }
-    private val color by ColorSetting("Color", Colors.MINECRAFT_DARK_AQUA, true, desc = "The color of the trajectory.")
+    private val bowColor by ColorSetting("Bow Color", Colors.MINECRAFT_DARK_AQUA, true, desc = "The color of bow and shortbow trajectories.")
+    private val pearlColor by ColorSetting("Pearl Color", Colors.MINECRAFT_DARK_AQUA, true, desc = "The color of ender pearl trajectories.")
+    private val rapidColor by ColorSetting("Rapid Fire Color", Colors.MINECRAFT_GOLD, true, desc = "The color of the Rapid Fire trajectory.")
+        .withDependency { rapidFire }
     private val depth by BooleanSetting("Depth Check", true, desc = "Whether or not to depth check the trajectory.")
 
     private val VEC_NULL = emptyList<Vec3>() to null
@@ -60,9 +69,15 @@ object Trajectories : Module(
     private val boxRenderQueue = mutableListOf<AABB>()
     private val entityRenderQueue = mutableListOf<Entity>()
     private var pearlImpactPos: AABB? = null
+    // Client ticks left of Archer's Rapid Fire. Measured at 7s: an arrow every 4 ticks, the last about 143 ticks after the message
+    private var rapidTicks = 0
 
     init {
+        on<MessageEvent.Chat> { if ("Used Rapid Fire!" in message) rapidTicks = rapidSeconds * 20 + 5 }
+        on<LevelEvent.Load> { rapidTicks = 0 }
+
         on<TickEvent.End> {
+            if (rapidTicks > 0) rapidTicks--
             val player = mc.player ?: return@on
             lastCharge = charge
             val useCount = player.useItemRemainingTicks
@@ -70,52 +85,48 @@ object Trajectories : Module(
             if ((lastCharge - charge) > 1f) lastCharge = charge
         }
 
+        // Rapid Fire draws alongside a held bow or pearl; each kind clears the hit queues and draws in its own color
         on<RenderExtractEvent> {
-            entityRenderQueue.clear()
-            boxRenderQueue.clear()
-            pearlImpactPos = null
-
             val player = mc.player ?: return@on
             val heldItem = player.mainHandItem
-            val term = heldItem.itemId == "TERMINATOR"
 
-            if (bows && heldItem.item is BowItem) {
-                val l =
-                    if (term) listOf(calculateTrajectory(0f, isPearl = false), calculateTrajectory(-5f, isPearl = false), calculateTrajectory(5f, isPearl = false))
-                    else listOf(calculateTrajectory(0f, isPearl = false, useCharge = true))
-
-                for ((a, b) in l) {
-                    if (lines) drawLine(a, color, depth, width)
-                    if (boxes) drawCollisionBoxes(isPearl = false)
-                    if (b != null && plane) drawPlaneCollision(b)
-                }
-
-                return@on
+            if (rapidFire && rapidTicks > 0) drawTrajectories(rapidColor, isPearl = false) {
+                listOf(calculateTrajectory(0f, isPearl = false, rapid = true))
             }
 
-            if (pearls && heldItem.item is EnderpearlItem) {
-                if (heldItem.displayName.string.contains("Spirit")) return@on
-
-                val (a, b) = calculateTrajectory(0f, isPearl = true)
-
-                if (lines) drawLine(a, color, depth, width)
-                if (boxes) drawCollisionBoxes(isPearl = true)
-                if (b != null && plane) drawPlaneCollision(b)
+            if (bows && heldItem.item is BowItem) drawTrajectories(bowColor, isPearl = false) {
+                if (heldItem.itemId == "TERMINATOR") listOf(calculateTrajectory(0f, isPearl = false), calculateTrajectory(-5f, isPearl = false), calculateTrajectory(5f, isPearl = false))
+                else listOf(calculateTrajectory(0f, isPearl = false, useCharge = true))
             }
+            else if (pearls && heldItem.item is EnderpearlItem && !heldItem.displayName.string.contains("Spirit"))
+                drawTrajectories(pearlColor, isPearl = true) { listOf(calculateTrajectory(0f, isPearl = true)) }
         }
     }
 
-    private fun calculateTrajectory(yawOffset: Float, isPearl: Boolean, useCharge: Boolean = false): Pair<List<Vec3>, BlockHitResult?> {
+    private inline fun RenderExtractEvent.drawTrajectories(color: Color, isPearl: Boolean, calculate: () -> List<Pair<List<Vec3>, BlockHitResult?>>) {
+        entityRenderQueue.clear()
+        boxRenderQueue.clear()
+        pearlImpactPos = null
+        val results = calculate()
+        for ((a, b) in results) {
+            if (lines) drawLine(a, color, depth, width)
+            if (b != null && plane) drawPlaneCollision(b, color)
+        }
+        if (boxes) drawCollisionBoxes(isPearl, color)
+    }
+
+    // Rapid Fire arrows (fitted from logged flights): launched from the eye at speed 2.0, same drag and gravity as a bow arrow
+    private fun calculateTrajectory(yawOffset: Float, isPearl: Boolean, useCharge: Boolean = false, rapid: Boolean = false): Pair<List<Vec3>, BlockHitResult?> {
         val player = mc.player ?: return VEC_NULL
         val level = mc.level ?: return VEC_NULL
 
         val yaw = Math.toRadians(player.yRot.toDouble())
         val x = -cos(yaw) * 0.16
         val z = -sin(yaw) * 0.16
-        var pos = player.renderPos.add(Vec3(x, player.eyeHeight - 0.1, z))
+        var pos = if (rapid) player.renderPos.add(0.0, player.eyeHeight.toDouble(), 0.0) else player.renderPos.add(Vec3(x, player.eyeHeight - 0.1, z))
         var prevPos = pos
 
-        val speed = if (isPearl) 1.5 else pull(useCharge) * 3.0
+        val speed = if (isPearl) 1.5 else if (rapid) 2.0 else pull(useCharge) * 3.0
         var motion = getLook(player.yRot + yawOffset, player.xRot).normalize().scale(speed)
 
         var hitResult = false
@@ -174,7 +185,7 @@ object Trajectories : Module(
         return lines to rayTraceHit
     }
 
-    private fun RenderExtractEvent.drawPlaneCollision(hit: BlockHitResult) {
+    private fun RenderExtractEvent.drawPlaneCollision(hit: BlockHitResult, color: Color) {
         val (vec1, vec2) = when (hit.direction) {
             Direction.DOWN, Direction.UP -> hit.location.addVec(-0.15 * planeSize, -0.02, -0.15 * planeSize) to hit.location.addVec(0.15 * planeSize, 0.02, 0.15 * planeSize)
             Direction.NORTH, Direction.SOUTH -> hit.location.addVec(-0.15 * planeSize, -0.15 * planeSize, -0.02) to hit.location.addVec(0.15 * planeSize, 0.15 * planeSize, 0.02)
@@ -184,7 +195,7 @@ object Trajectories : Module(
         drawFilledBox(AABB(vec1, vec2), color.multiplyAlpha(0.5f), depth)
     }
 
-    private fun RenderExtractEvent.drawCollisionBoxes(isPearl: Boolean) {
+    private fun RenderExtractEvent.drawCollisionBoxes(isPearl: Boolean, color: Color) {
         if (isPearl) {
             pearlImpactPos?.let { aabb ->
                 drawWireFrameBox(aabb, color, width, depth)

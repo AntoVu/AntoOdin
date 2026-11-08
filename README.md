@@ -24,6 +24,9 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Pearl Refill**
  - Auto refill pearls after set amount
 
+**Breaker Swap Delay**
+ - Blocks mining with the Dungeon Breaker for a set delay (about your ping + 50 ms) after swapping to it, so the first block breaks instantly instead of taking ~0.3s
+
 **Relic Utils**
  - Blocks placing an M7 relic at the wrong cauldron or anvil
  - Blocks right clicking the SkyBlock menu for 2s (adjustable) after placing a relic

@@ -197,6 +197,9 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
 **Freeze Display**
  - How long the server has been frozen past a threshold
 
+**Relic Spawn Timer**
+ - Countdown to the M7 relic spawn after Necron dies, in your class color
+
 **Custom Scoreboard**
  - Restyled scoreboard, optionally hides server ID
 

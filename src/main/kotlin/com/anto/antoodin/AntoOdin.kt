@@ -13,13 +13,14 @@ import com.anto.antoodin.features.impl.odinclient.*
 import com.anto.antoodin.features.impl.fixes.*
 import com.anto.antoodin.events.dispatcher.FabricEventDispatcher
 import com.anto.antoodin.commands.aoCommand
+import com.anto.antoodin.features.DwpPresets
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 
 object AntoOdin : ClientModInitializer {
 
     override fun onInitializeClient() {
-        listOf(this, FabricEventDispatcher).forEach { EventBus.subscribe(it) }
+        listOf(this, FabricEventDispatcher, DwpPresets).forEach { EventBus.subscribe(it) }
 
         ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueLoadout, KuudraAutoGFS,
             CPSDisplay, PearlRefill, RelicUtils, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits,

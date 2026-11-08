@@ -1,6 +1,7 @@
 package com.anto.antoodin.commands
 
 import com.anto.antoodin.features.Calculators
+import com.anto.antoodin.features.DwpPresets
 import com.anto.antoodin.features.MutationTracker
 import com.anto.antoodin.features.impl.anto.ChatRules
 import com.anto.antoodin.features.impl.anto.CleanMap
@@ -101,6 +102,20 @@ val aoCommand = Commodore("ao") {
             modMessage("Color changed to: $hex")
         }
     }
+    // Presets for Odin's Dungeon Waypoints "Next Waypoint Settings": a name or list number picks one
+    literal("dwp") {
+        literal("preset").executable {
+            param("preset").suggests { DwpPresets.names() }
+            runs { preset: String? -> if (preset == null) DwpPresets.list() else DwpPresets.apply(preset) }
+
+            literal("add").runs { name: String, text: GreedyString? -> DwpPresets.add(name, text?.string) }
+            literal("delete").executable {
+                param("preset").suggests { DwpPresets.names() }
+                runs { preset: String -> DwpPresets.delete(preset) }
+            }
+        }
+    }
+
     // Dungeon Map (A) font: any installed font, or Minecraft for the vanilla one
     literal("mapfont").executable {
         param("name").suggests { listOf("Minecraft") + SystemFonts.names }

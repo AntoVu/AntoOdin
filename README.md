@@ -345,6 +345,11 @@ From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (
  - Opens Odin's waypoint manager (import/export)
  - `color <RRGGBBAA>` sets the next waypoint's color
 
+`/ao dwp preset [name|number]`
+ - Presets for Odin's Dungeon Waypoints: type, color, fill, depth, block size/size and an optional title
+ - No argument lists them; a name or list number applies one
+ - `add <name> [text]` saves the current next-waypoint settings (same name overwrites), `delete <name|number>` removes one
+
 `/ao ac add left|right [key]`, `/ao ac remove left|right`, `/ao ac clear left|right|all`, `/ao ac list`
  - Auto Clicker whitelist for the held item
 

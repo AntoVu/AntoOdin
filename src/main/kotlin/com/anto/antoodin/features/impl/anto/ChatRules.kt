@@ -122,10 +122,10 @@ object ChatRules : Module(
             val rule = firstMatch(message) ?: return@on
             if (rule.title.isNotEmpty()) {
                 mc.gui.hud.setTimes(rule.titleFadeIn, rule.titleStay, rule.titleFadeOut)
-                mc.gui.hud.setTitle(Component.literal(rule.title.formatCodes()))
+                mc.gui.hud.setTitle(Component.literal(fillGroups(rule, message, rule.title).formatCodes()))
             }
             if (rule.customTitle.isNotEmpty()) {
-                customTitle = rule.customTitle.formatCodes()
+                customTitle = fillGroups(rule, message, rule.customTitle).formatCodes()
                 customTitleTicks = rule.customTitleStay
             }
             Identifier.tryParse(rule.sound.trim())?.takeIf { rule.sound.isNotBlank() }?.let {
@@ -190,6 +190,16 @@ object ChatRules : Module(
             .onFailure { modMessage("§cChat rule \"${rule.name}\" has an invalid regex: ${it.message?.lineSequence()?.first()}") }
             .getOrNull()
     }
+
+    // Regex rules: $1..$9 in the text become that capture group of the message ($0 = whole line).
+    // Unknown groups stay as typed
+    private fun fillGroups(rule: ChatRule, message: String, text: String): String {
+        if (rule.matchType != MatchType.Regex || '$' !in text) return text
+        val groups = regex(rule)?.matchEntire(message)?.groupValues ?: return text
+        return GROUP_REF.replace(text) { groups.getOrNull(it.groupValues[1].toInt()) ?: it.value }
+    }
+
+    private val GROUP_REF = Regex("""\$(\d)""")
 
     private fun runCommand(rule: ChatRule) {
         val now = System.currentTimeMillis()

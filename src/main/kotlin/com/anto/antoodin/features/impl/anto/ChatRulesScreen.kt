@@ -145,13 +145,13 @@ class ChatRuleEditScreen(private val rule: ChatRule, private val listPrevious: S
             Row("Island Filter", null, textBox(rule.islandFilter,
                 "Islands this rule works on, e.g. \"catacombs, crimson isle\". Any separator works. Leave blank for anywhere.") { rule.islandFilter = it },
                 listOf(infoButton("§lIsland names\n§7" + ChatRules.islands.joinToString("\n") { it.displayName }))),
-            Row("Title", null, textBox(rule.title, "Title to show. Use & for color codes. Leave blank for none.") { rule.title = it }, listOf(
+            Row("Title", null, textBox(rule.title, "Title to show. Use & for color codes, \$1, \$2... for regex groups. Leave blank for none.") { rule.title = it }, listOf(
                 intBox(rule.titleFadeIn, "Fade in (ticks)") { rule.titleFadeIn = it },
                 intBox(rule.titleStay, "Stay (ticks)") { rule.titleStay = it },
                 intBox(rule.titleFadeOut, "Fade out (ticks)") { rule.titleFadeOut = it }
             )),
             Row("Custom Title", null, textBox(rule.customTitle,
-                "Shown in the Custom Title HUD, so it doesn't replace other titles. Use & for color codes.") { rule.customTitle = it }, listOf(
+                "Shown in the Custom Title HUD, so it doesn't replace other titles. Use & for color codes, \$1, \$2... for regex groups.") { rule.customTitle = it }, listOf(
                 intBox(rule.customTitleStay, "Stay (ticks)") { rule.customTitleStay = it }
             )),
             Row("Sound", null, sound, listOf(

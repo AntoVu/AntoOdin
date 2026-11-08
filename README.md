@@ -47,6 +47,7 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
  - Match by equals, contains, starts/ends with or regex
  - Filter by dungeon class and island
  - Show title, play sound, hide message, or run a command (other mods' too) after a delay
+ - Regex titles can show capture groups (`$1 [$2/$3]`)
  - Import NoFrills rules with `/ao chatrules import`
  - Pre-defined rules (old Chat Filter) that only hide spam, toggle on/off
 

@@ -14,6 +14,7 @@ import com.odtheking.odin.utils.calculateDungeonLevel
 import com.odtheking.odin.utils.loreString
 import com.odtheking.odin.utils.network.hypixelapi.HypixelData
 import com.odtheking.odin.utils.network.hypixelapi.RequestUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -58,8 +59,17 @@ object PartyFinderExtras : Module(
 
     // name -> (fetched at, result). Fetched one at a time, because Odin's own profile cache isn't thread safe
     private const val CACHE_MS = 60 * 60 * 1000L
-    // Failures (often Odin API rate limits) retry sooner
+    // A player that failed MAX_ATTEMPTS times in a row shows "(Failed)" and is retried after RETRY_MS
     private const val RETRY_MS = 30 * 1000L
+    private const val MAX_ATTEMPTS = 3
+    // Odin's API proxy (nginx) answers 503 to bursts of more than about 10 profile requests, so space them out
+    // and back off after a failure instead of firing the whole party list at once
+    private const val SPACING_MS = 1000L
+    private const val MIN_BACKOFF_MS = 5000L
+    private const val MAX_BACKOFF_MS = 60000L
+    private var nextRequestAt = 0L
+    private var backoffMs = 0L
+    private val attempts = ConcurrentHashMap<String, Int>()
     private val profiles = ConcurrentHashMap<String, Pair<Long, Result<HypixelData.PlayerInfo>>>()
     private val pending = ConcurrentHashMap.newKeySet<String>()
     private val fetchLock = Semaphore(1)
@@ -153,7 +163,7 @@ object PartyFinderExtras : Module(
         val cached = profiles[key]?.takeIf { (fetchedAt, result) -> System.currentTimeMillis() - fetchedAt < if (result.isSuccess) CACHE_MS else RETRY_MS }?.second
         if (cached == null) {
             fetch(key)
-            return "§7(Loading...)"
+            return if (attempts.containsKey(key)) "§7(Retrying...)" else "§7(Loading...)"
         }
         val member = cached.getOrNull()?.memberData ?: return "§c(Failed)"
         val dungeons = member.dungeons
@@ -173,7 +183,23 @@ object PartyFinderExtras : Module(
         if (!pending.add(key)) return
         OdinMod.scope.launch {
             fetchLock.withPermit {
-                profiles[key] = System.currentTimeMillis() to RequestUtils.getProfile(key)
+                delay(nextRequestAt - System.currentTimeMillis())
+                val result = RequestUtils.getProfile(key)
+                val now = System.currentTimeMillis()
+                if (result.isSuccess) {
+                    backoffMs = 0
+                    nextRequestAt = now + SPACING_MS
+                    attempts.remove(key)
+                    profiles[key] = now to result
+                } else {
+                    backoffMs = (backoffMs * 2).coerceIn(MIN_BACKOFF_MS, MAX_BACKOFF_MS)
+                    nextRequestAt = now + backoffMs
+                    // Left uncached, so the next tooltip frame queues it again
+                    if (attempts.merge(key, 1, Int::plus)!! >= MAX_ATTEMPTS) {
+                        attempts.remove(key)
+                        profiles[key] = now to result
+                    }
+                }
             }
             pending.remove(key)
         }

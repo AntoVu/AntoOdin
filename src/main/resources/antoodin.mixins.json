@@ -8,6 +8,7 @@
     "mixins.SkyRendererMixin",
     "mixins.AtmosphericFogEnvironmentMixin",
     "mixins.AttributeTrackSamplerMixin",
+    "mixins.AotvPathMixin",
     "mixins.ModuleManagerMixin",
     "mixins.LocalPlayerMixin",
     "mixins.EntityRendererMixin",

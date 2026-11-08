@@ -203,6 +203,9 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
 **Time Changer**
  - Sky and fog drawn at a fixed time of day: presets, real time, or a custom tick
 
+**No AOTV Paths**
+ - No shovel sound (and, on 26.3, no ghost path block) when right-clicking grass or dirt with the Aspect of the Void
+
 **Custom Scoreboard**
  - Restyled scoreboard, optionally hides server ID
 

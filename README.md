@@ -30,6 +30,9 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Quiet Ice Fill**
  - Plays only one ice break sound when many Ice Fill blocks break at once
 
+**Mimic Chest Highlight**
+ - Highlights the mimic chest (trapped chest) in F6/F7 during clear, until the mimic is killed
+
 **Relic Utils**
  - Blocks placing an M7 relic at the wrong cauldron or anvil
  - Blocks right clicking the SkyBlock menu for 2s (adjustable) after placing a relic

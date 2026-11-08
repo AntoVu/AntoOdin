@@ -29,7 +29,7 @@ object AntoOdin : ClientModInitializer {
             LavaToWater, FreezeDisplay, RelicSpawnTimer, TimeChanger, NoAotvPaths, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
             WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight, SpiritBear, LividSolver, EscrowFix, FuckDiorite,
             SecretHitboxes, AutoGFS, Ghosts, CameraHelper, HighlightTrash, ChatRules, UnfocusedTweaks, CommandTooltip, LevelColors, CalendarDate, DupeClassAlert, ShadowAssassinNotify, DeathBowSwap, BloodRushWaypoints, ExperimentSolver, CorpseHighlight, InventoryButtons, ItemCustomizer,
-            AutoTip, PaneClickGuard, CleanMap, TerminalClickLimit, BreakerSwapDelay, QuietIceFill,
+            AutoTip, PaneClickGuard, CleanMap, TerminalClickLimit, BreakerSwapDelay, QuietIceFill, MimicChestHighlight,
             ItemCountFix, DisconnectFix, DoubleUseFix, CosmeticDisabler)
 
         JellybeanHider.registerModelHook()

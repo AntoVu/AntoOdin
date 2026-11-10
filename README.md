@@ -33,6 +33,11 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Mimic Chest Highlight**
  - Highlights the mimic chest (trapped chest) in F6/F7 during clear, until the mimic is killed
 
+**Fast Leap** (experimental)
+ - Left click a Spirit Leap or Infinileap to open the leap menu and leap to a set teammate after a humanized delay (works with any leap menu)
+ - Per-class targets for each phase (door opener in clear, then Maxor through the first M7 dragon), class letter A/B/M/H/T or player name
+ - `/ao fastleap` opens the editor; with two of a class, the first alive one in leap order is picked
+
 **Relic Utils**
  - Blocks placing an M7 relic at the wrong cauldron or anvil
  - Blocks right clicking the SkyBlock menu for 2s (adjustable) after placing a relic

@@ -8,6 +8,7 @@ import com.anto.antoodin.features.impl.anto.CleanMap
 import com.anto.antoodin.features.impl.anto.ChatRulesScreen
 import com.anto.antoodin.features.impl.anto.LevelColorsScreen
 import com.anto.antoodin.features.impl.anto.DungeonSplits
+import com.anto.antoodin.features.impl.anto.FastLeapScreen
 import com.anto.antoodin.features.impl.anto.InventoryButtonsScreen
 import com.anto.antoodin.features.impl.anto.ItemCustomizeScreen
 import com.anto.antoodin.features.impl.anto.ItemCustomizer
@@ -55,6 +56,7 @@ val aoCommand = Commodore("ao") {
         schedule(1) { mc.gui.setScreen(ItemCustomizeScreen(stack, uuid)) }
     }
 
+    literal("fastleap").runs { schedule(1) { mc.gui.setScreen(FastLeapScreen(null)) } }
     literal("levelcolors").runs { schedule(1) { mc.gui.setScreen(LevelColorsScreen(null)) } }
 
     literal("chatrules") {

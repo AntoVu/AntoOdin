@@ -8,6 +8,7 @@ import com.anto.antoodin.features.impl.anto.CleanMap
 import com.anto.antoodin.features.impl.anto.ChatRulesScreen
 import com.anto.antoodin.features.impl.anto.LevelColorsScreen
 import com.anto.antoodin.features.impl.anto.DungeonSplits
+import com.anto.antoodin.features.impl.anto.FastLeap
 import com.anto.antoodin.features.impl.anto.FastLeapScreen
 import com.anto.antoodin.features.impl.anto.InventoryButtonsScreen
 import com.anto.antoodin.features.impl.anto.ItemCustomizeScreen
@@ -56,7 +57,17 @@ val aoCommand = Commodore("ao") {
         schedule(1) { mc.gui.setScreen(ItemCustomizeScreen(stack, uuid)) }
     }
 
-    literal("fastleap").runs { schedule(1) { mc.gui.setScreen(FastLeapScreen(null)) } }
+    literal("fastleap") {
+        runs { schedule(1) { mc.gui.setScreen(FastLeapScreen(null)) } }
+        // Testing: force a phase or step through them; clear goes back to automatic
+        literal("phase").executable {
+            param("phase").suggests { FastLeap.Phase.entries.map { it.name } }
+            runs { phase: String -> FastLeap.forcePhase(phase) }
+        }
+        literal("next").runs { FastLeap.nextPhase() }
+        literal("clear").runs { FastLeap.forcePhase(null) }
+        literal("melody").runs { name: String -> FastLeap.forceMelody(name) }
+    }
     literal("levelcolors").runs { schedule(1) { mc.gui.setScreen(LevelColorsScreen(null)) } }
 
     literal("chatrules") {

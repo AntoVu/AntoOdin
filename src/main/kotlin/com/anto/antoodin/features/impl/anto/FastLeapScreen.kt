@@ -38,7 +38,7 @@ class FastLeapScreen(private val previous: Screen?, private val clazz: DungeonCl
             } else {
                 val box = EditBox(font, x, y, FIELD_WIDTH, 18, Component.literal(phase.label))
                 box.setMaxLength(16)
-                box.setHint(Component.literal("A/B/M/H/T or name"))
+                box.setHint(Component.literal(if (phase.name.startsWith("DURING")) "Letter/name/@melody" else "Letter or name"))
                 box.value = FastLeap.get(clazz, phase)
                 box.setResponder { FastLeap.set(clazz, phase, it) }
                 addRenderableWidget(box)
@@ -53,7 +53,7 @@ class FastLeapScreen(private val previous: Screen?, private val clazz: DungeonCl
 
     override fun extractRenderState(guiGraphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, delta: Float) {
         super.extractRenderState(guiGraphics, mouseX, mouseY, delta)
-        guiGraphics.centeredText(font, "Fast Leap targets for ${clazz.name.lowercase()}: class letter or player name, blank = off", width / 2, 8, -1)
+        guiGraphics.centeredText(font, "Fast Leap for ${clazz.name.lowercase()}: A/B/M/H/T, player name or @melody (During S#). Blank = off", width / 2, 8, -1)
         phases.forEachIndexed { i, phase ->
             guiGraphics.text(font, phase.label, columnX(i / rows), rowY(i % rows) + 5, -1)
         }
@@ -67,7 +67,7 @@ class FastLeapScreen(private val previous: Screen?, private val clazz: DungeonCl
     override fun isPauseScreen(): Boolean = false
 
     private companion object {
-        const val COLUMN_WIDTH = 190
-        const val FIELD_WIDTH = 90
+        const val COLUMN_WIDTH = 224
+        const val FIELD_WIDTH = 116
     }
 }

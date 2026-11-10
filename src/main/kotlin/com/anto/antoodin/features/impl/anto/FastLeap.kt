@@ -47,19 +47,28 @@ object FastLeap : Module(
     private val openEditor by ActionSetting("Open Editor", desc = "Opens the per-class leap target editor.") {
         mc.gui.setScreen(FastLeapScreen(mc.gui.screen()))
     }
-    private val targets by MapSetting("Targets", mutableMapOf<String, String>())
+    private val targets by MapSetting("Leap Targets", mutableMapOf<String, String>())
 
     enum class Phase(val label: String) {
         DOOR_OPENER("Door Opener"), MAXOR_CRYSTALS("Maxor Crystals"), MAXOR_DEAD("Maxor Dead"),
-        BEFORE_LIGHTNING("Before Lightning"), AFTER_LIGHTNING("After Lightning"), STORM_DEAD("Storm Dead"),
+        BEFORE_LIGHTNING("Before Lightning"), AFTER_LIGHTNING("After Lightning"), FIRST_CRUSH("After First Crush"), STORM_DEAD("Storm Dead"),
         DURING_S1("During S1"), EE2("EE2"), DURING_S2("During S2"), EE3("EE3"), DURING_S3("During S3"),
         CORE("Core"), DURING_S4("During S4"), RECORE("Recore"), GOLDOR_DEAD("Goldor Dead"), NECRON_DEAD("Necron Dead"),
         PICKUP_RELIC("Pickup Relic"), FIRST_DRAGON_DEAD("First Dragon Dead")
     }
 
     val classes = listOf(DungeonClass.ARCHER, DungeonClass.BERSERK, DungeonClass.MAGE, DungeonClass.HEALER, DungeonClass.TANK)
-    private val defaults = mapOf("ARCHER:MAXOR_CRYSTALS" to "T", "BERSERK:MAXOR_CRYSTALS" to "H") +
-        classes.associate { "${it.name}:DOOR_OPENER" to "on" }
+    // Common party finder targets, one entry per phase in Phase order ("-" = blank)
+    private val defaults: Map<String, String> = mapOf(
+        DungeonClass.ARCHER to "on T B - - M H - M - H - M H M H H - -",
+        DungeonClass.BERSERK to "- H - T - - - @melody M - H - M - M H H - -",
+        DungeonClass.MAGE to "on - B A H T H - - - - - - - - H H B H",
+        DungeonClass.HEALER to "on - B A - B - - M - - - M - M - - B -",
+        DungeonClass.TANK to "- - B - - - H @melody M B H A M H M H H A H",
+    ).flatMap { (clazz, row) ->
+        row.split(' ').also { check(it.size == Phase.entries.size) }
+            .mapIndexed { i, v -> "${clazz.name}:${Phase.entries[i].name}" to v.takeIf { it != "-" }.orEmpty() }
+    }.toMap()
     private val classLetters = mapOf('A' to DungeonClass.ARCHER, 'B' to DungeonClass.BERSERK, 'M' to DungeonClass.MAGE, 'H' to DungeonClass.HEALER, 'T' to DungeonClass.TANK)
 
     fun get(clazz: DungeonClass, phase: Phase): String = "${clazz.name}:${phase.name}".let { targets[it] ?: defaults[it] ?: "" }
@@ -127,6 +136,8 @@ object FastLeap : Module(
                 message == "[BOSS] Storm: Pathetic Maxor, just like expected." -> enter(Phase.MAXOR_DEAD)
                 message == "[BOSS] Storm: ENERGY HEED MY CALL!" || message == "[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!" ->
                     if (bossPhase == Phase.MAXOR_DEAD || bossPhase == Phase.BEFORE_LIGHTNING) enter(Phase.AFTER_LIGHTNING)
+                message == "[BOSS] Storm: Oof" || message == "[BOSS] Storm: Ouch, that hurt!" ->
+                    if (bossPhase?.let { it in Phase.MAXOR_DEAD..Phase.AFTER_LIGHTNING } == true) enter(Phase.FIRST_CRUSH)
                 message == "[BOSS] Storm: I should have known that I stood no chance." -> enter(Phase.STORM_DEAD)
                 message == "[BOSS] Goldor: Who dares trespass into my domain?" -> { section = 1; melodyFromChat = null; enter(Phase.DURING_S1) }
                 message == "The Core entrance is opening!" -> enter(Phase.RECORE)

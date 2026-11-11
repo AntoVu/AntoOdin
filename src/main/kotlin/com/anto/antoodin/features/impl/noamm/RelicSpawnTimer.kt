@@ -28,6 +28,8 @@ object RelicSpawnTimer : Module(
     // Packets and server ticks arrive on the netty thread, the HUD reads on the render thread
     @Volatile private var ticksLeft = 0
 
+    val relicsSpawned get() = necronDead && ticksLeft == 0
+
     private val hud by HUD(name, "Time until the relics spawn, in your class color.", false) { example ->
         val ticks = if (example) 25 else ticksLeft.takeIf { it > 0 } ?: return@HUD 0 to 0
         textDim((ticks / 20.0).toFixed(2), 0, 0, DungeonUtils.currentDungeonPlayer.clazz.color)
@@ -41,8 +43,8 @@ object RelicSpawnTimer : Module(
         // Necron's death: the one wither hurt sound at volume 15, pitch 1
         onReceive<ClientboundSoundPacket> {
             if (!necronStarted || necronDead || sound.value() != SoundEvents.WITHER_HURT || volume != 15f || pitch != 1f) return@onReceive
-            necronDead = true
             if (DungeonUtils.floor == Floor.M7) ticksLeft = SPAWN_TICKS
+            necronDead = true // set last: relicsSpawned reads these from another thread
         }
 
         on<TickEvent.Server> { if (ticksLeft > 0) ticksLeft-- }

@@ -1,21 +1,22 @@
 package com.anto.antoodin.features.impl.anto
 
+import com.anto.antoodin.features.impl.noamm.RelicSpawnTimer
 import com.anto.antoodin.utils.Skit
 import com.anto.antoodin.utils.rightClick
 import com.odtheking.odin.clickgui.settings.impl.ActionSetting
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.MapSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
+import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
+import com.odtheking.odin.events.core.onSend
 import com.odtheking.odin.features.Module
 import com.odtheking.odin.features.ModuleManager
 import com.odtheking.odin.features.impl.boss.MelodyMessage
-import com.odtheking.odin.features.impl.boss.WitherDragonState
-import com.odtheking.odin.features.impl.boss.WitherDragonsEnum
 import com.odtheking.odin.utils.clickSlot
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.itemId
@@ -24,6 +25,8 @@ import com.odtheking.odin.utils.skyblock.dungeon.DungeonClass
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonPlayer
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.network.protocol.game.ServerboundContainerClickPacket
+import net.minecraft.world.entity.EntityTypes
 import kotlin.random.Random
 
 /**
@@ -32,7 +35,7 @@ import kotlin.random.Random
  * clicks the real chest slot (heads in 11-15), like Odin's own leapTo.
  *
  * Targets are per own class and per phase (edited in [FastLeapScreen]). The phase follows F7/M7 boss chat lines.
- * Each During S# target is used once, then that section's next target (EE2, EE3, Core, Recore) takes over.
+ * Each During S# target is used once (any leap counts, even a manual one), then that section's next target (EE2, EE3, Core, Recore) takes over.
  */
 object FastLeap : Module(
     name = "Fast Leap",
@@ -41,7 +44,9 @@ object FastLeap : Module(
 ) {
     private val delay by NumberSetting("Delay", 150, 0..1000, 10, desc = "Delay after the leap menu opens before clicking.", unit = "ms")
     private val randomDelay by NumberSetting("Random Delay", 75, 0..500, 5, desc = "Random extra delay on top.", unit = "ms")
-    private val window by NumberSetting("Phase Window", 3.0, 1.0..10.0, 0.5, desc = "How long short phases (door opener after blood, Maxor Dead, EE2, EE3, Core, First Dragon Dead) stay active.", unit = "s")
+    private val bloodLeap by NumberSetting("Blood Leap", 3.0, 1.0..5.0, 0.5, desc = "How long Door Opener stays active after the blood door opens.", unit = "s")
+    private val sectionCarry by NumberSetting("Section Carry Over", 1.5, 1.0..5.0, 0.5, desc = "How long EE2, EE3 and Core stay active after a terminal section completes.", unit = "s")
+    private val goldorDeath by NumberSetting("Goldor Death", 3.0, 1.0..5.0, 0.5, desc = "How long after the core opens Recore turns into Goldor Dead.", unit = "s")
     // ponytail: temporary testing aid, remove once the phases are tuned
     private val dryRun by BooleanSetting("Dry Run", false, desc = "Doesn't leap: says who it would have leaped to and how long it waited after the menu opened, then closes the menu.")
     private val openEditor by ActionSetting("Open Editor", desc = "Opens the per-class leap target editor.") {
@@ -50,11 +55,11 @@ object FastLeap : Module(
     private val targets by MapSetting("Leap Targets", mutableMapOf<String, String>())
 
     enum class Phase(val label: String) {
-        DOOR_OPENER("Door Opener"), MAXOR_CRYSTALS("Maxor Crystals"), MAXOR_DEAD("Maxor Dead"),
+        DOOR_OPENER("Door Opener"), MAXOR_CRYSTALS("Maxor Crystals"), SECOND_LASER("Second Laser"),
         BEFORE_LIGHTNING("Before Lightning"), AFTER_LIGHTNING("After Lightning"), FIRST_CRUSH("After First Crush"), STORM_DEAD("Storm Dead"),
         DURING_S1("During S1"), EE2("EE2"), DURING_S2("During S2"), EE3("EE3"), DURING_S3("During S3"),
-        CORE("Core"), DURING_S4("During S4"), RECORE("Recore"), GOLDOR_DEAD("Goldor Dead"), NECRON_DEAD("Necron Dead"),
-        PICKUP_RELIC("Pickup Relic"), FIRST_DRAGON_DEAD("First Dragon Dead")
+        CORE("Core"), DURING_S4("During S4"), RECORE("Recore"), GOLDOR_DEAD("Goldor Dead"), MIDWAY_NECRON("Midway Necron"),
+        PICKUP_RELIC("Pickup Relic"), FIRST_DRAGON("First Dragon")
     }
 
     val classes = listOf(DungeonClass.ARCHER, DungeonClass.BERSERK, DungeonClass.MAGE, DungeonClass.HEALER, DungeonClass.TANK)
@@ -75,15 +80,18 @@ object FastLeap : Module(
     fun set(clazz: DungeonClass, phase: Phase, value: String) { targets["${clazz.name}:${phase.name}"] = value.trim() }
     fun save() = ModuleManager.saveConfigurations()
 
-    private val sectionDoneRegex = Regex("^.{1,16} (?:activated|completed) a (?:terminal|lever|device)! \\((\\d)/(\\d)\\)$")
+    private val sectionDoneRegex = Regex("^.+ (?:completed a device|activated a terminal|activated a lever)! \\((\\d+)/\\1\\)$")
+    private val leapedRegex = Regex("^You have teleported to \\w{1,16}!$")
+    private val cooldownRegex = Regex("^This ability is on cooldown for [\\d.]+s\\.$")
+    private const val LIGHTNING_SECONDS = 1.5
+    private const val MENU_TIMEOUT_MS = 2000L
 
     // Boss phase from chat; windowed phases roll over to the next one when [phaseUntil] passes
     private var bossPhase: Phase? = null
     private var phaseUntil = 0L
-    private var finished = false
+    private var lasers = 0
     private var section = 0
     private var bloodOpenedAt = 0L
-    private val dragonsSeenAlive = HashSet<WitherDragonsEnum>()
 
     /** Resolved leap: [name] is null when nobody in the party matches [value]. */
     private class Pick(val phase: Phase, val value: String, val name: String?)
@@ -104,69 +112,77 @@ object FastLeap : Module(
     private var forcedPhase: Phase? = null
 
     private val rollover = mapOf(
-        Phase.MAXOR_DEAD to Phase.BEFORE_LIGHTNING, Phase.EE2 to Phase.DURING_S2, Phase.EE3 to Phase.DURING_S3,
-        Phase.CORE to Phase.DURING_S4, Phase.FIRST_DRAGON_DEAD to null
+        Phase.BEFORE_LIGHTNING to Phase.AFTER_LIGHTNING, Phase.EE2 to Phase.DURING_S2, Phase.EE3 to Phase.DURING_S3,
+        Phase.CORE to Phase.DURING_S4, Phase.RECORE to Phase.GOLDOR_DEAD
     )
 
-    private fun enter(phase: Phase) {
-        if (finished) return
+    /** [seconds] = how long until the phase rolls over to its [rollover] entry; null = until something else replaces it. */
+    private fun enter(phase: Phase, seconds: Double? = null) {
         bossPhase = phase
-        phaseUntil = if (phase in rollover) System.currentTimeMillis() + (window * 1000).toLong() else Long.MAX_VALUE
+        phaseUntil = seconds?.let { System.currentTimeMillis() + (it * 1000).toLong() } ?: Long.MAX_VALUE
     }
+
+    private fun before(phase: Phase) = (bossPhase?.ordinal ?: -1) < phase.ordinal
 
     private fun currentPhase(): Phase? {
         forcedPhase?.let { return it }
-        if (!DungeonUtils.inDungeons || finished) return null
+        if (!DungeonUtils.inDungeons) return null
         if (!DungeonUtils.inBoss) {
-            val doorOpenerActive = bloodOpenedAt == 0L || System.currentTimeMillis() < bloodOpenedAt + (window * 1000).toLong()
+            val doorOpenerActive = bloodOpenedAt == 0L || System.currentTimeMillis() < bloodOpenedAt + (bloodLeap * 1000).toLong()
             return if (doorOpenerActive) Phase.DOOR_OPENER else null
         }
-        if (System.currentTimeMillis() >= phaseUntil) bossPhase?.let { old ->
-            val next = rollover[old]
-            if (next == null) { finished = true; bossPhase = null } else enter(next)
-        }
+        if (System.currentTimeMillis() >= phaseUntil) bossPhase?.let { rollover[it] }?.let { enter(it) }
         return bossPhase
     }
 
     init {
         on<MessageEvent.Chat> {
-            when {
-                message == "The BLOOD DOOR has been opened!" -> bloodOpenedAt = System.currentTimeMillis()
-                message == "[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!" -> enter(Phase.MAXOR_CRYSTALS)
-                message == "[BOSS] Storm: Pathetic Maxor, just like expected." -> enter(Phase.MAXOR_DEAD)
-                message == "[BOSS] Storm: ENERGY HEED MY CALL!" || message == "[BOSS] Storm: THUNDER LET ME BE YOUR CATALYST!" ->
-                    if (bossPhase == Phase.MAXOR_DEAD || bossPhase == Phase.BEFORE_LIGHTNING) enter(Phase.AFTER_LIGHTNING)
-                message == "[BOSS] Storm: Oof" || message == "[BOSS] Storm: Ouch, that hurt!" ->
-                    if (bossPhase?.let { it in Phase.MAXOR_DEAD..Phase.AFTER_LIGHTNING } == true) enter(Phase.FIRST_CRUSH)
-                message == "[BOSS] Storm: I should have known that I stood no chance." -> enter(Phase.STORM_DEAD)
-                message == "[BOSS] Goldor: Who dares trespass into my domain?" -> { section = 1; melodyFromChat = null; enter(Phase.DURING_S1) }
-                message == "The Core entrance is opening!" -> enter(Phase.RECORE)
-                message == "[BOSS] Necron: You went further than any human before, congratulations." -> enter(Phase.GOLDOR_DEAD)
-                message == "[BOSS] Necron: All this, for nothing..." -> enter(Phase.NECRON_DEAD)
+            when (message) {
+                "The BLOOD DOOR has been opened!" -> bloodOpenedAt = System.currentTimeMillis()
+                "[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!" -> enter(Phase.MAXOR_CRYSTALS)
+                "[BOSS] Maxor: THAT BEAM! IT HURTS! IT HURTS!!", "[BOSS] Maxor: YOU TRICKED ME!" -> if (++lasers == 2) enter(Phase.SECOND_LASER)
+                "[BOSS] Storm: Don't boast about beating this simple minded Wither." -> if (before(Phase.BEFORE_LIGHTNING)) enter(Phase.BEFORE_LIGHTNING)
+                // Said while the lightning charges; the strike is over about LIGHTNING_SECONDS later
+                "[BOSS] Storm: I'd be happy to show you what that's like!" ->
+                    if (before(Phase.AFTER_LIGHTNING) && phaseUntil == Long.MAX_VALUE) enter(Phase.BEFORE_LIGHTNING, LIGHTNING_SECONDS)
+                "[BOSS] Storm: Oof", "[BOSS] Storm: Ouch, that hurt!" -> if (before(Phase.FIRST_CRUSH)) enter(Phase.FIRST_CRUSH)
+                "[BOSS] Storm: I should have known that I stood no chance." -> enter(Phase.STORM_DEAD)
+                "[BOSS] Goldor: Who dares trespass into my domain?" -> { section = 1; melodyFromChat = null; enter(Phase.DURING_S1) }
+                // Goldor's real death has no marker, so Recore just lasts a set time
+                "The Core entrance is opening!" -> enter(Phase.RECORE, goldorDeath)
+                "[BOSS] Necron: That's a very impressive trick. I guess I'll have to handle this myself." -> enter(Phase.MIDWAY_NECRON)
                 else -> {
+                    // Hypixel's own leap message, so leaps from the menu by hand or from other mods use up During S# too
+                    if (leapedRegex.matches(message)) currentPhase()?.takeIf { it in duringNext }?.let { usedDuring.add(it) }
+                    // On cooldown the menu never opens. Once it has, the message is about some other ability.
+                    if (menuOpenedAt == 0L && cooldownRegex.matches(message)) pending = null
                     melodyChatRegex.find(message)?.let { melodyFromChat = it.groupValues[1] }
-                    val (done, total) = sectionDoneRegex.find(message)?.destructured ?: return@on
-                    if (done != total || section !in 1..3) return@on
-                    enter(listOf(Phase.EE2, Phase.EE3, Phase.CORE)[section - 1])
+                    if (section !in 1..3 || !sectionDoneRegex.matches(message)) return@on
+                    enter(listOf(Phase.EE2, Phase.EE3, Phase.CORE)[section - 1], sectionCarry)
                     section++
                     melodyFromChat = null
                 }
             }
         }
 
-        on<TickEvent.End> {
-            val player = mc.player ?: return@on
-            when (bossPhase) {
-                Phase.NECRON_DEAD -> if ((0..8).any { player.inventory.getItem(it).itemId.endsWith("_KING_RELIC") }) enter(Phase.PICKUP_RELIC)
-                else -> {}
-            }
-            // Odin's dragon states (needs Odin's Wither Dragons on); the first one that was alive and is now dead ends it
-            if (bossPhase == Phase.NECRON_DEAD || bossPhase == Phase.PICKUP_RELIC) WitherDragonsEnum.entries.forEach {
-                if (it.state == WitherDragonState.ALIVE) dragonsSeenAlive.add(it)
-                else if (it.state == WitherDragonState.DEAD && it in dragonsSeenAlive && bossPhase != Phase.FIRST_DRAGON_DEAD) enter(Phase.FIRST_DRAGON_DEAD)
-            }
-            if (pending != null && System.currentTimeMillis() > timeoutAt) pending = null
+        // Stays on First Dragon for the rest of the run. Dragons only exist after Necron.
+        on<EntityEvent.Add> {
+            if (entity.type == EntityTypes.ENDER_DRAGON && DungeonUtils.inBoss && !before(Phase.MIDWAY_NECRON) && before(Phase.FIRST_DRAGON)) enter(Phase.FIRST_DRAGON)
         }
+
+        on<TickEvent.End> {
+            if (before(Phase.PICKUP_RELIC) && RelicSpawnTimer.relicsSpawned) enter(Phase.PICKUP_RELIC)
+            if (pending == null) return@on
+            if (menuOpenedAt != 0L) {
+                if (!leapMenuOpen()) pending = null // closed by hand before the delay ran out
+            } else if (System.currentTimeMillis() > timeoutAt) {
+                pending = null
+                closeSoon()
+            }
+        }
+
+        // A click we didn't send (ours clears pending first): the player leaped by hand, so don't click a second head
+        onSend<ServerboundContainerClickPacket> { pending = null }
 
         // Checked every frame so the random delay isn't rounded to whole ticks
         on<ScreenEvent.Render> { pending?.let { tryLeap(it) } }
@@ -174,10 +190,9 @@ object FastLeap : Module(
         on<LevelEvent.Load> {
             bossPhase = null
             phaseUntil = 0L
-            finished = false
+            lasers = 0
             section = 0
             bloodOpenedAt = 0L
-            dragonsSeenAlive.clear()
             usedDuring.clear()
             melodyFromChat = null
             forcedPhase = null
@@ -189,14 +204,15 @@ object FastLeap : Module(
 
     /** Called from MinecraftMixin at startAttack HEAD; true cancels the attack. Blank target = left click passes through. */
     fun onLeftClick(): Boolean {
-        if (!enabled || pending != null || mc.gui.screen() != null || !holdingLeap()) return false
+        if (!enabled || mc.gui.screen() != null || !holdingLeap()) return false
+        if (pending != null) return true // still waiting on the menu; extra clicks do nothing
         val pick = resolve() ?: return false
         if (pick.name == null && !dryRun) {
             modMessage("§c${describe(pick)} cannot be found.")
             return true
         }
         pending = pick
-        timeoutAt = System.currentTimeMillis() + 3000
+        timeoutAt = System.currentTimeMillis() + MENU_TIMEOUT_MS
         menuOpenedAt = 0L
         rightClick()
         return true
@@ -244,8 +260,8 @@ object FastLeap : Module(
     }
 
     private fun tryLeap(pick: Pick) {
+        if (!leapMenuOpen()) return
         val chest = mc.gui.screen() as? AbstractContainerScreen<*> ?: return
-        if (chest.title.string != "Spirit Leap" && chest.title.string != "Teleport to Player") return
         val heads = chest.menu.slots.subList(11, 16)
         if (heads.all { it.item.isEmpty }) return
         val now = System.currentTimeMillis()
@@ -255,10 +271,10 @@ object FastLeap : Module(
         }
         if (now - menuOpenedAt < rolledDelay) return
         pending = null
-        if (pick.phase in duringNext) usedDuring.add(pick.phase)
 
         val waited = "waited ${now - menuOpenedAt} ms, rolled $rolledDelay ms"
         if (dryRun) {
+            if (pick.phase in duringNext) usedDuring.add(pick.phase) // no real leap, so no chat line to count it
             modMessage("§eWould have leaped to ${pick.name ?: describe(pick)} §7(${pick.phase.label}: ${pick.value}, $waited)")
             return closeSoon()
         }
@@ -271,10 +287,9 @@ object FastLeap : Module(
         modMessage("Fast leaping to ${pick.name} §7($waited)")
     }
 
-    private fun closeSoon() = schedule(2) {
-        val title = mc.gui.screen()?.title?.string
-        if (title == "Spirit Leap" || title == "Teleport to Player") mc.player?.closeContainer()
-    }
+    private fun leapMenuOpen() = mc.gui.screen()?.title?.string.let { it == "Spirit Leap" || it == "Teleport to Player" }
+
+    private fun closeSoon() = schedule(2) { if (leapMenuOpen()) mc.player?.closeContainer() }
 
     /** Testing: null goes back to automatic. Also forgets which During S# leaps were used. */
     fun forcePhase(name: String?) {

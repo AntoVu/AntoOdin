@@ -66,7 +66,7 @@ val aoCommand = Commodore("ao") {
         }
         literal("next").runs { FastLeap.nextPhase() }
         literal("clear").runs { FastLeap.forcePhase(null) }
-        literal("melody").runs { name: String -> FastLeap.forceMelody(name) }
+        literal("melody").runs { name: String, clicks: Int? -> FastLeap.forceMelody(name, clicks) }
     }
     literal("levelcolors").runs { schedule(1) { mc.gui.setScreen(LevelColorsScreen(null)) } }
 

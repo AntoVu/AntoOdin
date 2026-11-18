@@ -47,6 +47,8 @@ object FastLeap : Module(
     private val bloodLeap by NumberSetting("Blood Leap", 3.0, 1.0..5.0, 0.5, desc = "How long Door Opener stays active after the blood door opens.", unit = "s")
     private val sectionCarry by NumberSetting("Section Carry Over", 1.5, 1.0..5.0, 0.5, desc = "How long EE2, EE3 and Core stay active after a terminal section completes.", unit = "s")
     private val goldorDeath by NumberSetting("Goldor Death", 3.0, 1.0..5.0, 0.5, desc = "How long after the core opens Recore turns into Goldor Dead.", unit = "s")
+    private val skipDoneMelody by BooleanSetting("Skip Done Melody", true, desc = "@melody targets: once anyone has finished melody (3/3) this section, leap to the next phase's target instead (EE2, EE3, Core or Recore), the same way a used During S# leap does. Resets every section.")
+    private val melodyThreshold by NumberSetting("Melody Threshold", 3, 1..3, 1, desc = "@melody targets: leap to the next phase's target instead once the player furthest into melody has this many clicks. 1 = only while everyone is at 0/3, 2 = up to 1/3, 3 = always leap to them, however far along they are (finishing is up to Skip Done Melody). The target is still whoever opened melody first; only the threshold looks at the furthest player.")
     // ponytail: temporary testing aid, remove once the phases are tuned
     private val dryRun by BooleanSetting("Dry Run", false, desc = "Doesn't leap: says who it would have leaped to and how long it waited after the menu opened, then closes the menu.")
     private val openEditor by ActionSetting("Open Editor", desc = "Opens the per-class leap target editor.") {
@@ -66,10 +68,10 @@ object FastLeap : Module(
     // Common party finder targets, one entry per phase in Phase order ("-" = blank)
     private val defaults: Map<String, String> = mapOf(
         DungeonClass.ARCHER to "on T B - - M H - M - H - M H M H H - -",
-        DungeonClass.BERSERK to "- H - T - - - @melody M - H - M - M H H - -",
+        DungeonClass.BERSERK to "- H - T - - - @melody/T M - H - M - M H H - -",
         DungeonClass.MAGE to "on - B A H T H - - - - - - - - H H B H",
         DungeonClass.HEALER to "on - B A - B - - M - - - M - M - - B -",
-        DungeonClass.TANK to "- - B - - - H @melody M B H A M H M H H A H",
+        DungeonClass.TANK to "- - B - - - H - M B H A M H M H H A H",
     ).flatMap { (clazz, row) ->
         row.split(' ').also { check(it.size == Phase.entries.size) }
             .mapIndexed { i, v -> "${clazz.name}:${Phase.entries[i].name}" to v.takeIf { it != "-" }.orEmpty() }
@@ -85,6 +87,7 @@ object FastLeap : Module(
     private val cooldownRegex = Regex("^This ability is on cooldown for [\\d.]+s\\.$")
     private const val LIGHTNING_SECONDS = 1.5
     private const val MENU_TIMEOUT_MS = 2000L
+    private const val MELODY_CLOSE_GRACE_MS = 1500L
 
     // Boss phase from chat; windowed phases roll over to the next one when [phaseUntil] passes
     private var bossPhase: Phase? = null
@@ -104,9 +107,14 @@ object FastLeap : Module(
     private val usedDuring = HashSet<Phase>()
     private val duringNext = mapOf(Phase.DURING_S1 to Phase.EE2, Phase.DURING_S2 to Phase.EE3, Phase.DURING_S3 to Phase.CORE, Phase.DURING_S4 to Phase.RECORE)
 
-    // Melody holder from party chat, reset each section; Odin's melody websocket is checked first
-    private var melodyFromChat: String? = null
+    // Melody this section: players in the order they opened it, and the furthest each got (0-3, 3 = done).
+    // Filled from Odin's melody websocket and from party chat, reset every section.
+    private val melodyOrder = LinkedHashSet<String>()
+    private val melodyClicks = HashMap<String, Int>()
+    private val melodyLastSeen = HashMap<String, Long>() // last time Odin listed them in melody
+    private val terminalDoneRegex = Regex("^(\\w{1,16}) activated a terminal! \\(\\d+/\\d+\\)$")
     private val melodyChatRegex = Regex("^Party > (?:\\[[^\\]]+] )?(\\w{1,16}): .*\\b(?:melody|meowlody)\\b.*$", RegexOption.IGNORE_CASE)
+    private val melodyChatClicksRegex = Regex("\\b([0-3])/3\\b|\\b(33|66|67|100)%")
 
     /** Set with /ao fastleap phase|next to test phases anywhere; cleared on world change. */
     private var forcedPhase: Phase? = null
@@ -147,7 +155,7 @@ object FastLeap : Module(
                     if (before(Phase.AFTER_LIGHTNING) && phaseUntil == Long.MAX_VALUE) enter(Phase.BEFORE_LIGHTNING, LIGHTNING_SECONDS)
                 "[BOSS] Storm: Oof", "[BOSS] Storm: Ouch, that hurt!" -> if (before(Phase.FIRST_CRUSH)) enter(Phase.FIRST_CRUSH)
                 "[BOSS] Storm: I should have known that I stood no chance." -> enter(Phase.STORM_DEAD)
-                "[BOSS] Goldor: Who dares trespass into my domain?" -> { section = 1; melodyFromChat = null; enter(Phase.DURING_S1) }
+                "[BOSS] Goldor: Who dares trespass into my domain?" -> { section = 1; resetMelody(); enter(Phase.DURING_S1) }
                 // Goldor's real death has no marker, so Recore just lasts a set time
                 "The Core entrance is opening!" -> enter(Phase.RECORE, goldorDeath)
                 "[BOSS] Necron: That's a very impressive trick. I guess I'll have to handle this myself." -> enter(Phase.MIDWAY_NECRON)
@@ -156,11 +164,17 @@ object FastLeap : Module(
                     if (leapedRegex.matches(message)) currentPhase()?.takeIf { it in duringNext }?.let { usedDuring.add(it) }
                     // On cooldown the menu never opens. Once it has, the message is about some other ability.
                     if (menuOpenedAt == 0L && cooldownRegex.matches(message)) pending = null
-                    melodyChatRegex.find(message)?.let { melodyFromChat = it.groupValues[1] }
+                    melodyChatRegex.find(message)?.let { match ->
+                        val clicks = melodyChatClicksRegex.find(message)?.groupValues?.let { g ->
+                            g[1].toIntOrNull() ?: mapOf("33" to 1, "66" to 2, "67" to 2, "100" to 3)[g[2]]
+                        }
+                        noteMelody(match.groupValues[1], clicks ?: 0)
+                    }
+                    terminalDoneRegex.find(message)?.groupValues?.get(1)?.let { melodyMaybeDone(it) }
                     if (section !in 1..3 || !sectionDoneRegex.matches(message)) return@on
                     enter(listOf(Phase.EE2, Phase.EE3, Phase.CORE)[section - 1], sectionCarry)
                     section++
-                    melodyFromChat = null
+                    resetMelody()
                 }
             }
         }
@@ -172,6 +186,7 @@ object FastLeap : Module(
 
         on<TickEvent.End> {
             if (before(Phase.PICKUP_RELIC) && RelicSpawnTimer.relicsSpawned) enter(Phase.PICKUP_RELIC)
+            if (section > 0) pollOdinMelody()
             if (pending == null) return@on
             if (menuOpenedAt != 0L) {
                 if (!leapMenuOpen()) pending = null // closed by hand before the delay ran out
@@ -194,7 +209,7 @@ object FastLeap : Module(
             section = 0
             bloodOpenedAt = 0L
             usedDuring.clear()
-            melodyFromChat = null
+            resetMelody()
             forcedPhase = null
             pending = null
         }
@@ -225,39 +240,87 @@ object FastLeap : Module(
         var phase = currentPhase() ?: return null
         if (phase in usedDuring) phase = duringNext.getValue(phase)
         val self = DungeonUtils.currentDungeonPlayer
-        val value = get(self.clazz, phase).takeIf { it.isNotBlank() } ?: return null
+        var value = get(self.clazz, phase).takeIf { it.isNotBlank() } ?: return null
+        if (isMelody(value) && phase in duringNext && melodyPassed()) {
+            phase = duringNext.getValue(phase)
+            value = get(self.clazz, phase).takeIf { it.isNotBlank() } ?: return null
+        }
         val others = DungeonUtils.leapTeammates.filter { it.clazz != DungeonClass.EMPTY && it.name != self.name }
         fun named(name: String?) = others.firstOrNull { it.name.equals(name, true) }?.name
+        fun target(v: String) = if (v.length == 1) {
+            // Duplicate classes: first alive one in leap menu order (type a name to pick a specific player)
+            val clazz = classLetters[v.uppercase()[0]]
+            others.filter { it.clazz == clazz }.let { list -> list.firstOrNull { !it.isDead } ?: list.firstOrNull() }?.name
+        } else named(v)
 
         val name = when {
             phase == Phase.DOOR_OPENER -> named(DungeonUtils.doorOpener)
-            value.startsWith("@m", true) -> named(melodyPlayer())
-            value.length == 1 -> {
-                // Duplicate classes: first alive one in leap menu order (type a name to pick a specific player)
-                val clazz = classLetters[value.uppercase()[0]]
-                others.filter { it.clazz == clazz }.let { list -> list.firstOrNull { !it.isDead } ?: list.firstOrNull() }?.name
-            }
-            else -> named(value)
+            // First player who opened melody this section, else the optional fallback after the slash (@melody/T)
+            isMelody(value) -> melodyOrder.firstNotNullOfOrNull { named(it) } ?: melodyFallback(value)?.let { target(it) }
+            else -> target(value)
         }
         return Pick(phase, value, name)
     }
 
+    private fun isMelody(value: String) = value.startsWith("@m", true)
+    private fun melodyFallback(value: String) = value.substringAfter('/', "").trim().takeIf { it.isNotEmpty() }
+
+    /** Melody is far enough along (see Melody Threshold / Skip Done Melody) that @melody moves on to the next phase. */
+    private fun melodyPassed(): Boolean {
+        val furthest = melodyClicks.values.maxOrNull() ?: return false
+        return (skipDoneMelody && furthest >= 3) || (melodyThreshold < 3 && furthest >= melodyThreshold)
+    }
+
+    private fun noteMelody(name: String, clicks: Int) {
+        if (name.equals(mc.user.name, true)) return
+        melodyOrder.add(name)
+        melodyClicks.merge(name, clicks, ::maxOf)
+    }
+
+    private fun resetMelody() {
+        melodyOrder.clear()
+        melodyClicks.clear()
+        melodyLastSeen.clear()
+    }
+
+    /**
+     * [name] activated a terminal. Odin never reports 3/3, so this is how melody counts as done: the player was in
+     * melody on Odin's websocket just now (it drops them on close, around when this line arrives), or, if Odin
+     * never listed them, they said melody in party chat this section (their next terminal is taken to be melody).
+     */
+    private fun melodyMaybeDone(name: String) {
+        if (name !in melodyOrder) return
+        val seen = melodyLastSeen[name]
+        if (seen == null || System.currentTimeMillis() - seen < MELODY_CLOSE_GRACE_MS) melodyClicks[name] = 3
+    }
+
     @Suppress("UNCHECKED_CAST")
-    private fun melodyPlayer(): String? {
-        // Odin keeps who is in melody (websocket, needs Odin's Melody Message with Melody Progress) in a private map
-        val fromOdin = runCatching {
-            val field = MelodyMessage::class.java.getDeclaredField("melodies").apply { isAccessible = true }
-            (field.get(MelodyMessage) as Map<String, *>).keys.firstOrNull { it != mc.user.name }
-        }.getOrNull()
-        return fromOdin ?: melodyFromChat
+    private val odinMelodies by lazy {
+        runCatching { MelodyMessage::class.java.getDeclaredField("melodies").apply { isAccessible = true }.get(MelodyMessage) as Map<String, Any> }.getOrNull()
+    }
+
+    /**
+     * Odin's melody websocket (needs Odin's Melody Message with Melody Progress) keeps players in melody in a private map.
+     * `clay` is the row of the terracotta button: row 2 = 1/3 and row 3 = 2/3 (Odin's own 33%/67%). Done comes from [melodyMaybeDone].
+     */
+    private fun pollOdinMelody() {
+        val map = odinMelodies ?: return
+        val now = System.currentTimeMillis()
+        for ((name, data) in map) {
+            melodyLastSeen[name] = now
+            val clay = runCatching { data.javaClass.getDeclaredField("clay").apply { isAccessible = true }.get(data) as Int? }.getOrNull()
+            noteMelody(name, ((clay ?: 1) - 1).coerceIn(0, 3))
+        }
     }
 
     private fun describe(pick: Pick): String = when {
         pick.phase == Phase.DOOR_OPENER -> "Door opener"
-        pick.value.startsWith("@m", true) -> "Melody player"
-        pick.value.length == 1 -> classLetters[pick.value.uppercase()[0]]?.name?.lowercase()?.replaceFirstChar(Char::uppercase) ?: "Class '${pick.value}'"
-        else -> pick.value
+        isMelody(pick.value) -> "Melody player" + (melodyFallback(pick.value)?.let { " and ${describeTarget(it)}" } ?: "")
+        else -> describeTarget(pick.value)
     }
+
+    private fun describeTarget(v: String) =
+        if (v.length == 1) classLetters[v.uppercase()[0]]?.name?.lowercase()?.replaceFirstChar(Char::uppercase) ?: "Class '$v'" else v
 
     private fun tryLeap(pick: Pick) {
         if (!leapMenuOpen()) return
@@ -301,8 +364,8 @@ object FastLeap : Module(
 
     fun nextPhase() = forcePhase(Phase.entries.getOrNull((forcedPhase?.ordinal ?: -1) + 1)?.name)
 
-    fun forceMelody(name: String) {
-        melodyFromChat = name
-        modMessage("Fast Leap melody player: $name")
+    fun forceMelody(name: String, clicks: Int?) {
+        noteMelody(name, (clicks ?: 0).coerceIn(0, 3))
+        modMessage("Fast Leap melody: $name at ${melodyClicks[name] ?: 0}/3 (order: ${melodyOrder.joinToString()})")
     }
 }

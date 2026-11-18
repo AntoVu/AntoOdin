@@ -37,7 +37,7 @@ class FastLeapScreen(private val previous: Screen?, private val clazz: DungeonCl
                 }.bounds(x, y, FIELD_WIDTH, 18).build())
             } else {
                 val box = EditBox(font, x, y, FIELD_WIDTH, 18, Component.literal(phase.label))
-                box.setMaxLength(16)
+                box.setMaxLength(24) // "@melody/" + a 16-letter name
                 box.setHint(Component.literal(if (phase.name.startsWith("DURING")) "Letter/name/@melody" else "Letter or name"))
                 box.value = FastLeap.get(clazz, phase)
                 box.setResponder { FastLeap.set(clazz, phase, it) }
@@ -57,6 +57,7 @@ class FastLeapScreen(private val previous: Screen?, private val clazz: DungeonCl
         phases.forEachIndexed { i, phase ->
             guiGraphics.text(font, phase.label, columnX(i / rows), rowY(i % rows) + 5, -1)
         }
+        guiGraphics.centeredText(font, "Optional melody fallback: @melody/T leaps to the tank when nobody is in melody", width / 2, rowY(rows) + 32, 0xFF888888.toInt())
     }
 
     override fun onClose() {

@@ -24,9 +24,6 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Pearl Refill**
  - Auto refill pearls after set amount
 
-**Breaker Swap Delay**
- - Blocks mining with the Dungeon Breaker for a set delay (about your ping + 50 ms) after swapping to it, so the first block breaks instantly instead of taking ~0.3s
-
 **Quiet Ice Fill**
  - Plays only one ice break sound when many Ice Fill blocks break at once
 

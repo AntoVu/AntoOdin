@@ -15,6 +15,7 @@ public class SoundManagerMixin {
     @Inject(method = "play", at = @At("HEAD"))
     private void recordSound(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         com.anto.antoodin.features.impl.noamm.SoundManager.recordPlayedSound(instance);
+        com.anto.antoodin.features.SoundLog.record(instance);
     }
 
     @Inject(method = "play", at = @At("HEAD"), cancellable = true)

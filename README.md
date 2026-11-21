@@ -354,6 +354,10 @@ From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (
 `/ao sounds`
  - Opens Sound Manager
 
+`/ao dev soundlog [phrase]`
+ - Debug: prints every played sound to chat (id, pitch, volume); run again with no phrase to turn it off
+ - With a phrase (spaces allowed, case ignored), prints only the sounds within 1 s of a chat line containing it
+
 `/ao waypoints`
  - Opens Odin's waypoint manager (import/export)
  - `color <RRGGBBAA>` sets the next waypoint's color

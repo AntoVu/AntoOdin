@@ -3,6 +3,7 @@ package com.anto.antoodin.commands
 import com.anto.antoodin.features.Calculators
 import com.anto.antoodin.features.DwpPresets
 import com.anto.antoodin.features.MutationTracker
+import com.anto.antoodin.features.SoundLog
 import com.anto.antoodin.features.impl.anto.ChatRules
 import com.anto.antoodin.features.impl.anto.CleanMap
 import com.anto.antoodin.features.impl.anto.ChatRulesScreen
@@ -47,6 +48,11 @@ val aoCommand = Commodore("ao") {
 
     // Opened next tick, after chat closes, so the chat screen doesn't replace it
     literal("sounds").runs { schedule(1) { mc.gui.setScreen(SoundManagerScreen(null)) } }
+
+    // Debug tools
+    literal("dev") {
+        literal("soundlog").runs { phrase: GreedyString? -> SoundLog.command(phrase?.string) }
+    }
 
     literal("buttons").runs { schedule(1) { mc.gui.setScreen(InventoryButtonsScreen(null)) } }
 

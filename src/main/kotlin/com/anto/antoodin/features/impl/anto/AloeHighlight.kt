@@ -1,6 +1,5 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
@@ -8,7 +7,7 @@ import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.RenderExtractEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.noControlCodes
@@ -21,10 +20,9 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.phys.AABB
 
-object AloeHighlight : Module(
+object AloeHighlight : SubFeature(
     name = "Aloe Highlight",
-    description = "Highlights aloe in the Garden by growth stage.",
-    category = Skit.ANTO
+    description = "Highlights aloe in the Garden by growth stage."
 ) {
     private val notReadyColor by ColorSetting("Not Ready Color", Colors.MINECRAFT_RED, true, desc = "Color for Stage 1-10.")
     private val notOptimalColor by ColorSetting("Not Optimal Color", Colors.MINECRAFT_YELLOW, true, desc = "Color for Stage 11-12.")

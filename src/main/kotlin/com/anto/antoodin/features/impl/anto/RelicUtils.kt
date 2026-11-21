@@ -1,13 +1,12 @@
 // Wrong cauldron block: idea from NoammAddons by Noamm9 (CC0-1.0)
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.BlockInteractEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.itemId
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Blocks
@@ -16,10 +15,9 @@ import net.minecraft.world.level.block.Blocks
  * Right clicks go through Odin's [BlockInteractEvent]; left clicks and the menu guard are hooked in
  * [com.anto.antoodin.mixin.mixins.MultiPlayerGameModeMixin] and [com.anto.antoodin.mixin.mixins.MinecraftMixin].
  */
-object RelicUtils : Module(
+object RelicUtils : SubFeature(
     name = "Relic Utils",
-    description = "Blocks placing an M7 relic at the wrong cauldron and opening the SkyBlock menu right after placing.",
-    category = Skit.ANTO
+    description = "Blocks placing an M7 relic at the wrong cauldron and opening the SkyBlock menu right after placing."
 ) {
     private val blockWrong by BooleanSetting("Block Wrong Cauldron", true, desc = "Cancels clicks on a cauldron or anvil that isn't your relic's.")
     private val menuGuard by BooleanSetting("Menu Guard", true, desc = "Blocks right clicking the SkyBlock menu for a moment after placing a relic.")

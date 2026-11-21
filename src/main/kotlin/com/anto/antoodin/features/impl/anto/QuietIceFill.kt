@@ -1,16 +1,14 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.sounds.SoundEvents
 
 /** Ice Fill breaks every ice block at once, each with its own glass break sound. */
-object QuietIceFill : Module(
+object QuietIceFill : SubFeature(
     name = "Quiet Ice Fill",
-    description = "Plays only one ice break sound when many Ice Fill blocks break at once.",
-    category = Skit.ANTO
+    description = "Plays only one ice break sound when many Ice Fill blocks break at once."
 ) {
     // Breaks that arrive together land within a tick or two; the sound itself is ~0.3 s
     private const val WINDOW_MS = 100L

@@ -1,11 +1,10 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
 import com.odtheking.odin.events.core.onReceive
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.features.impl.boss.termsim.TermSimGUI
 import com.odtheking.odin.utils.skyblock.dungeon.terminals.terminalhandler.TerminalHandler
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
@@ -24,10 +23,9 @@ import net.minecraft.sounds.SoundEvents
  * Completion lines (terminal, lever, device, gate, core) come with the same pling, so each takes
  * one pling of its server tick before our clicks do.
  */
-object TerminalClickLimit : Module(
+object TerminalClickLimit : SubFeature(
     name = "Terminal Click Limit",
-    description = "Holds back terminal clicks Hypixel would ignore (more than 5 in 500 ms), so Odin's solver never shows them as done. Needs Odin's Terminal Solver.",
-    category = Skit.ANTO
+    description = "Holds back terminal clicks Hypixel would ignore (more than 5 in 500 ms), so Odin's solver never shows them as done. Needs Odin's Terminal Solver."
 ) {
     private const val MAX_CLICKS = 5
     private const val WINDOW_NS = 500_000_000L

@@ -2,13 +2,12 @@
 // Implementation based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
 package com.anto.antoodin.features.impl.odinclient
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.core.SectionPos
 import net.minecraft.world.item.DyeColor
@@ -22,10 +21,9 @@ import net.minecraft.world.level.block.state.BlockState
  * @see com.anto.antoodin.mixin.mixins.RenderSectionRegionMixin
  * @see com.anto.antoodin.mixin.mixins.SodiumLevelSliceMixin
  */
-object FuckDiorite : Module(
+object FuckDiorite : SubFeature(
     name = "Fuck Diorite",
-    description = "Renders the pillars in the storm fight as glass.",
-    category = Skit.ODINCLIENT
+    description = "Renders the pillars in the storm fight as glass."
 ) {
     // Labels match OdinClient's saved option strings
     enum class GlassColor(val color: DyeColor?) {

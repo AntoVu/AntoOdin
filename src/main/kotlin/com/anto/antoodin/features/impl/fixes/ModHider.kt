@@ -3,8 +3,7 @@ package com.anto.antoodin.features.impl.fixes
 
 import com.anto.antoodin.mixin.accessors.LanguageInvoker
 import com.anto.antoodin.mixin.accessors.LanguageManagerAccessor
-import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import net.minecraft.client.multiplayer.ClientPacketListener
 import net.minecraft.client.multiplayer.ServerData
 import net.minecraft.client.resources.language.ClientLanguage
@@ -29,10 +28,9 @@ import kotlin.jvm.optionals.getOrNull
  * @see com.anto.antoodin.mixin.mixins.AnvilMenuMixin
  * @see com.anto.antoodin.mixin.mixins.AnvilScreenMixin
  */
-object ModHider : Module(
+object ModHider : SubFeature(
     name = "Mod Hider",
-    description = "Stops servers from detecting your mods through translation keys in signs and anvils.",
-    category = Skit.FIXES
+    description = "Stops servers from detecting your mods through translation keys in signs and anvils."
 ) {
     private val serverLanguages = IdentityHashMap<ClientPacketListener?, Language>()
     private val vanillaLanguage by lazy { LanguageInvoker.invokeLoadDefault() }

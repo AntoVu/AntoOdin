@@ -1,11 +1,10 @@
 // Ported from NoammAddons by Noamm9 (CC0-1.0)
 package com.anto.antoodin.features.impl.noamm
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import java.time.LocalTime
 
 /**
@@ -15,10 +14,9 @@ import java.time.LocalTime
  * @see com.anto.antoodin.mixin.mixins.AtmosphericFogEnvironmentMixin
  * @see com.anto.antoodin.mixin.mixins.AttributeTrackSamplerMixin
  */
-object TimeChanger : Module(
+object TimeChanger : SubFeature(
     name = "Time Changer",
-    description = "Changes the time of day the sky is drawn at.",
-    category = Skit.NOAMM
+    description = "Changes the time of day the sky is drawn at."
 ) {
     enum class Time(val ticks: Long) {
         DAY(1000), NOON(6000), SUNSET(12000), NIGHT(13000), MIDNIGHT(18000), SUNRISE(23000), REAL_TIME(-1), CUSTOM(-1)

@@ -1,11 +1,10 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.LocationChangeEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.noControlCodes
 import com.odtheking.odin.utils.skyblock.Island
@@ -30,10 +29,9 @@ import net.minecraft.world.level.block.state.BlockState
 import java.util.WeakHashMap
 import java.util.function.Predicate
 
-object JellybeanHider : Module(
+object JellybeanHider : SubFeature(
     name = "Jellybean Hider",
-    description = "Hides the Magic Jellybean mutation (sugar cane, melon stem and armor stands) in the Garden.",
-    category = Skit.ANTO
+    description = "Hides the Magic Jellybean mutation (sugar cane, melon stem and armor stands) in the Garden."
 ) {
     private const val MIN_SLIDER_Y = 67
     private val hideAboveY by NumberSetting("Hide Above Y", 76, MIN_SLIDER_Y..87, 1, desc = "Sugar cane above this Y is hidden. Jellybean armor stands are hidden one block lower.")

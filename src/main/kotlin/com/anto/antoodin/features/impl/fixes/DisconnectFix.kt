@@ -1,8 +1,7 @@
 // Feature idea from NoFrills (GPL-3.0). Written from scratch for AntoOdin, no NoFrills code is used.
 package com.anto.antoodin.features.impl.fixes
 
-import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import org.slf4j.LoggerFactory
 
 /**
@@ -11,10 +10,9 @@ import org.slf4j.LoggerFactory
  *
  * @see com.anto.antoodin.mixin.mixins.SynchedEntityDataMixin
  */
-object DisconnectFix : Module(
+object DisconnectFix : SubFeature(
     name = "Disconnect Fix",
-    description = "Stops corrupted entity data (Tarantula slayer) from disconnecting you.",
-    category = Skit.FIXES
+    description = "Stops corrupted entity data (Tarantula slayer) from disconnecting you."
 ) {
     private val logger = LoggerFactory.getLogger("AntoOdin")
 

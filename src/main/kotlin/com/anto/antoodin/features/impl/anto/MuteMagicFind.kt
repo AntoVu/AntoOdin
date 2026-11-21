@@ -1,8 +1,7 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.anto.antoodin.mixin.accessors.AbstractSoundInstanceAccessor
-import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.sounds.SoundEvents
@@ -12,10 +11,9 @@ import kotlin.math.abs
  * The Magic Find drop jingle (recorded with /ao soundlog): four rising notes 100 ms apart, each a note block pling
  * at volume 0.8 with a 0.4 echo, plus an XP orb pickup at volume 0.2. Matched by exact pitch and volume.
  */
-object MuteMagicFind : Module(
+object MuteMagicFind : SubFeature(
     name = "Mute Magic Find",
-    description = "Mutes the Magic Find drop sound in dungeons.",
-    category = Skit.ANTO
+    description = "Mutes the Magic Find drop sound in dungeons."
 ) {
     private val PLING_PITCHES = floatArrayOf(0.5873016f, 0.7936508f, 1.0476191f, 1.1746032f)
     private val ORB_PITCHES = floatArrayOf(0.6984127f, 0.93650794f, 1.2539682f, 1.4126984f)

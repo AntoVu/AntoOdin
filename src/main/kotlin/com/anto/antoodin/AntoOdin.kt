@@ -22,15 +22,12 @@ object AntoOdin : ClientModInitializer {
     override fun onInitializeClient() {
         listOf(this, FabricEventDispatcher, DwpPresets).forEach { EventBus.subscribe(it) }
 
-        ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueLoadout, KuudraAutoGFS,
-            CPSDisplay, PearlRefill, RelicUtils, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DropGuard, JellybeanHider, AloeHighlight, DungeonSplits,
-            AuctionPriceInput, IHateDoors, HiddenMobs, GateHighlight, DoorFix, ModHider, SnappyTappy,
-            MonoAudio, SoundManager, ExplosiveShot, LeapCounter, MaxorsCrystals, ItemTooltip, DamageSplash,
-            LavaToWater, FreezeDisplay, RelicSpawnTimer, TimeChanger, NoAotvPaths, CustomScoreboard, LeapMenuExtras, DragonExtras, CameraTweaks, RejoinTimer, PartyFinderExtras,
-            WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight, SpiritBear, LividSolver, EscrowFix, FuckDiorite,
-            SecretHitboxes, AutoGFS, Ghosts, CameraHelper, HighlightTrash, ChatRules, UnfocusedTweaks, CommandTooltip, LevelColors, CalendarDate, DupeClassAlert, ShadowAssassinNotify, DeathBowSwap, BloodRushWaypoints, ExperimentSolver, CorpseHighlight, InventoryButtons, ItemCustomizer,
-            AutoTip, PaneClickGuard, CleanMap, TerminalClickLimit, QuietIceFill, MuteMagicFind, MimicChestHighlight, FastLeap,
-            ItemCountFix, DisconnectFix, DoubleUseFix, CosmeticDisabler)
+        ModuleManager.registerModules(ModuleConfig("AntoOdin.json"), WardrobeAddon, QueueLoadout, CPSDisplay, DianaAutoWarp, MinionHelper, LoadoutAddon, ExperimentAddon, DungeonSplits, AuctionPriceInput,
+            HiddenMobs, GateHighlight, SnappyTappy, ExplosiveShot, MaxorsCrystals, ItemTooltip, DamageSplash, LavaToWater, NoAotvPaths,
+            CustomScoreboard, DragonExtras, RejoinTimer, PartyFinderExtras, WaypointPlacer, DoorHighlight, AutoClicker, Trajectories, Highlight,
+            SpiritBear, LividSolver, SecretHitboxes, Ghosts, HighlightTrash, UnfocusedTweaks, LevelColors, CalendarDate, DeathBowSwap,
+            BloodRushWaypoints, ExperimentSolver, CorpseHighlight, InventoryButtons, ItemCustomizer, AutoTip, CleanMap, MimicChestHighlight, FastLeap,
+            CosmeticDisabler, Fixes, Sounds, AutoGfs, Relics, ClearBlocks, Camera, Garden, LeapExtras, Alerts, Chat, Guards)
 
         JellybeanHider.registerModelHook()
 

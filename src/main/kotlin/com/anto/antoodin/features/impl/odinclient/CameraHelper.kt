@@ -1,17 +1,15 @@
 // Implementation based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
 package com.anto.antoodin.features.impl.odinclient
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 
 /** @see com.anto.antoodin.mixin.mixins.CameraMixin */
-object CameraHelper : Module(
+object CameraHelper : SubFeature(
     name = "Camera Helper",
-    description = "Various cheat additions to the vanilla camera.",
-    category = Skit.ODINCLIENT
+    description = "Various cheat additions to the vanilla camera."
 ) {
     private val cameraClip by BooleanSetting("Camera Clip", false, desc = "Allows the camera to clip through blocks.")
     private val enableDist by BooleanSetting("Custom distance", false, desc = "Allows you to set a custom distance for the camera.")

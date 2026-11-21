@@ -2,14 +2,13 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.utils.P3Section
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.StringSetting
 import com.odtheking.odin.events.EntityEvent
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.createSoundSettings
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.playSoundSettings
@@ -24,14 +23,13 @@ import net.minecraft.world.phys.Vec3
  * Counts teammates arriving at the F7 P3 spot you are standing on. Like Noamm, a teammate counts once their
  * position is in the spot's section, whether they leaped or walked.
  */
-object LeapCounter : Module(
+object LeapCounter : SubFeature(
     name = "Leap Counter",
-    description = "Shows how many players have leaped to you at the F7 P3 spots.",
-    category = Skit.NOAMM
+    description = "Shows how many players have leaped to you at the F7 P3 spots."
 ) {
     private val alertComplete by BooleanSetting("Alert Complete", true, desc = "Shows a title and plays a sound when everyone has arrived.")
     private val completeText by StringSetting("Complete Text", "§aEveryone Leaped!", desc = "Title shown when everyone has arrived.", placeholder = "§aEveryone Leaped!").withDependency { alertComplete }
-    private val completeSound = createSoundSettings("Complete Sound", "entity.experience_orb.pickup") { alertComplete }
+    private val completeSound = parent.createSoundSettings("Complete Sound", "entity.experience_orb.pickup") { alertComplete }
 
     private class Spot(val name: String, val box: AABB, val maxCount: Int, val counts: (Vec3) -> Boolean) {
         val arrived = HashSet<String>()
@@ -51,7 +49,7 @@ object LeapCounter : Module(
         Spot("Relic", AABB(16.5, 3.0, 38.5, 102.5, 10.0, 134.5), 4) { it.y <= 45 }
     )
 
-    private val hud by HUD(name, "Players that have arrived at your P3 spot.", false) { example ->
+    private val hud by HUD("$name HUD", "Players that have arrived at your P3 spot.", false) { example ->
         val spot = if (example) spots[2] else currentSpot() ?: return@HUD 0 to 0
         val max = if (example) spot.maxCount else maxCount(spot).takeIf { it > 0 } ?: return@HUD 0 to 0
         val count = spot.arrived.size

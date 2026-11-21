@@ -2,10 +2,9 @@
 package com.anto.antoodin.features.impl.fixes
 
 import com.anto.antoodin.utils.P3Section
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.Blocks
@@ -13,10 +12,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.DoorHingeSide
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 
-object DoorFix : Module(
+object DoorFix : SubFeature(
     name = "Door Fix",
-    description = "Fixes the client-side rotation of the iron doors in F7 P3 section 3.",
-    category = Skit.FIXES
+    description = "Fixes the client-side rotation of the iron doors in F7 P3 section 3."
 ) {
     private val doorPositions = buildList {
         for (i in 0..6) {

@@ -2,16 +2,14 @@
 // Implementation based on skies-starred OdinClient (Copyright (c) 2026, Starred, BSD 3-Clause)
 package com.anto.antoodin.features.impl.odinclient
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.sendCommand
 
-object EscrowFix : Module(
+object EscrowFix : SubFeature(
     name = "Escrow Fix",
-    description = "Automatically reopens the ah/bz when it gets closed by escrow.",
-    category = Skit.ODINCLIENT
+    description = "Automatically reopens the ah/bz when it gets closed by escrow."
 ) {
     private val messages = mapOf(
         "There was an error with the auction house! (AUCTION_EXPIRED_OR_NOT_FOUND)" to "ah",

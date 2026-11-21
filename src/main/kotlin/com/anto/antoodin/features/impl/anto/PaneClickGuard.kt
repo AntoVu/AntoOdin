@@ -1,17 +1,15 @@
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.events.GuiEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.skyblock.dungeon.terminals.TerminalUtils
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.core.registries.BuiltInRegistries
 
-object PaneClickGuard : Module(
+object PaneClickGuard : SubFeature(
     name = "Pane Click Guard",
-    description = "Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server.",
-    category = Skit.ANTO
+    description = "Ignores clicks on the blank glass panes that fill GUIs, so nothing is sent to the server."
 ) {
     // Experiment games where covers are clickable
     private val exempt = listOf("Chronomatron (", "Ultrasequencer (", "Superpairs (")

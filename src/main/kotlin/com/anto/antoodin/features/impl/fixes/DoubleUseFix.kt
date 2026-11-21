@@ -1,8 +1,7 @@
 // Feature idea from NoFrills (GPL-3.0). Written from scratch for AntoOdin, no NoFrills code is used.
 package com.anto.antoodin.features.impl.fixes
 
-import com.anto.antoodin.utils.Skit
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.loreString
 import com.odtheking.odin.utils.skyblock.LocationUtils
 import net.minecraft.world.InteractionHand
@@ -16,10 +15,9 @@ import net.minecraft.world.phys.HitResult
  *
  * @see com.anto.antoodin.mixin.mixins.MultiPlayerGameModeMixin
  */
-object DoubleUseFix : Module(
+object DoubleUseFix : SubFeature(
     name = "Double Use Fix",
-    description = "Stops Blaze Daggers and fishing rods from activating twice when clicking a block.",
-    category = Skit.FIXES
+    description = "Stops Blaze Daggers and fishing rods from activating twice when clicking a block."
 ) {
     // A rod can't use blocks (levers, chests) while this is on, same as NoFrills
     @JvmStatic

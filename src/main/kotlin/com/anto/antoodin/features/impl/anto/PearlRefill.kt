@@ -1,16 +1,14 @@
 package com.anto.antoodin.features.impl.anto
 
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.handlers.schedule
-import com.anto.antoodin.utils.Skit
 import net.minecraft.world.item.Items
 import kotlin.random.Random
 
-object PearlRefill : Module(
+object PearlRefill : SubFeature(
     name = "Pearl Refill",
-    description = "Automatically refill ender pearls when falling below set amount.",
-    category = Skit.ANTO
+    description = "Automatically refill ender pearls when falling below set amount."
 ) {
     private val refillTriggerAmount by NumberSetting(
         "Trigger",

@@ -6,15 +6,13 @@ import com.anto.antoodin.utils.isHeld
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import com.odtheking.odin.utils.skyblock.dungeon.M7Phases
-import com.anto.antoodin.utils.Skit
 
-object DropGuard : Module(
+object DropGuard : SubFeature(
     name = "Drop Guard",
-    description = "Prevents dropping items outside of GUIs during the F7/M7 terminals phase. Hold the override key to drop.",
-    category = Skit.ANTO
+    description = "Prevents dropping items outside of GUIs during the F7/M7 terminals phase. Hold the override key to drop."
 ) {
     private val overrideKey by KeybindSetting("Override Key", InputConstants.KEY_LALT, desc = "Hold this key to allow dropping items.")
 

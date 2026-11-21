@@ -1,7 +1,6 @@
 // Feature idea from NoFrills (GPL-3.0). Written from scratch for AntoOdin, no NoFrills code is used.
 package com.anto.antoodin.features.impl.anto
 
-import com.anto.antoodin.utils.Skit
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
@@ -11,7 +10,7 @@ import com.odtheking.odin.clickgui.settings.impl.MapSetting
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.features.ModuleManager
 import com.odtheking.odin.utils.Colors
 import com.odtheking.odin.utils.handlers.schedule
@@ -44,10 +43,9 @@ import kotlin.random.Random
  *
  * @see com.anto.antoodin.mixin.mixins.ChatComponentMixin
  */
-object ChatRules : Module(
+object ChatRules : SubFeature(
     name = "Chat Rules",
-    description = "Titles, sounds, commands or hiding for chat messages you pick. Edit them with /ao chatrules.",
-    category = Skit.ANTO
+    description = "Titles, sounds, commands or hiding for chat messages you pick. Edit them with /ao chatrules."
 ) {
     enum class MatchType(val tip: String) {
         Equals("The message must equal the text."),

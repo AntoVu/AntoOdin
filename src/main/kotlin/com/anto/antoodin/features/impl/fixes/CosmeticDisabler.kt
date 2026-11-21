@@ -22,7 +22,7 @@ import com.odtheking.odin.features.impl.render.PlayerSize
 object CosmeticDisabler : Module(
     name = "Cosmetic Disabler",
     description = "Turns off custom names, sizes and emblems that other mods give players.",
-    category = Skit.FIXES
+    category = Skit.ANTO
 ) {
     private val odinNames by BooleanSetting("Odin Dev Names", true, desc = "Odin's dev custom names. Also stops Odin scanning all on-screen text for them every frame.")
     private val odinSizes by BooleanSetting("Odin Dev Sizes", true, desc = "Odin's dev player sizes. Your own Player Size settings still apply.")

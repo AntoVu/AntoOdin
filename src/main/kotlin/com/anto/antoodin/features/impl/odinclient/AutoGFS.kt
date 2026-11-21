@@ -4,13 +4,12 @@
 package com.anto.antoodin.features.impl.odinclient
 
 import com.anto.antoodin.events.TickStartEvent
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
 import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.features.impl.dungeon.map.tile.RoomType
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.sendCommand
@@ -21,10 +20,9 @@ import com.odtheking.odin.utils.skyblock.LocationUtils
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import kotlin.random.Random
 
-object AutoGFS : Module(
+object AutoGFS : SubFeature(
     name = "Auto GFS",
-    description = "Automatically refills certain items from your sacks.",
-    category = Skit.ODINCLIENT
+    description = "Automatically refills certain items from your sacks."
 ) {
     private val inSkyblock by BooleanSetting("In Skyblock", true, desc = "gfs everywhere in skyblock.")
     private val inKuudra by BooleanSetting("In Kuudra", true, desc = "Only gfs in Kuudra.").withDependency { !inSkyblock }

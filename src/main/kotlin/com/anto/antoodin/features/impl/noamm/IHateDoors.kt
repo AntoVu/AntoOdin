@@ -1,14 +1,13 @@
 // Ported from NoammAddons by Noamm9 (CC0-1.0)
 package com.anto.antoodin.features.impl.noamm
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.SelectorSetting
 import com.odtheking.odin.events.LocationChangeEvent
 import com.odtheking.odin.events.TickEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.core.SectionPos
@@ -24,10 +23,9 @@ import net.minecraft.world.level.block.state.BlockState
  * @see com.anto.antoodin.mixin.mixins.RenderSectionRegionMixin
  * @see com.anto.antoodin.mixin.mixins.SodiumLevelSliceMixin
  */
-object IHateDoors : Module(
+object IHateDoors : SubFeature(
     name = "I Hate Doors",
-    description = "Renders dungeon doors as glass. Only the visuals change, the door is still solid.",
-    category = Skit.NOAMM
+    description = "Renders dungeon doors as glass. Only the visuals change, the door is still solid."
 ) {
     // Labels match the old string options, so saved choices load
     enum class Glass(val color: DyeColor?) {

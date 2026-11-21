@@ -1,11 +1,10 @@
 // Ported from NoammAddons by Noamm9 (CC0-1.0)
 package com.anto.antoodin.features.impl.noamm
 
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.NumberSetting
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.player.Player
@@ -17,10 +16,9 @@ import net.minecraft.world.entity.player.Player
  * @see com.anto.antoodin.mixin.mixins.GameRendererMixin
  * @see com.anto.antoodin.mixin.mixins.LightmapMixin
  */
-object CameraTweaks : Module(
+object CameraTweaks : SubFeature(
     name = "Camera Tweaks",
-    description = "Custom FOV (beyond vanilla's slider), Slowness FOV strength, Full Bright, and no Blindness or Nausea.",
-    category = Skit.NOAMM
+    description = "Custom FOV (beyond vanilla's slider), Slowness FOV strength, Full Bright, and no Blindness or Nausea."
 ) {
     private val customFov by BooleanSetting("Custom FOV", false, desc = "Overrides your FOV setting.")
     private val fov by NumberSetting("FOV", 110, 30..179, 1, desc = "FOV to use instead of the vanilla setting.").withDependency { customFov }

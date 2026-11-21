@@ -15,20 +15,8 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Queue Loadout**
  - Auto equip loadout 1-12 on keybind (opens /loadouts)
 
-**Kuudra Auto GFS**
- - Get TAP/TWAP after build
-
 **CPS Display**
  - Displays cps for left, right, or both
-
-**Pearl Refill**
- - Auto refill pearls after set amount
-
-**Quiet Ice Fill**
- - Plays only one ice break sound when many Ice Fill blocks break at once
-
-**Mute Magic Find**
- - Mutes the Magic Find drop jingle in dungeons
 
 **Mimic Chest Highlight**
  - Highlights the mimic chest (trapped chest) in F6/F7 during clear, until the mimic is killed
@@ -39,10 +27,6 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
  - `/ao fastleap` opens the editor; with two of a class, the first alive one in leap order is picked
  - During S# leaps once per section (`@melody` = whoever opened melody first, `@melody/T` adds a fallback; Melody Threshold and Skip Done Melody move on once melody is far enough along), then the section's EE2/EE3/Core/Recore target
  - Testing: Dry Run setting, `/ao fastleap phase <phase>`, `next`, `clear`, `melody <name> [clicks]`
-
-**Relic Utils**
- - Blocks placing an M7 relic at the wrong cauldron or anvil
- - Blocks right clicking the SkyBlock menu for 2s (adjustable) after placing a relic
 
 **Diana Auto Warp**
  - Auto warp to next location after digging burrow
@@ -58,19 +42,6 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
  - Auto close after use, per-slot Keep Open
  - Play sound on equip
 
-**Drop Guard**
- - Block dropping items outside GUIs during F7/M7 terminals
- - Hold override keybind to drop anyway
-
-**Chat Rules**
- - Per-message rules, edit with `/ao chatrules`
- - Match by equals, contains, starts/ends with or regex
- - Filter by dungeon class and island
- - Show title, play sound, hide message, or run a command (other mods' too) after a delay
- - Regex titles can show capture groups (`$1 [$2/$3]`)
- - Import NoFrills rules with `/ao chatrules import`
- - Pre-defined rules (old Chat Filter) that only hide spam, toggle on/off
-
 **Level Colors**
  - Custom colors for SkyBlock level prefixes in chat, tab, nametags and lore, edit with `/ao levelcolors`
  - Add ranges past 480 or recolor prestiges
@@ -79,9 +50,6 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Unfocused Tweaks**
  - Lower game sounds while tabbed out (PM sound stays normal)
  - Skip world rendering, FPS limit, no vanilla FPS reduction while tabbed out
-
-**Command Tooltip**
- - Shows the command a chat message runs on hover
 
 **Calendar Date**
  - Real date and time of SkyBlock calendar events
@@ -94,14 +62,6 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
 **Corpse Highlight**
  - Highlights Lapis, Tungsten, Umber and Vanguard corpses in Glacite Mineshafts
  - Hides opened ones, optional see-through-walls
-
-**Jellybean Hider**
- - Hides the Magic Jellybean mutation in the Garden
- - Only renders blocks that can still be broken
- - Configurable hide Y level
-
-**Aloe Highlight**
- - Highlights aloe by growth stage in the Garden
 
 **Dungeon Splits**
  - Splits HUD with tick time and boss entry split
@@ -133,26 +93,10 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
  - Runs /tipall every 1000 s (adjustable)
  - Optionally hides the reply
 
-**Pane Click Guard**
- - Ignores clicks on blank glass panes, nothing sent to the server
- - Terminals and experiment games are left alone
-
-**Terminal Click Limit**
- - Holds back terminal clicks Hypixel would ignore (over 5 in 500 ms), also when holding Q
- - Needs Odin's Terminal Solver
-
 **Dungeon Map (A)**
  - Map in [Devonian](https://github.com/Synnerz/devonian)'s style, from Odin's map data
  - Hidden rooms (darkened), doors read from the world
  - Names and checkmarks in any installed font (`/ao mapfont`), player heads outlined in their class color, names while holding a leap
-
-**Dupe Class Alert**
- - Title, sound and chat when teammates share a class at run start
- - Optional party chat message
-
-**Shadow Assassin Notify**
- - Movable alert and SkyHanni's beep when a Shadow Assassin is about to teleport to you
- - Ignores the F3/M3 boss, which also uses the world border
 
 **Death Bow Swap**
  - M7 Storm as Archer: after shooting Death Bow, swaps to a hotbar slot then queues a loadout
@@ -166,6 +110,118 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
  - Miniboss rooms show every box, chat line tells the door and box count
  - Boxes hide once the room is cleared
 
+**Fixes**
+ - *Double Use Fix*
+   - Stops Blaze Daggers and fishing rods activating twice on a block
+ - *Disconnect Fix*
+   - Stops corrupted entity data (Tarantula slayer) from disconnecting you
+ - *Item Count Fix*
+   - Item counts on unstackable items in menus
+ - *Door Fix*
+   - Fixes iron door rotations in F7 P3 section 3
+ - *Mod Hider*
+   - Stops servers detecting mods through translation keys in signs and anvils
+ - *Escrow Fix* (from OdinClient)
+   - Reopens the AH or BZ after escrow closes it
+
+**Sounds**
+ - *Mono Audio* (from NoammAddons)
+   - All game audio through a single channel
+ - *Mute Magic Find* (in the Dungeon Sounds dropdown)
+   - Mutes the Magic Find drop jingle in dungeons
+ - *Quiet Ice Fill* (in the Dungeon Sounds dropdown)
+   - Plays only one ice break sound when many Ice Fill blocks break at once
+ - *Sound Manager* (from NoammAddons)
+   - Per-sound volume 0-200%, open with `/ao sounds`
+   - Recent tab shows last played pitch
+
+**Auto GFS**
+ - *Pearl Refill*
+   - Auto refill pearls after set amount
+ - *Auto GFS* (from OdinClient)
+   - Refills pearls, jerries, superbooms and leaps from sacks on dungeon start or a timer
+   - Gets an Architect's First Draft when you fail a puzzle
+ - *Kuudra Auto GFS*
+   - Get TAP/TWAP after build
+
+**Relics**
+ - *Relic Utils*
+   - Blocks placing an M7 relic at the wrong cauldron or anvil
+   - Blocks right clicking the SkyBlock menu for 2s (adjustable) after placing a relic
+ - *Relic Spawn Timer* (from NoammAddons)
+   - Countdown to the M7 relic spawn after Necron dies, in your class color
+
+**Clear Blocks**
+ - *I Hate Doors* (from NoammAddons)
+   - Entrance, wither and blood doors render as colored glass
+   - Render only, door stays solid
+ - *Fuck Diorite* (from OdinClient)
+   - Storm pillars as glass, pillar colored, one color or random
+   - Render only
+
+**Camera (A)**
+ - *Camera Tweaks* (from NoammAddons)
+   - Custom FOV, Slowness FOV change, Full Bright, no Blindness or Nausea
+ - *Camera Helper* (from OdinClient)
+   - Camera clip and custom third person distance
+ - *Time Changer* (from NoammAddons)
+   - Sky and fog drawn at a fixed time of day: presets, real time, or a custom tick
+
+**Garden**
+ - *Aloe Highlight*
+   - Highlights aloe by growth stage in the Garden
+ - *Jellybean Hider*
+   - Hides the Magic Jellybean mutation in the Garden
+   - Only renders blocks that can still be broken
+   - Configurable hide Y level
+
+**Leap Extras**
+ - *Leap Menu Extras* (from NoammAddons)
+   - Tints dead players (red) and teammates inside the F7/M7 core (green), rings the last wither door opener in Odin's Leap Menu
+   - Hides teammates you just leaped onto
+   - Map Leap: Dungeon Map (A) in the leap menu, click a teammate to leap (optionally after blood door opens)
+   - Map Leap Names: teammate names on the leap map, with or without the map's own name setting
+ - *Leap Counter* (from NoammAddons)
+   - HUD of teammates at your F7 P3 spot, title and sound when all are there
+
+**Alerts**
+ - *Shadow Assassin Notify*
+   - Movable alert and SkyHanni's beep when a Shadow Assassin is about to teleport to you
+   - Ignores the F3/M3 boss, which also uses the world border
+ - *Dupe Class Alert*
+   - Title, sound and chat when teammates share a class at run start
+   - Optional party chat message
+ - *Freeze Display* (from NoammAddons)
+   - How long the server has been frozen past a threshold
+
+**Chat**
+ - *Chat Rules*
+   - Per-message rules, edit with `/ao chatrules`
+   - Match by equals, contains, starts/ends with or regex
+   - Filter by dungeon class and island
+   - Show title, play sound, hide message, or run a command (other mods' too) after a delay
+   - Regex titles can show capture groups (`$1 [$2/$3]`)
+   - Import NoFrills rules with `/ao chatrules import`
+   - Pre-defined rules (old Chat Filter) that only hide spam, toggle on/off
+ - *Command Tooltip*
+   - Shows the command a chat message runs on hover
+
+**Guards**
+ - *Pane Click Guard*
+   - Ignores clicks on blank glass panes, nothing sent to the server
+   - Terminals and experiment games are left alone
+ - *Drop Guard*
+   - Block dropping items outside GUIs during F7/M7 terminals
+   - Hold override keybind to drop anyway
+ - *Terminal Click Limit*
+   - Holds back terminal clicks Hypixel would ignore (over 5 in 500 ms), also when holding Q
+   - Needs Odin's Terminal Solver
+
+**Cosmetic Disabler**
+ - Turns off custom names, sizes and emblems from other mods, each with its own toggle
+ - Odin dev names (also saves ~3.6% of render thread) and sizes
+ - skies-starred's donor names, emblems and sizes (Detexturify's kontext), if installed
+
 </details>
 
 <details>
@@ -178,10 +234,6 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
  - Undercut mode subtracts from lowest BIN
  - Enter confirms Create and Confirm menus
 
-**I Hate Doors**
- - Entrance, wither and blood doors render as colored glass
- - Render only, door stays solid
-
 **Hidden Mobs**
  - Reveals invisible Shadow Assassins, Fels and stealthy blood mobs
 
@@ -191,18 +243,8 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
 **Snappy Tappy**
  - Last pressed of two opposing movement keys wins
 
-**Mono Audio**
- - All game audio through a single channel
-
-**Sound Manager**
- - Per-sound volume 0-200%, open with `/ao sounds`
- - Recent tab shows last played pitch
-
 **Explosive Shot**
  - Explosive Shot damage per enemy
-
-**Leap Counter**
- - HUD of teammates at your F7 P3 spot, title and sound when all are there
 
 **Maxor's Crystals**
  - F7 P1 crystal respawn timer, placement time with PB, unplaced alert
@@ -219,33 +261,15 @@ Ported from [NoammAddons](https://github.com/Noamm9/NoammAddons) by Noamm9 (CC0-
  - Lava as see-through water, no lava fog
  - Everywhere, or only Catacombs, Kuudra and Crimson Isle
 
-**Freeze Display**
- - How long the server has been frozen past a threshold
-
-**Relic Spawn Timer**
- - Countdown to the M7 relic spawn after Necron dies, in your class color
-
-**Time Changer**
- - Sky and fog drawn at a fixed time of day: presets, real time, or a custom tick
-
 **No AOTV Paths**
  - No shovel sound (and, on 26.3, no ghost path block) when right-clicking grass or dirt with the Aspect of the Void
 
 **Custom Scoreboard**
  - Restyled scoreboard, optionally hides server ID
 
-**Leap Menu Extras**
- - Tints dead players (red) and teammates inside the F7/M7 core (green), rings the last wither door opener in Odin's Leap Menu
- - Hides teammates you just leaped onto
- - Map Leap: Dungeon Map (A) in the leap menu, click a teammate to leap (optionally after blood door opens)
- - Map Leap Names: teammate names on the leap map, with or without the map's own name setting
-
 **Dragon Extras**
  - M7 dragon aim marker, arrows-hit count per dragon
  - Needs Odin's Wither Dragons
-
-**Camera Tweaks**
- - Custom FOV, Slowness FOV change, Full Bright, no Blindness or Nausea
 
 **Rejoin Timer**
  - How long ago you were kicked from SkyBlock
@@ -294,47 +318,8 @@ From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (
 **Secret Hitboxes**
  - Full block or 1.8 hitboxes for levers, buttons, skulls and chests in dungeons
 
-**Fuck Diorite**
- - Storm pillars as glass, pillar colored, one color or random
- - Render only
-
-**Auto GFS**
- - Refills pearls, jerries, superbooms and leaps from sacks on dungeon start or a timer
- - Gets an Architect's First Draft when you fail a puzzle
-
-**Escrow Fix**
- - Reopens the AH or BZ after escrow closes it
-
 **Ghosts**
  - Shows invisible Dwarven Mines ghosts, hides their powered layer
-
-**Camera Helper**
- - Camera clip and custom third person distance
-
-</details>
-
-<details>
-<summary><b>Fixes</b></summary>
-
-**Door Fix**
- - Fixes iron door rotations in F7 P3 section 3
-
-**Mod Hider**
- - Stops servers detecting mods through translation keys in signs and anvils
-
-**Item Count Fix**
- - Item counts on unstackable items in menus
-
-**Disconnect Fix**
- - Stops corrupted entity data (Tarantula slayer) from disconnecting you
-
-**Double Use Fix**
- - Stops Blaze Daggers and fishing rods activating twice on a block
-
-**Cosmetic Disabler**
- - Turns off custom names, sizes and emblems from other mods, each with its own toggle
- - Odin dev names (also saves ~3.6% of render thread) and sizes
- - skies-starred's donor names, emblems and sizes (Detexturify's kontext), if installed
 
 </details>
 

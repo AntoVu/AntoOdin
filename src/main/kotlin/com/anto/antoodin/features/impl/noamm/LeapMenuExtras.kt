@@ -2,7 +2,6 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.features.impl.anto.CleanMap
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
@@ -12,7 +11,7 @@ import com.odtheking.odin.events.MessageEvent
 import com.odtheking.odin.events.ScreenEvent
 import com.odtheking.odin.events.core.EventPriority
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import com.odtheking.odin.features.impl.dungeon.LeapMenu
 import com.odtheking.odin.utils.Color
 import com.odtheking.odin.utils.Colors
@@ -39,10 +38,9 @@ import kotlin.math.abs
  *
  * @see com.anto.antoodin.mixin.mixins.EntityRendererMixin
  */
-object LeapMenuExtras : Module(
+object LeapMenuExtras : SubFeature(
     name = "Leap Menu Extras",
-    description = "Tints dead and in-core players, rings the last door opener in Odin's Leap Menu, and hides players after you leap.",
-    category = Skit.NOAMM
+    description = "Tints dead and in-core players, rings the last door opener in Odin's Leap Menu, and hides players after you leap."
 ) {
     private val tintDead by BooleanSetting("Tint Dead", true, desc = "Tints dead players red in the leap menu.")
     private val highlightDoorOpener by BooleanSetting("Highlight Door Opener", true, desc = "Draws a ring around the face of whoever opened the last wither door.")

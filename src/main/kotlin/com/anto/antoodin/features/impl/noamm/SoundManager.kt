@@ -2,12 +2,11 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.mixin.accessors.AbstractSoundInstanceAccessor
-import com.anto.antoodin.utils.Skit
 import com.odtheking.odin.clickgui.settings.impl.ActionSetting
 import com.odtheking.odin.clickgui.settings.impl.MapSetting
 import com.odtheking.odin.events.LevelEvent
 import com.odtheking.odin.events.core.on
-import com.odtheking.odin.features.Module
+import com.anto.antoodin.features.SubFeature
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.resources.Identifier
 import kotlin.math.roundToInt
@@ -16,10 +15,9 @@ import kotlin.math.roundToInt
  * @see com.anto.antoodin.mixin.mixins.AbstractSoundInstanceMixin
  * @see com.anto.antoodin.mixin.mixins.SoundManagerMixin
  */
-object SoundManager : Module(
+object SoundManager : SubFeature(
     name = "Sound Manager",
-    description = "Adjust the volume of every sound in the game. Open it with /ao sounds.",
-    category = Skit.NOAMM
+    description = "Adjust the volume of every sound in the game. Open it with /ao sounds."
 ) {
     private val openScreen by ActionSetting("Open Sound Manager", desc = "Opens the per-sound volume menu.") {
         mc.gui.setScreen(SoundManagerScreen(mc.gui.screen()))

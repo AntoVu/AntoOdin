@@ -1,5 +1,6 @@
 package com.anto.antoodin.mixin.mixins;
 
+import com.anto.antoodin.features.impl.anto.MuteMagicFind;
 import com.anto.antoodin.features.impl.anto.QuietIceFill;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -18,6 +19,6 @@ public class SoundManagerMixin {
 
     @Inject(method = "play", at = @At("HEAD"), cancellable = true)
     private void muteIceFill(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
-        if (QuietIceFill.shouldMute(instance)) cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
+        if (QuietIceFill.shouldMute(instance) || MuteMagicFind.shouldMute(instance)) cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
     }
 }

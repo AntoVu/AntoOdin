@@ -9,4 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface AbstractSoundInstanceAccessor {
     @Accessor("pitch")
     float getRequestedPitch();
+
+    @Accessor("volume")
+    float getRequestedVolume();
 }

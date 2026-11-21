@@ -262,6 +262,33 @@ object FastLeap : Module(
         return Pick(phase, value, name)
     }
 
+    /** When [phase] is active, for the editor's hover tooltips. Keep in step with the chat triggers in init. */
+    fun trigger(phase: Phase): String {
+        val carry = "for Section Carry Over (${sectionCarry}s)"
+        val once = "Used once per section (any leap counts), then the next row's target takes over. @melody: whoever opened melody first."
+        return when (phase) {
+            Phase.DOOR_OPENER -> "During clear, until Blood Leap (${bloodLeap}s) after \"The BLOOD DOOR has been opened!\". Leaps to whoever opened the last wither door. On/off only."
+            Phase.MAXOR_CRYSTALS -> "From \"[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!\" until Maxor's second laser."
+            Phase.SECOND_LASER -> "From Maxor's second laser hit: the second \"[BOSS] Maxor: THAT BEAM! IT HURTS! IT HURTS!!\" or \"[BOSS] Maxor: YOU TRICKED ME!\"."
+            Phase.BEFORE_LIGHTNING -> "From \"[BOSS] Storm: Don't boast about beating this simple minded Wither.\" until the lightning strike is over."
+            Phase.AFTER_LIGHTNING -> "${LIGHTNING_SECONDS}s after \"[BOSS] Storm: I'd be happy to show you what that's like!\" (when the lightning strike is over)."
+            Phase.FIRST_CRUSH -> "From Storm's first crush: \"[BOSS] Storm: Oof\" or \"[BOSS] Storm: Ouch, that hurt!\"."
+            Phase.STORM_DEAD -> "From \"[BOSS] Storm: I should have known that I stood no chance.\""
+            Phase.DURING_S1 -> "From \"[BOSS] Goldor: Who dares trespass into my domain?\" until section 1 completes. $once"
+            Phase.EE2 -> "When section 1 completes (the \"(n/n)\" terminal, device or lever line), $carry, then During S2."
+            Phase.DURING_S2 -> "After EE2 ends, until section 2 completes. $once"
+            Phase.EE3 -> "When section 2 completes, $carry, then During S3."
+            Phase.DURING_S3 -> "After EE3 ends, until section 3 completes. $once"
+            Phase.CORE -> "When section 3 completes, $carry, then During S4."
+            Phase.DURING_S4 -> "After Core ends, until \"The Core entrance is opening!\". $once"
+            Phase.RECORE -> "From \"The Core entrance is opening!\" for Goldor Death (${goldorDeath}s)."
+            Phase.GOLDOR_DEAD -> "Goldor Death (${goldorDeath}s) after the core opens (Goldor's death has no chat line), until Necron's line."
+            Phase.MIDWAY_NECRON -> "From \"[BOSS] Necron: That's a very impressive trick. I guess I'll have to handle this myself.\""
+            Phase.PICKUP_RELIC -> "When the M7 relics spawn after Necron dies. Needs Relics > Relic Spawn Timer on."
+            Phase.FIRST_DRAGON -> "When the first M7 dragon spawns, for the rest of the run."
+        }
+    }
+
     private fun isMelody(value: String) = value.startsWith("@m", true)
     private fun melodyFallback(value: String) = value.substringAfter('/', "").trim().takeIf { it.isNotEmpty() }
 

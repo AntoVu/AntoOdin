@@ -55,9 +55,15 @@ class FastLeapScreen(private val previous: Screen?, private val clazz: DungeonCl
         super.extractRenderState(guiGraphics, mouseX, mouseY, delta)
         guiGraphics.centeredText(font, "Fast Leap for ${clazz.name.lowercase()}: A/B/M/H/T, player name or @melody (During S#). Blank = off", width / 2, 8, -1)
         phases.forEachIndexed { i, phase ->
-            guiGraphics.text(font, phase.label, columnX(i / rows), rowY(i % rows) + 5, -1)
+            val x = columnX(i / rows)
+            val y = rowY(i % rows) + 5
+            guiGraphics.text(font, phase.label, x, y, -1)
+            // Hovering a title shows when that phase is active
+            if (mouseX in x..x + font.width(phase.label) && mouseY in y - 2..y + font.lineHeight)
+                guiGraphics.setTooltipForNextFrame(font, font.split(Component.literal(FastLeap.trigger(phase)), 250), mouseX, mouseY)
         }
         guiGraphics.centeredText(font, "Optional melody fallback: @melody/T leaps to the tank when nobody is in melody", width / 2, rowY(rows) + 32, 0xFF888888.toInt())
+        guiGraphics.centeredText(font, "Hover a phase name to see when it is active", width / 2, rowY(rows) + 44, 0xFF888888.toInt())
     }
 
     override fun onClose() {

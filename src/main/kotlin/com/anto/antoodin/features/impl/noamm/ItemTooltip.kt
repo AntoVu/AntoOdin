@@ -66,7 +66,9 @@ object ItemTooltip : Module(
         lines.add(Component.literal("§e$label: §6${format(unitPrice * quantity)}$stackInfo"))
     }
 
-    private fun format(price: Double) = "%,d".format(price.roundToLong())
+    // Cents only below 1,000, so crop prices show 2.5 / 0.5 and big prices stay short
+    private fun format(price: Double) =
+        if (price >= 1000) "%,d".format(price.roundToLong()) else "%.2f".format(Locale.US, price).trimEnd('0').trimEnd('.')
 
     // Item age idea from Devonian and NoFrills (GPL-3.0). Written from scratch for AntoOdin, no Devonian or NoFrills code is used.
     private val oldTimestampFormat = DateTimeFormatter.ofPattern("M/d/yy h:mm a", Locale.US)

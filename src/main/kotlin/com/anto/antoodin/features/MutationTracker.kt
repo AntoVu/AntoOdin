@@ -1,5 +1,6 @@
 package com.anto.antoodin.features
 
+import com.anto.antoodin.utils.Prices
 import com.odtheking.odin.OdinMod.mc
 import com.odtheking.odin.utils.handlers.schedule
 import com.odtheking.odin.utils.loreString
@@ -7,6 +8,7 @@ import com.odtheking.odin.utils.modMessage
 import com.odtheking.odin.utils.noControlCodes
 import com.odtheking.odin.utils.setClipboardContent
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import kotlin.math.roundToLong
 import kotlin.random.Random
 
 object MutationTracker {
@@ -17,11 +19,13 @@ object MutationTracker {
         "devourer" to listOf("pumpkin", "mushroom")
     )
 
-    private val NPC_PRICES = mapOf(
-        "wild_rose" to 4, "wheat" to 6, "seeds" to 3, "melon" to 2, "cocoa_beans" to 3, "moonflower" to 4,
-        "carrot" to 3, "sugar_cane" to 4, "pumpkin" to 10, "mushroom" to 10, "nether_wart" to 4,
-        "sunflower" to 4, "cactus" to 4, "potato" to 3
+    // SkyBlock item ids for the NPC sell prices from Hypixel's items API (Prices.npcSell); others are just uppercased
+    private val ITEM_IDS = mapOf(
+        "melon" to "MELON", "carrot" to "CARROT_ITEM", "potato" to "POTATO_ITEM", "cocoa_beans" to "INK_SACK-3",
+        "mushroom" to "RED_MUSHROOM", "nether_wart" to "NETHER_STALK", "sunflower" to "DOUBLE_PLANT"
     )
+
+    private fun npcPrice(crop: String): Double? = Prices.npcSell(ITEM_IDS[crop] ?: crop.uppercase())
 
     private const val COLLECTION_SLOT = 18
     private val collectionRegex = Regex("""([\d,]+)/[\d,]+""")
@@ -47,6 +51,7 @@ object MutationTracker {
         }
         overrideType = null
         busy = true
+        Prices.refresh() // loads NPC prices by the time tracking stops
         modMessage("§aTracker is now on, logging collections...")
         scan(crops) { values ->
             startType = type
@@ -62,7 +67,9 @@ object MutationTracker {
         busy = true
         scan(crops) { values ->
             val deltas = crops.associateWith { values.getValue(it) - startValues.getValue(it) }
-            val profit = deltas.entries.sumOf { (crop, delta) -> delta * (NPC_PRICES[crop] ?: 0) }
+            val missing = crops.filter { npcPrice(it) == null }
+            if (missing.isNotEmpty()) modMessage("§cNo NPC price for ${missing.joinToString()}, counted as 0.")
+            val profit = deltas.entries.sumOf { (crop, delta) -> delta * (npcPrice(crop) ?: 0.0) }.roundToLong()
             setClipboardContent(formatResult(deltas, profit))
             startType = null
             modMessage("§aTracking stopped, info copied to clipboard.")

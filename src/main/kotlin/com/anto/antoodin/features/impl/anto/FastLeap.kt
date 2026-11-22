@@ -36,6 +36,7 @@ import kotlin.random.Random
  *
  * Targets are per own class and per phase (edited in [FastLeapScreen]). The phase follows F7/M7 boss chat lines.
  * Each During S# target is used once (any leap counts, even a manual one), then that section's next target (EE2, EE3, Core, Recore) takes over.
+ * A blank During S# goes straight to that next target.
  */
 object FastLeap : Module(
     name = "Fast Leap",
@@ -100,6 +101,7 @@ object FastLeap : Module(
     private class Pick(val phase: Phase, val value: String, val name: String?)
 
     private var pending: Pick? = null
+    private var pendingItem: String? = null // leap item the pending click used; its cooldown message cancels it
     private var timeoutAt = 0L
     private var menuOpenedAt = 0L
     private var rolledDelay = 0L
@@ -162,8 +164,9 @@ object FastLeap : Module(
                 else -> {
                     // Hypixel's own leap message, so leaps from the menu by hand or from other mods use up During S# too
                     if (leapedRegex.matches(message)) currentPhase()?.takeIf { it in duringNext }?.let { usedDuring.add(it) }
-                    // On cooldown the menu never opens. Once it has, the message is about some other ability.
-                    if (menuOpenedAt == 0L && cooldownRegex.matches(message)) pending = null
+                    // On cooldown the menu never opens. Only counts while that same leap is held: Spirit Leap and
+                    // Infinileap have separate cooldowns, and other items (Ice Spray) send the same message.
+                    if (menuOpenedAt == 0L && cooldownRegex.matches(message) && heldItemId() == pendingItem) pending = null
                     melodyChatRegex.find(message)?.let { match ->
                         val clicks = melodyChatClicksRegex.find(message)?.groupValues?.let { g ->
                             g[1].toIntOrNull() ?: mapOf("33" to 1, "66" to 2, "67" to 2, "100" to 3)[g[2]]
@@ -215,7 +218,8 @@ object FastLeap : Module(
         }
     }
 
-    private fun holdingLeap() = mc.player?.mainHandItem?.itemId.let { it == "SPIRIT_LEAP" || it == "INFINITE_SPIRIT_LEAP" }
+    private fun heldItemId() = mc.player?.mainHandItem?.itemId
+    private fun holdingLeap() = heldItemId().let { it == "SPIRIT_LEAP" || it == "INFINITE_SPIRIT_LEAP" }
 
     /** Called from MinecraftMixin at startAttack HEAD; true cancels the attack. Blank target = left click passes through. */
     fun onLeftClick(): Boolean {
@@ -227,6 +231,7 @@ object FastLeap : Module(
             return true
         }
         pending = pick
+        pendingItem = heldItemId()
         timeoutAt = System.currentTimeMillis() + MENU_TIMEOUT_MS
         menuOpenedAt = 0L
         rightClick()
@@ -240,6 +245,8 @@ object FastLeap : Module(
         var phase = currentPhase() ?: return null
         if (phase in usedDuring) phase = duringNext.getValue(phase)
         val self = DungeonUtils.currentDungeonPlayer
+        // A blank During S# leaps to that section's next target (EE2, EE3, Core, Recore)
+        if (phase in duringNext && get(self.clazz, phase).isBlank()) phase = duringNext.getValue(phase)
         var value = get(self.clazz, phase).takeIf { it.isNotBlank() } ?: return null
         if (isMelody(value) && phase in duringNext && melodyPassed()) {
             phase = duringNext.getValue(phase)
@@ -265,7 +272,7 @@ object FastLeap : Module(
     /** When [phase] is active, for the editor's hover tooltips. Keep in step with the chat triggers in init. */
     fun trigger(phase: Phase): String {
         val carry = "for Section Carry Over (${sectionCarry}s)"
-        val once = "Used once per section (any leap counts), then the next row's target takes over. @melody: whoever opened melody first."
+        val once = "Used once per section (any leap counts), then the next row's target takes over. Blank: leaps to the next row's target. @melody: whoever opened melody first."
         return when (phase) {
             Phase.DOOR_OPENER -> "During clear, until Blood Leap (${bloodLeap}s) after \"The BLOOD DOOR has been opened!\". Leaps to whoever opened the last wither door. On/off only."
             Phase.MAXOR_CRYSTALS -> "From \"[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!\" until Maxor's second laser."

@@ -52,7 +52,7 @@ object Highlight : Module(
     private val starDropdown by DropdownSetting("Starred Mobs", desc = "Starred dungeon mobs, colored by type.")
     private val highlightStar by BooleanSetting("Highlight Starred Mobs", true, desc = "Highlights starred dungeon mobs.").withDependency { starDropdown }
     private val starredTracer by BooleanSetting("Starred Tracer", false, desc = "Draws a tracer to starred mobs.").withDependency { starDropdown && highlightStar }
-    private val tracerRoomOnly by BooleanSetting("Tracer Current Room Only", true, desc = "Only traces starred mobs in the room you are in.").withDependency { starDropdown && highlightStar && starredTracer }
+    private val tracerRoomOnly by BooleanSetting("Current Room Only", true, desc = "Only traces starred mobs in the room you are in.").withDependency { starDropdown && highlightStar && starredTracer }
 
     // Each type gets a toggle and a color under the Starred Mobs dropdown
     class StarType(name: String, default: Color, desc: String) {
@@ -69,7 +69,7 @@ object Highlight : Module(
     private val shadowAssassin = StarType("Shadow Assassin", Color(255, 0, 0), "Shadow Assassins, visible or not.")
     private val skeletonMaster = StarType("Skeleton Master", Color(255, 128, 0), "Starred Skeleton Masters.")
     private val starredMinisOnly by BooleanSetting("Starred Minibosses Only", true, desc = "Only highlights minibosses (Shadow Assassins included) that are starred.").withDependency { starDropdown && highlightStar }
-    private val alwaysShadowAssassin by BooleanSetting("Always Show Shadow Assassins", true, desc = "Highlights every Shadow Assassin, even with Starred Minibosses Only. Unstarred ones get no tracer.").withDependency { starDropdown && highlightStar && starredMinisOnly }
+    private val alwaysShadowAssassin by BooleanSetting("Always Show SA", true, desc = "Highlights every Shadow Assassin, even with Starred Minibosses Only. Unstarred ones get no tracer.").withDependency { starDropdown && highlightStar && starredMinisOnly }
 
     // starred = matched by its ✯ name tag; fake-player minis are found by name with no star check
     private class Tracked(val type: StarType, val starred: Boolean)

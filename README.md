@@ -306,8 +306,10 @@ From skies-starred's [OdinClient](https://github.com/skies-starred/OdinClient) (
  - Separate colors for bows, pearls and Rapid Fire
 
 **Highlight (C)**
- - ESP and tracer for F7 withers, dungeon bats and mobs from `/ao highlight`
- - Starred mobs and teammate glow stay with Odin's Highlight
+ - Starred dungeon mobs colored by type (Starred, Chunky, Fels, Miniboss, Shadow Assassin, Skeleton Master), each with its own toggle
+ - ESP and tracer for F7 withers (Goldor tracer in P3), dungeon bats and mobs from `/ao highlight`
+ - Render as Filled, Outline, Filled Outline or Glow (Minecraft's glow outline, always through walls)
+ - Hide non-starred names and Teammate Class Glow (replaces Odin's Highlight)
 
 **Spirit Bear (C)**
  - Odin's Spirit Bear HUD plus highlight and tracer (replaces Odin's)

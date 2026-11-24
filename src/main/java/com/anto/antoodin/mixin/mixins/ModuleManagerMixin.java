@@ -6,6 +6,7 @@ import com.odtheking.odin.features.ModuleManager;
 import com.odtheking.odin.features.impl.boss.LividSolver;
 import com.odtheking.odin.features.impl.boss.SpiritBear;
 import com.odtheking.odin.features.impl.dungeon.DoorHighlight;
+import com.odtheking.odin.features.impl.dungeon.Highlight;
 import com.odtheking.odin.features.impl.skyblock.LoadoutKeybinds;
 import com.odtheking.odin.features.impl.skyblock.WardrobeKeybinds;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +21,7 @@ public class ModuleManagerMixin {
     private static Module[] filterModules(Module[] modules, ModuleConfig config) {
         return Arrays.stream(modules)
                 .filter(module -> !(module instanceof WardrobeKeybinds || module instanceof LoadoutKeybinds || module instanceof DoorHighlight
-                        || module instanceof LividSolver || module instanceof SpiritBear))
+                        || module instanceof LividSolver || module instanceof SpiritBear || module instanceof Highlight))
                 .toArray(Module[]::new);
     }
 }

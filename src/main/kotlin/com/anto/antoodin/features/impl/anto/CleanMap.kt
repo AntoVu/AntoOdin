@@ -113,6 +113,9 @@ object CleanMap : Module(
         SIZE to SIZE
     }
 
+    /** HUD position and scale, for Leap Menu Extras' HUD Map. */
+    val hudElement get() = hud
+
     /** Teammate marker half size in map units, for clicking them (Leap Menu Extras' Map Leap). */
     val markerRadius get() = max(2f * headScale.toFloat(), 3f)
 

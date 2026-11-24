@@ -54,7 +54,8 @@
     "accessors.KeyMappingAccessor",
     "accessors.GuiAccessor",
     "accessors.AbstractSoundInstanceAccessor",
-    "accessors.CustomDataAccessor"
+    "accessors.CustomDataAccessor",
+    "accessors.MouseHandlerAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

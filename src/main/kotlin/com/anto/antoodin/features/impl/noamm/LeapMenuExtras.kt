@@ -2,6 +2,8 @@
 package com.anto.antoodin.features.impl.noamm
 
 import com.anto.antoodin.features.impl.anto.CleanMap
+import com.anto.antoodin.mixin.accessors.MouseHandlerAccessor
+import com.mojang.blaze3d.platform.InputConstants
 import com.odtheking.odin.clickgui.settings.RenderableSetting.Companion.withDependency
 import com.odtheking.odin.clickgui.settings.impl.BooleanSetting
 import com.odtheking.odin.clickgui.settings.impl.ColorSetting
@@ -35,6 +37,7 @@ import kotlin.math.abs
  *
  * Map Leap draws Dungeon Map (A) instead of the tiles (Odin's tile draw is scissored to nothing); clicking a teammate's marker leaps to them. Odin's click handler
  * still runs (cancelling doesn't stop it), so `LeapMenuMixin` skips its quadrant leap while the map is shown.
+ * HUD Map keeps Odin's tiles and draws the map on top of them at Dungeon Map (A)'s HUD spot instead; only clicks on the map skip the quadrant leap.
  *
  * @see com.anto.antoodin.mixin.mixins.EntityRendererMixin
  */
@@ -49,8 +52,10 @@ object LeapMenuExtras : SubFeature(
     private val hideAfterLeap by BooleanSetting("Hide After Leap", true, desc = "Hides teammates standing on you right after you leap to them.")
     private val hideTime by NumberSetting("Hide Time", 3.5f, 0.5..5.0, 0.5f, desc = "How long to hide them for.", unit = "s").withDependency { hideAfterLeap }
     private val mapLeap by BooleanSetting("Map Leap", false, desc = "Shows Dungeon Map (A) in the leap menu during clear. Click a teammate on it to leap to them. Keybinds still work.")
-    private val mapLeapScale by NumberSetting("Map Leap Scale", 2.5f, 1.0..5.0, 0.1f, desc = "Size of the map in the leap menu.", unit = "x").withDependency { mapLeap }
+    private val mapLeapScale by NumberSetting("Map Leap Scale", 2.5f, 1.0..5.0, 0.1f, desc = "Size of the map in the leap menu.", unit = "x").withDependency { mapLeap && !mapLeapHud }
     private val mapLeapNames by BooleanSetting("Map Leap Names", true, desc = "Shows teammate names on the leap map. Size comes from Dungeon Map (A)'s Name Size.").withDependency { mapLeap }
+    private val mapLeapHud by BooleanSetting("HUD Map", false, desc = "Keeps Odin's leap tiles and draws Dungeon Map (A) on top of them at its HUD spot, clickable.").withDependency { mapLeap }
+    private val centerMouse by BooleanSetting("Center Mouse", true, desc = "Moves the mouse to the center of the HUD Map when the leap menu opens.").withDependency { mapLeap && mapLeapHud }
     private val mapLeapAfterBlood by BooleanSetting("After Blood Only", false, desc = "Uses the normal leap tiles until the blood door is opened, then the map.").withDependency { mapLeap }
 
     private val deadTint = Color(255, 0, 0, 0.2f)
@@ -69,6 +74,8 @@ object LeapMenuExtras : SubFeature(
     private var bloodOpened = false
     private var coreOpened = false
     private var clipping = false
+    private var overHudMap = false
+    private var warpedScreen: Screen? = null
 
     // Mirrors Odin's per-tile hover animation so the overlay grows with the tile
     private val hoverProgress = List(4) { Animatable(0f) }
@@ -103,11 +110,26 @@ object LeapMenuExtras : SubFeature(
 
         on<ScreenEvent.Render>(EventPriority.HIGH) {
             if (!LeapMenu.enabled || !isLeapScreen(screen)) return@on
-            if (mapLeapShown()) drawMapLeap(this) else drawTints(this)
+            if (mapLeapShown()) {
+                val scale = mapLeapScale
+                drawMapLeap(this, (mc.window.guiScaledWidth - 100 * scale) / 2, (mc.window.guiScaledHeight - 100 * scale) / 2, scale, true)
+                return@on
+            }
+            drawTints(this)
+            if (!hudLeapShown()) return@on
+            val hud = CleanMap.hudElement
+            val size = 100 * hud.scale
+            // Start the mouse at the map's center, once per opened menu
+            if (centerMouse && screen !== warpedScreen) {
+                warpedScreen = screen
+                moveMouse(hud.x + size / 2, hud.y + size / 2)
+            }
+            overHudMap = mouseX >= hud.x && mouseX <= hud.x + size && mouseY >= hud.y && mouseY <= hud.y + size
+            drawMapLeap(this, hud.x.toFloat(), hud.y.toFloat(), hud.scale, false)
         }
 
         on<ScreenEvent.MouseClick> {
-            if (!mapLeapShown()) return@on
+            if (!mapLeapShown() && !hudLeapShown()) return@on
             val name = mapLeapTarget ?: return@on
             val chest = screen as? AbstractContainerScreen<*> ?: return@on
             if (DungeonUtils.leapTeammates.find { it.name == name }?.isDead == true) return@on modMessage("This player is dead, can't leap.")
@@ -121,20 +143,38 @@ object LeapMenuExtras : SubFeature(
     private fun isLeapScreen(screen: Screen?): Boolean =
         (screen as? AbstractContainerScreen<*>)?.title?.string.let { it == "Spirit Leap" || it == "Teleport to Player" }
 
-    /** Map Leap replaces the tiles in clear; in boss the map is hidden, so Odin's tiles are used. */
-    fun mapLeapShown() = enabled && mapLeap && (!mapLeapAfterBlood || bloodOpened) && LeapMenu.enabled &&
+    /** Map Leap in clear; in boss the map is hidden, so Odin's tiles are used. */
+    private fun mapLeapActive() = enabled && mapLeap && (!mapLeapAfterBlood || bloodOpened) && LeapMenu.enabled &&
         DungeonUtils.inDungeons && !DungeonUtils.inBoss && isLeapScreen(mc.gui.screen())
 
-    private fun drawMapLeap(event: ScreenEvent.Render) {
+    /** The full-screen map that replaces Odin's tiles. */
+    fun mapLeapShown() = mapLeapActive() && !mapLeapHud
+
+    /** The map at its HUD spot, drawn over Odin's tiles. */
+    private fun hudLeapShown() = mapLeapActive() && mapLeapHud
+
+    /** Whether Odin's quadrant leap should be skipped for this click (LeapMenuMixin). */
+    fun blocksQuadrantLeap() = mapLeapShown() || (hudLeapShown() && overHudMap)
+
+    // Moves the cursor to a GUI position. The release call just warps it, since screens already show the cursor.
+    private fun moveMouse(guiX: Float, guiY: Float) {
+        val window = mc.window
+        val x = guiX.toDouble() * window.screenWidth / window.guiScaledWidth
+        val y = guiY.toDouble() * window.screenHeight / window.guiScaledHeight
+        (mc.mouseHandler as MouseHandlerAccessor).apply { setXpos(x); setYpos(y) }
+        //? if >= 26.3 {
+        /*InputConstants.releaseMouse(window, x, y)
+        *///?} else {
+        InputConstants.grabOrReleaseMouse(window, InputConstants.CURSOR_NORMAL, x, y)
+        //?}
+    }
+
+    /** Draws the map at [ox], [oy] in a new stratum (above Odin's tiles), [dim] darkens the screen behind it. */
+    private fun drawMapLeap(event: ScreenEvent.Render, ox: Float, oy: Float, scale: Float, dim: Boolean) {
         val graphics = event.guiGraphics
-        val width = mc.window.guiScaledWidth
-        val height = mc.window.guiScaledHeight
-        val scale = mapLeapScale
-        val ox = (width - 100 * scale) / 2
-        val oy = (height - 100 * scale) / 2
 
         graphics.nextStratum()
-        graphics.fill(0, 0, width, height, 0xD0000000.toInt())
+        if (dim) graphics.fill(0, 0, mc.window.guiScaledWidth, mc.window.guiScaledHeight, 0xD0000000.toInt())
         graphics.pose().pushMatrix()
         graphics.pose().translate(ox, oy)
         graphics.pose().scale(scale)

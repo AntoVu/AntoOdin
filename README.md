@@ -181,6 +181,7 @@ Built for two Minecraft versions: grab `anto-odin-<version>+26.2.jar` (Odin 0.3.
    - Hides teammates you just leaped onto
    - Map Leap: Dungeon Map (A) in the leap menu, click a teammate to leap (optionally after blood door opens)
    - Map Leap Names: teammate names on the leap map, with or without the map's own name setting
+   - HUD Map: keeps Odin's leap tiles and makes Dungeon Map (A) clickable at its HUD spot, drawn above the tiles; Center Mouse starts the cursor at the map's center
  - *Leap Counter* (from NoammAddons)
    - HUD of teammates at your F7 P3 spot, title and sound when all are there
 
